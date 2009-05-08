@@ -4,7 +4,7 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 Name:           couchdb
 Version:        0.9.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -109,8 +109,8 @@ fi
 %defattr(-,root,root,-)
 %doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README THANKS
 %dir %{_sysconfdir}/couchdb
-%config(noreplace) %{_sysconfdir}/couchdb/default.ini
-%config(noreplace) %{_sysconfdir}/couchdb/local.ini
+%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/default.ini
+%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/local.ini
 #%config(noreplace) %{_sysconfdir}/default/couchdb
 %config(noreplace) %{_sysconfdir}/sysconfig/couchdb
 %config(noreplace) %{_sysconfdir}/logrotate.d/couchdb
@@ -125,6 +125,10 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Tue Apr 21 2009 Allisson Azevedo <allisson@gmail.com> 0.9.0-2
+- Fix permission for ini files.
+- Fix couchdb.init start process.
+
 * Tue Apr 21 2009 Allisson Azevedo <allisson@gmail.com> 0.9.0-1
 - Update to 0.9.0.
 

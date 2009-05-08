@@ -26,8 +26,6 @@
 exec="/usr/bin/couchdb"
 prog="couchdb"
 config="/etc/sysconfig/couchdb"
-couchdb_pid_file="/var/run/couchdb/couchdb.pid"
-couchdb_ini_file="/etc/couchdb/default.ini"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
@@ -37,7 +35,7 @@ start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
     echo -n $"Starting $prog: "
-    daemon --user couchdb "$exec -b -c $couchdb_ini_file"
+    daemon --user couchdb "$exec -b"
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
@@ -46,8 +44,7 @@ start() {
 
 stop() {
     echo -n $"Stopping $prog: "
-    # stop it here, often "killproc $prog"
-    daemon --user couchdb "$exec -d  -p $couchdb_pid_file"
+    daemon --user couchdb "$exec -d"
     retval=$?
     echo
     [ $retval -eq 0 ] && rm -f $lockfile
