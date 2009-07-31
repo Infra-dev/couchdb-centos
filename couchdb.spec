@@ -3,8 +3,8 @@
 %define couchdb_group couchdb
 %define couchdb_home %{_localstatedir}/lib/couchdb
 Name:           couchdb
-Version:        0.9.0
-Release:        3%{?dist}
+Version:        0.9.1
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -12,14 +12,14 @@ License:        ASL 2.0
 URL:            http://incubator.apache.org/couchdb/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{version}.tar.gz
 Source1:        %{name}.init
-Patch0:         couchdb-0.9.0-pid.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  erlang 
 BuildRequires:  libicu-devel 
 BuildRequires:  js-devel 
 BuildRequires:  help2man
-BuildRequires:  libcurl-devel
+#BuildRequires:  libcurl-devel
+BuildRequires:  curl-devel
 Requires:       erlang 
 #Requires:       %{_bindir}/icu-config
 Requires:       libicu-devel
@@ -42,7 +42,9 @@ JavaScript acting as the default view definition language.
 
 %prep
 %setup -q -n %{tarname}-%{version}
-%patch0 -p1 -b .pid
+# Patch pid location
+sed -i 's/%localstatedir%\/run\/couchdb.pid/%localstatedir%\/run\/couchdb\/couchdb.pid/g' \
+bin/couchdb.tpl.in
 
 
 %build
@@ -74,8 +76,10 @@ rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/default
 
 # Remove unecessary files
 rm $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/couchdb
-rm $RPM_BUILD_ROOT%{_libdir}/couchdb/erlang/lib/couch-0.9.0/priv/lib/couch_erl_driver.la
 rm -rf  $RPM_BUILD_ROOT%{_datadir}/doc/couchdb
+
+# clean-up .la archives
+find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %clean
@@ -125,6 +129,10 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Thu Jul 30 2009 Allisson Azevedo <allisson@gmail.com> 0.9.1-1
+- Update to 0.9.1.
+- Drop couchdb-0.9.0-pid.patch.
+
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
