@@ -4,12 +4,12 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 Name:           couchdb
 Version:        0.9.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
-URL:            http://incubator.apache.org/couchdb/
+URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{version}.tar.gz
 Source1:        %{name}.init
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -129,6 +129,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Sun Oct 04 2009 Rahul Sundaram <sundaram@fedoraproject.org> 0.9.1-2
+- Change url. Fixes rhbz#525949
+
 * Thu Jul 30 2009 Allisson Azevedo <allisson@gmail.com> 0.9.1-1
 - Update to 0.9.1.
 - Drop couchdb-0.9.0-pid.patch.
