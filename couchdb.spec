@@ -3,8 +3,8 @@
 %define couchdb_group couchdb
 %define couchdb_home %{_localstatedir}/lib/couchdb
 Name:           couchdb
-Version:        0.9.1
-Release:        2%{?dist}
+Version:        0.10.0
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -14,12 +14,13 @@ Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{versi
 Source1:        %{name}.init
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  erlang 
+BuildRequires:  erlang
 BuildRequires:  libicu-devel 
 BuildRequires:  js-devel 
 BuildRequires:  help2man
 #BuildRequires:  libcurl-devel
 BuildRequires:  curl-devel
+
 Requires:       erlang 
 #Requires:       %{_bindir}/icu-config
 Requires:       libicu-devel
@@ -43,8 +44,8 @@ JavaScript acting as the default view definition language.
 %prep
 %setup -q -n %{tarname}-%{version}
 # Patch pid location
-sed -i 's/%localstatedir%\/run\/couchdb.pid/%localstatedir%\/run\/couchdb\/couchdb.pid/g' \
-bin/couchdb.tpl.in
+#sed -i 's/%localstatedir%\/run\/couchdb.pid/%localstatedir%\/run\/couchdb\/couchdb.pid/g' \
+#bin/couchdb.tpl.in
 
 
 %build
@@ -67,6 +68,12 @@ mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/run/couchdb
 
 # Create /var/lib/couchdb
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/couchdb
+
+# Create /etc/couchdb/default.d
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/couchdb/default.d
+
+# Create /etc/couchdb/local.d
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/couchdb/local.d
 
 ## Use /etc/sysconfig instead of /etc/default
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
@@ -113,6 +120,8 @@ fi
 %defattr(-,root,root,-)
 %doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README THANKS
 %dir %{_sysconfdir}/couchdb
+%dir %{_sysconfdir}/couchdb/local.d
+%dir %{_sysconfdir}/couchdb/default.d
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/default.ini
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/local.ini
 #%config(noreplace) %{_sysconfdir}/default/couchdb
@@ -129,6 +138,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Thu Oct 15 2009 Allisson Azevedo <allisson@gmail.com> 0.10.0-1
+- Update to 0.10.0.
+
 * Sun Oct 04 2009 Rahul Sundaram <sundaram@fedoraproject.org> 0.9.1-2
 - Change url. Fixes rhbz#525949
 
