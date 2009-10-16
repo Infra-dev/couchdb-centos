@@ -4,7 +4,7 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 Name:           couchdb
 Version:        0.10.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -12,6 +12,7 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{version}.tar.gz
 Source1:        %{name}.init
+Patch0:         %{name}-%{version}-initenabled.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  erlang
@@ -43,9 +44,11 @@ JavaScript acting as the default view definition language.
 
 %prep
 %setup -q -n %{tarname}-%{version}
+%patch0 -p1 -b .initenabled
 # Patch pid location
 #sed -i 's/%localstatedir%\/run\/couchdb.pid/%localstatedir%\/run\/couchdb\/couchdb.pid/g' \
 #bin/couchdb.tpl.in
+
 
 
 %build
@@ -138,6 +141,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Thu Oct 15 2009 Allisson Azevedo <allisson@gmail.com> 0.10.0-2
+- Added patch to force init_enabled=true in configure.ac.
+
 * Thu Oct 15 2009 Allisson Azevedo <allisson@gmail.com> 0.10.0-1
 - Update to 0.10.0.
 
