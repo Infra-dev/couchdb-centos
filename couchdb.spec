@@ -4,7 +4,7 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 Name:           couchdb
 Version:        0.10.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -141,6 +141,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Fri Apr 02 2010 Caolán McNamara <caolanm@redhat.com> 0.10.0-3
+- rebuild for icu 4.4
+
 * Thu Oct 15 2009 Allisson Azevedo <allisson@gmail.com> 0.10.0-2
 - Added patch to force init_enabled=true in configure.ac.
 
