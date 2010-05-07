@@ -4,3 +4,4 @@ couchdb-0_9_0-2_fc10:HEAD:couchdb-0.9.0-2.fc10.src.rpm:1241742181
 couchdb-0_9_1-1_fc11:HEAD:couchdb-0.9.1-1.fc11.src.rpm:1249005969
 couchdb-0_10_0-1_fc11:HEAD:couchdb-0.10.0-1.fc11.src.rpm:1255646329
 couchdb-0_10_0-2_fc11:HEAD:couchdb-0.10.0-2.fc11.src.rpm:1255651984
+couchdb-0_10_2-1_fc12:HEAD:couchdb-0.10.2-1.fc12.src.rpm:1273240101

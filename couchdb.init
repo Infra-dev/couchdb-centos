@@ -2,7 +2,7 @@
 #
 # couchdb This is the init script for starting up the CouchDB server
 #
-# chkconfig: - 20 80
+# chkconfig: - 26 74
 # description: Starts and stops the CouchDB daemon that handles \
 #	       all database requests.
 

@@ -2,9 +2,10 @@
 %define couchdb_user couchdb
 %define couchdb_group couchdb
 %define couchdb_home %{_localstatedir}/lib/couchdb
+
 Name:           couchdb
-Version:        0.10.0
-Release:        3%{?dist}
+Version:        0.10.2
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -12,18 +13,19 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{version}.tar.gz
 Source1:        %{name}.init
-Patch0:         %{name}-%{version}-initenabled.patch
+Patch0:         %{name}-0.10.0-initenabled.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  erlang
-BuildRequires:  libicu-devel 
-BuildRequires:  js-devel 
+BuildRequires:  libicu-devel
+BuildRequires:  js-devel
 BuildRequires:  help2man
-#BuildRequires:  libcurl-devel
 BuildRequires:  curl-devel
+BuildRequires:	autoconf
+BuildRequires:	libtool
 
-Requires:       erlang 
-#Requires:       %{_bindir}/icu-config
+Requires:       erlang
+# For %{_bindir}/icu-config
 Requires:       libicu-devel
 
 #Initscripts
@@ -45,6 +47,7 @@ JavaScript acting as the default view definition language.
 %prep
 %setup -q -n %{tarname}-%{version}
 %patch0 -p1 -b .initenabled
+touch -r configure.ac.* configure.ac
 # Patch pid location
 #sed -i 's/%localstatedir%\/run\/couchdb.pid/%localstatedir%\/run\/couchdb\/couchdb.pid/g' \
 #bin/couchdb.tpl.in
@@ -127,10 +130,8 @@ fi
 %dir %{_sysconfdir}/couchdb/default.d
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/default.ini
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/local.ini
-#%config(noreplace) %{_sysconfdir}/default/couchdb
 %config(noreplace) %{_sysconfdir}/sysconfig/couchdb
 %config(noreplace) %{_sysconfdir}/logrotate.d/couchdb
-#%config %{_sysconfdir}/rc.d/couchdb
 %{_initrddir}/couchdb
 %{_bindir}/*
 %{_libdir}/couchdb
@@ -141,6 +142,10 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Fri May  7 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-1
+- Update to 0.10.2 (resolves rhbz #578580 and #572176)
+- Fixed chkconfig priority (see rhbz #579568)
+
 * Fri Apr 02 2010 Caolán McNamara <caolanm@redhat.com> 0.10.0-3
 - rebuild for icu 4.4
 
