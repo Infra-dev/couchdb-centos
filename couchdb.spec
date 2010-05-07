@@ -5,7 +5,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -21,8 +21,6 @@ BuildRequires:  libicu-devel
 BuildRequires:  js-devel
 BuildRequires:  help2man
 BuildRequires:  curl-devel
-BuildRequires:	autoconf
-BuildRequires:	libtool
 
 Requires:       erlang
 # For %{_bindir}/icu-config
@@ -37,11 +35,11 @@ Requires(pre): shadow-utils
 
 
 %description
-Apache CouchDB is a distributed, fault-tolerant and schema-free 
-document-oriented database accessible via a RESTful HTTP/JSON API. 
-Among other features, it provides robust, incremental replication 
-with bi-directional conflict detection and resolution, and is 
-queryable and indexable using a table-oriented view engine with 
+Apache CouchDB is a distributed, fault-tolerant and schema-free
+document-oriented database accessible via a RESTful HTTP/JSON API.
+Among other features, it provides robust, incremental replication
+with bi-directional conflict detection and resolution, and is
+queryable and indexable using a table-oriented view engine with
 JavaScript acting as the default view definition language.
 
 %prep
@@ -142,6 +140,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Fri May  7 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-2
+- Remove useless BuildRequires
+
 * Fri May  7 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-1
 - Update to 0.10.2 (resolves rhbz #578580 and #572176)
 - Fixed chkconfig priority (see rhbz #579568)
