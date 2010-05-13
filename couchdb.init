@@ -27,15 +27,29 @@ exec="/usr/bin/couchdb"
 prog="couchdb"
 config="/etc/sysconfig/couchdb"
 
+# default values
+COUCHDB_USER=couchdb
+COUCHDB_STDOUT_FILE=/dev/null
+COUCHDB_STDERR_FILE=/dev/null
+COUCHDB_RESPAWN_TIMEOUT=0
+COUCHDB_OPTIONS=
+
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
+pidfile=/var/run/couchdb/couchdb.pid
 lockfile=/var/lock/subsys/couchdb
 
 start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
     echo -n $"Starting $prog: "
-    daemon --user couchdb "$exec -b"
+    rh_status_q && echo -n "already running" && warning && echo && exit 0
+    daemon --user $COUCHDB_USER "$exec \
+	-r $COUCHDB_RESPAWN_TIMEOUT \
+	-o $COUCHDB_STDOUT_FILE \
+	-e $COUCHDB_STDERR_FILE \
+	-p $pidfile \
+	$COUCHDB_OPTIONS -b >/dev/null"
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
@@ -44,6 +58,9 @@ start() {
 
 stop() {
     echo -n $"Stopping $prog: "
+    if ! rh_status_q ; then
+	echo -n "already stopped" && warning && echo && exit 0
+    fi
     daemon --user couchdb "$exec -d"
     retval=$?
     echo
@@ -76,11 +93,9 @@ rh_status_q() {
 
 case "$1" in
     start)
-        rh_status_q && exit 0
         $1
         ;;
     stop)
-        rh_status_q || exit 0
         $1
         ;;
     restart)

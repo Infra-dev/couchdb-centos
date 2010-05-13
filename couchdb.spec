@@ -5,7 +5,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -14,6 +14,7 @@ URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{version}.tar.gz
 Source1:        %{name}.init
 Patch0:         %{name}-0.10.0-initenabled.patch
+Patch1:         %{name}-0.10.2-fix-install-lib-location.diff
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  erlang
@@ -45,11 +46,9 @@ JavaScript acting as the default view definition language.
 %prep
 %setup -q -n %{tarname}-%{version}
 %patch0 -p1 -b .initenabled
-touch -r configure.ac.* configure.ac
-# Patch pid location
-#sed -i 's/%localstatedir%\/run\/couchdb.pid/%localstatedir%\/run\/couchdb\/couchdb.pid/g' \
-#bin/couchdb.tpl.in
-
+%patch1 -p0 -b .fix_lib_path
+touch -r configure.ac.initenabled configure.ac
+touch -r configure.fix_lib_path configure
 
 
 %build
@@ -92,6 +91,8 @@ rm -rf  $RPM_BUILD_ROOT%{_datadir}/doc/couchdb
 # clean-up .la archives
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
+# fix respawn timeout to match default value
+sed -i s,^COUCHDB_RESPAWN_TIMEOUT=5,COUCHDB_RESPAWN_TIMEOUT=0,g $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/couchdb
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -132,7 +133,7 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/couchdb
 %{_initrddir}/couchdb
 %{_bindir}/*
-%{_libdir}/couchdb
+%{_libdir}/erlang/lib/*
 %{_datadir}/couchdb
 %{_mandir}/man1/*
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/couchdb
@@ -140,6 +141,10 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Thu May 13 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-3
+- Fixed init-script to use /etc/sysconfig/couchdb values (see rhbz #583004)
+- Fixed installation location of beam-files (moved to erlang directory)
+
 * Fri May  7 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-2
 - Remove useless BuildRequires
 
