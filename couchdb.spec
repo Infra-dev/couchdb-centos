@@ -5,7 +5,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -15,6 +15,7 @@ Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{versi
 Source1:        %{name}.init
 Patch0:         %{name}-0.10.0-initenabled.patch
 Patch1:         %{name}-0.10.2-fix-install-lib-location.diff
+Patch2:		%{name}-0.10.2-remove_bundled_oauth.diff
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  erlang
@@ -24,6 +25,7 @@ BuildRequires:  help2man
 BuildRequires:  curl-devel
 
 Requires:       erlang
+Requires:	erlang-oauth
 # For %{_bindir}/icu-config
 Requires:       libicu-devel
 
@@ -47,6 +49,8 @@ JavaScript acting as the default view definition language.
 %setup -q -n %{tarname}-%{version}
 %patch0 -p1 -b .initenabled
 %patch1 -p0 -b .fix_lib_path
+%patch2 -p0 -b .remove_bundled_oauth
+rm -rf src/erlang-oauth
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
 
@@ -141,6 +145,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Fri May 14 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-4
+- Use system-wide erlang-oauth instead of bundled copy
+
 * Thu May 13 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-3
 - Fixed init-script to use /etc/sysconfig/couchdb values (see rhbz #583004)
 - Fixed installation location of beam-files (moved to erlang directory)
