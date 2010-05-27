@@ -1,0 +1,34 @@
+From 63afe8dc321ed5c418e28b12fc831f19bcf532e7 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Thu, 27 May 2010 15:18:29 +0400
+Subject: [PATCH 2/4] Install into erllibdir by default
+
+---
+ configure |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure b/configure
+index f1a2c03..5309998 100755
+--- a/configure
++++ b/configure
+@@ -12069,7 +12069,7 @@ localdatadir=${datadir}/${package_identifier}
+ 
+ localdocdir=${datadir}/doc/${package_identifier}
+ 
+-locallibdir=${libdir}/${package_identifier}
++locallibdir=${libdir}
+ 
+ localstatelibdir=${localstatedir}/lib/${package_identifier}
+ 
+@@ -12085,7 +12085,7 @@ if test x${IS_WINDOWS} = xTRUE; then
+     localerlanglibdir=${libdir}
+ 
+ else
+-    locallibbindir=${locallibdir}/bin
++    locallibbindir=${locallibdir}/erlang/lib/couch-${version}/priv
+ 
+     localerlanglibdir=${locallibdir}/erlang/lib
+ 
+-- 
+1.6.6.1
+

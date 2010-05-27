@@ -5,7 +5,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -13,9 +13,10 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{version}.tar.gz
 Source1:        %{name}.init
-Patch0:         %{name}-0.10.0-initenabled.patch
-Patch1:         %{name}-0.10.2-fix-install-lib-location.diff
-Patch2:		%{name}-0.10.2-remove_bundled_oauth.diff
+Patch1:		couchdb-0001-Force-init-script-installation.patch
+Patch2:		couchdb-0002-Install-into-erllibdir-by-default.patch
+Patch3:		couchdb-0003-Remove-bundled-erlang-oauth-library.patch
+Patch4:		couchdb-0004-Remove-bundled-erlang-etap-library.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  erlang
@@ -47,10 +48,13 @@ JavaScript acting as the default view definition language.
 
 %prep
 %setup -q -n %{tarname}-%{version}
-%patch0 -p1 -b .initenabled
-%patch1 -p0 -b .fix_lib_path
-%patch2 -p0 -b .remove_bundled_oauth
+%patch1 -p1 -b .initenabled
+%patch2 -p1 -b .fix_lib_path
+%patch3 -p1 -b .remove_bundled_oauth
+%patch4 -p1 -b .remove_bundled_etap
 rm -rf src/erlang-oauth
+rm -rf src/etap
+# Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
 
@@ -145,6 +149,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Thu May 27 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-5
+- Use system-wide erlang-etap instead of bundled copy
+
 * Fri May 14 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-4
 - Use system-wide erlang-oauth instead of bundled copy
 

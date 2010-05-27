@@ -1,6 +1,16 @@
-diff -up apache-couchdb-0.10.0/configure.ac.initenabled apache-couchdb-0.10.0/configure.ac
---- apache-couchdb-0.10.0/configure.ac.initenabled	2009-10-15 20:43:58.863638384 -0300
-+++ apache-couchdb-0.10.0/configure.ac	2009-10-15 21:05:04.723374156 -0300
+From c63c6662fe59e5c515075b2b9511ccf0438aabc5 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Thu, 27 May 2010 15:17:20 +0400
+Subject: [PATCH 1/4] Force init script installation
+
+---
+ configure.ac |   16 +++-------------
+ 1 files changed, 3 insertions(+), 13 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index d99408e..e39acc3 100644
+--- a/configure.ac
++++ b/configure.ac
 @@ -242,19 +242,9 @@ launchd_enabled=false
  
  if test "$use_init" = "yes"; then
@@ -24,3 +34,6 @@ diff -up apache-couchdb-0.10.0/configure.ac.initenabled apache-couchdb-0.10.0/co
  fi
  
  if test "$use_launchd" = "yes"; then
+-- 
+1.6.6.1
+

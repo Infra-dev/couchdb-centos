@@ -1,0 +1,71 @@
+From c2946e7f2cd60daf7cd75491caf5108161db45be Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Thu, 27 May 2010 15:22:37 +0400
+Subject: [PATCH 4/4] Remove bundled erlang-etap library
+
+---
+ configure       |    3 ---
+ configure.ac    |    1 -
+ src/Makefile.am |    2 +-
+ src/Makefile.in |    2 +-
+ 4 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/configure b/configure
+index 39dda91..ca7732f 100755
+--- a/configure
++++ b/configure
+@@ -12137,8 +12137,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
+ 
+ ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
+ 
+-ac_config_files="$ac_config_files src/etap/Makefile"
+-
+ ac_config_files="$ac_config_files src/ibrowse/Makefile"
+ 
+ ac_config_files="$ac_config_files src/mochiweb/Makefile"
+@@ -13158,7 +13156,6 @@ do
+     "src/couchdb/couch.app.tpl") CONFIG_FILES="$CONFIG_FILES src/couchdb/couch.app.tpl" ;;
+     "src/couchdb/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/Makefile" ;;
+     "src/couchdb/priv/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/priv/Makefile" ;;
+-    "src/etap/Makefile") CONFIG_FILES="$CONFIG_FILES src/etap/Makefile" ;;
+     "src/ibrowse/Makefile") CONFIG_FILES="$CONFIG_FILES src/ibrowse/Makefile" ;;
+     "src/mochiweb/Makefile") CONFIG_FILES="$CONFIG_FILES src/mochiweb/Makefile" ;;
+     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
+diff --git a/configure.ac b/configure.ac
+index effb28b..0478b4f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -335,7 +335,6 @@ AC_CONFIG_FILES([src/Makefile])
+ AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
+ AC_CONFIG_FILES([src/couchdb/Makefile])
+ AC_CONFIG_FILES([src/couchdb/priv/Makefile])
+-AC_CONFIG_FILES([src/etap/Makefile])
+ AC_CONFIG_FILES([src/ibrowse/Makefile])
+ AC_CONFIG_FILES([src/mochiweb/Makefile])
+ AC_CONFIG_FILES([test/Makefile])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index e577138..19a5d20 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -10,4 +10,4 @@
+ ## License for the specific language governing permissions and limitations under
+ ## the License.
+ 
+-SUBDIRS = couchdb etap ibrowse mochiweb
++SUBDIRS = couchdb ibrowse mochiweb
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 480da98..2422e39 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -239,7 +239,7 @@ version_minor = @version_minor@
+ version_release = @version_release@
+ version_revision = @version_revision@
+ version_stage = @version_stage@
+-SUBDIRS = couchdb etap ibrowse mochiweb
++SUBDIRS = couchdb ibrowse mochiweb
+ all: all-recursive
+ 
+ .SUFFIXES:
+-- 
+1.6.6.1
+

@@ -1,0 +1,71 @@
+From 42a4f19bde9c94685a88b3f3c979de07e39f56ab Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Thu, 27 May 2010 15:19:51 +0400
+Subject: [PATCH 3/4] Remove bundled erlang-oauth library
+
+---
+ configure       |    3 ---
+ configure.ac    |    1 -
+ src/Makefile.am |    2 +-
+ src/Makefile.in |    2 +-
+ 4 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/configure b/configure
+index 5309998..39dda91 100755
+--- a/configure
++++ b/configure
+@@ -12137,8 +12137,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
+ 
+ ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
+ 
+-ac_config_files="$ac_config_files src/erlang-oauth/Makefile"
+-
+ ac_config_files="$ac_config_files src/etap/Makefile"
+ 
+ ac_config_files="$ac_config_files src/ibrowse/Makefile"
+@@ -13160,7 +13158,6 @@ do
+     "src/couchdb/couch.app.tpl") CONFIG_FILES="$CONFIG_FILES src/couchdb/couch.app.tpl" ;;
+     "src/couchdb/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/Makefile" ;;
+     "src/couchdb/priv/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/priv/Makefile" ;;
+-    "src/erlang-oauth/Makefile") CONFIG_FILES="$CONFIG_FILES src/erlang-oauth/Makefile" ;;
+     "src/etap/Makefile") CONFIG_FILES="$CONFIG_FILES src/etap/Makefile" ;;
+     "src/ibrowse/Makefile") CONFIG_FILES="$CONFIG_FILES src/ibrowse/Makefile" ;;
+     "src/mochiweb/Makefile") CONFIG_FILES="$CONFIG_FILES src/mochiweb/Makefile" ;;
+diff --git a/configure.ac b/configure.ac
+index e39acc3..effb28b 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -335,7 +335,6 @@ AC_CONFIG_FILES([src/Makefile])
+ AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
+ AC_CONFIG_FILES([src/couchdb/Makefile])
+ AC_CONFIG_FILES([src/couchdb/priv/Makefile])
+-AC_CONFIG_FILES([src/erlang-oauth/Makefile])
+ AC_CONFIG_FILES([src/etap/Makefile])
+ AC_CONFIG_FILES([src/ibrowse/Makefile])
+ AC_CONFIG_FILES([src/mochiweb/Makefile])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index b9529f9..e577138 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -10,4 +10,4 @@
+ ## License for the specific language governing permissions and limitations under
+ ## the License.
+ 
+-SUBDIRS = couchdb erlang-oauth etap ibrowse mochiweb
++SUBDIRS = couchdb etap ibrowse mochiweb
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 54fdb7b..480da98 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -239,7 +239,7 @@ version_minor = @version_minor@
+ version_release = @version_release@
+ version_revision = @version_revision@
+ version_stage = @version_stage@
+-SUBDIRS = couchdb erlang-oauth etap ibrowse mochiweb
++SUBDIRS = couchdb etap ibrowse mochiweb
+ all: all-recursive
+ 
+ .SUFFIXES:
+-- 
+1.6.6.1
+
