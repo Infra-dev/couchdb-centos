@@ -64,7 +64,7 @@ stop() {
         retval=$?
     fi
     echo
-    [ $retval -eq 0 ] && rm -f $lockfile $pidfile
+    [ $retval -eq 0 ] && rm -f $lockfile
     return $retval
 }
 

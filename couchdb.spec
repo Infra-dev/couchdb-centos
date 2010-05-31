@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -149,6 +149,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Mon May 31 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-7
+- Do not manually remove pid-file while stopping CouchDB
+
 * Mon May 31 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-6
 - Fix 'stop' and 'status' targets in the init-script (see rhbz #591026)
 
