@@ -23,9 +23,8 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-exec="/usr/bin/couchdb"
-prog="couchdb"
-config="/etc/sysconfig/couchdb"
+prog=couchdb
+exec=/usr/bin/$prog
 
 # default values
 COUCHDB_USER=couchdb
@@ -36,12 +35,11 @@ COUCHDB_OPTIONS=
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
-pidfile=/var/run/couchdb/couchdb.pid
-lockfile=/var/lock/subsys/couchdb
+pidfile=/var/run/$prog/$prog.pid
+lockfile=/var/lock/subsys/$prog
 
 start() {
     [ -x $exec ] || exit 5
-    [ -f $config ] || exit 6
     echo -n $"Starting $prog: "
     rh_status_q && echo -n "already running" && warning && echo && exit 0
     daemon --user $COUCHDB_USER "$exec \
@@ -58,13 +56,15 @@ start() {
 
 stop() {
     echo -n $"Stopping $prog: "
+    retval=0
     if ! rh_status_q ; then
-	echo -n "already stopped" && warning && echo && exit 0
+	echo -n "already stopped" && warning
+    else
+        daemon --user $COUCHDB_USER "$exec -d"
+        retval=$?
     fi
-    daemon --user couchdb "$exec -d"
-    retval=$?
     echo
-    [ $retval -eq 0 ] && rm -f $lockfile
+    [ $retval -eq 0 ] && rm -f $lockfile $pidfile
     return $retval
 }
 
@@ -77,13 +77,9 @@ reload() {
     restart
 }
 
-force_reload() {
-    restart
-}
-
 rh_status() {
     # run checks to determine if the service is running or use generic status
-    status $prog
+    status -p $pidfile $prog
 }
 
 rh_status_q() {
@@ -98,15 +94,12 @@ case "$1" in
     stop)
         $1
         ;;
-    restart)
-        $1
+    restart|force-reload)
+        restart
         ;;
     reload)
         rh_status_q || exit 7
         $1
-        ;;
-    force-reload)
-        force_reload
         ;;
     status)
         rh_status

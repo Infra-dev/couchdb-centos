@@ -1,17 +1,16 @@
-%define tarname apache-couchdb
 %define couchdb_user couchdb
 %define couchdb_group couchdb
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
 Version:        0.10.2
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
 URL:            http://couchdb.apache.org/
-Source0:        http://www.apache.org/dist/%{name}/%{version}/%{tarname}-%{version}.tar.gz
+Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
 Patch1:		couchdb-0001-Force-init-script-installation.patch
 Patch2:		couchdb-0002-Install-into-erllibdir-by-default.patch
@@ -24,6 +23,7 @@ BuildRequires:  libicu-devel
 BuildRequires:  js-devel
 BuildRequires:  help2man
 BuildRequires:  curl-devel
+#BuildRequires:	erlang-etap
 
 Requires:       erlang
 Requires:	erlang-oauth
@@ -47,7 +47,7 @@ queryable and indexable using a table-oriented view engine with
 JavaScript acting as the default view definition language.
 
 %prep
-%setup -q -n %{tarname}-%{version}
+%setup -q -n apache-%{name}-%{version}
 %patch1 -p1 -b .initenabled
 %patch2 -p1 -b .fix_lib_path
 %patch3 -p1 -b .remove_bundled_oauth
@@ -149,6 +149,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Mon May 31 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-6
+- Fix 'stop' and 'status' targets in the init-script (see rhbz #591026)
+
 * Thu May 27 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-5
 - Use system-wide erlang-etap instead of bundled copy
 
