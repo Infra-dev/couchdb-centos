@@ -60,7 +60,7 @@ stop() {
     if ! rh_status_q ; then
 	echo -n "already stopped" && warning
     else
-        daemon --user $COUCHDB_USER "$exec -d"
+        daemon --user $COUCHDB_USER "$exec -d > /dev/null"
         retval=$?
     fi
     echo
