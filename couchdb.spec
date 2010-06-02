@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -16,6 +16,7 @@ Patch1:		couchdb-0001-Force-init-script-installation.patch
 Patch2:		couchdb-0002-Install-into-erllibdir-by-default.patch
 Patch3:		couchdb-0003-Remove-bundled-erlang-oauth-library.patch
 Patch4:		couchdb-0004-Remove-bundled-erlang-etap-library.patch
+Patch5:		couchdb-0005-Remove-pid-file-after-stop.diff
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  erlang
@@ -52,6 +53,7 @@ JavaScript acting as the default view definition language.
 %patch2 -p1 -b .fix_lib_path
 %patch3 -p1 -b .remove_bundled_oauth
 %patch4 -p1 -b .remove_bundled_etap
+%patch5 -p1 -b .remove_pid_file
 rm -rf src/erlang-oauth
 rm -rf src/etap
 # Restore original timestamps to avoid reconfiguring
@@ -149,6 +151,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Wed Jun  2 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-9
+- Remove pid-file after stopping CouchDB
+
 * Tue Jun  1 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-8
 - Suppress unneeded message while stopping CouchDB via init-script
 
