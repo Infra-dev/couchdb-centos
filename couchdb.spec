@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -16,18 +16,36 @@ Patch1:		couchdb-0001-Force-init-script-installation.patch
 Patch2:		couchdb-0002-Install-into-erllibdir-by-default.patch
 Patch3:		couchdb-0003-Remove-bundled-erlang-oauth-library.patch
 Patch4:		couchdb-0004-Remove-bundled-erlang-etap-library.patch
-Patch5:		couchdb-0005-Remove-pid-file-after-stop.diff
+Patch5:		couchdb-0005-Remove-bundled-mochiweb-library.patch
+Patch6:		couchdb-0006-Remove-pid-file-after-stop.patch
+# Backported from 0.11.0
+Patch7:		couchdb-0007-Fix-for-system-wide-mochiweb.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  erlang
-BuildRequires:  libicu-devel
-BuildRequires:  js-devel
-BuildRequires:  help2man
 BuildRequires:  curl-devel
-#BuildRequires:	erlang-etap
+BuildRequires:  erlang
+BuildRequires:	erlang-etap
+BuildRequires:	erlang-mochiweb
+BuildRequires:	erlang-oauth
+BuildRequires:  help2man
+BuildRequires:  js-devel
+BuildRequires:  libicu-devel
+# /usr/bin/prove
+BuildRequires:	perl(Test::Harness)
 
+#Requires: erlang-crypto
+#Requires: erlang-erts
+#Requires: erlang-ibrowse
+#Requires: erlang-inets
+#Requires: erlang-kernel
+#Requires: erlang-mochiweb
+#Requires: erlang-oauth
+#Requires: erlang-ssl
+#Requires: erlang-stdlib
+#Requires: erlang-tools
 Requires:       erlang
 Requires:	erlang-oauth
+Requires:	erlang-mochiweb
 # For %{_bindir}/icu-config
 Requires:       libicu-devel
 
@@ -47,15 +65,16 @@ with bi-directional conflict detection and resolution, and is
 queryable and indexable using a table-oriented view engine with
 JavaScript acting as the default view definition language.
 
+
 %prep
 %setup -q -n apache-%{name}-%{version}
 %patch1 -p1 -b .initenabled
 %patch2 -p1 -b .fix_lib_path
 %patch3 -p1 -b .remove_bundled_oauth
 %patch4 -p1 -b .remove_bundled_etap
-%patch5 -p1 -b .remove_pid_file
-rm -rf src/erlang-oauth
-rm -rf src/etap
+%patch5 -p1 -b .remove_bundled_mochiweb
+%patch6 -p1 -b .remove_pid_file
+%patch7 -p1 -b .fix_for_mochi
 # Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
@@ -104,6 +123,11 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 # fix respawn timeout to match default value
 sed -i s,^COUCHDB_RESPAWN_TIMEOUT=5,COUCHDB_RESPAWN_TIMEOUT=0,g $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/couchdb
 
+
+%check
+make check && cd test && sh runner.sh || exit 1
+
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -151,6 +175,10 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Mon Jun  7 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-10
+- Use system-wide erlang-mochiweb instead of bundled copy (rhbz #581284)
+- Added %%check target and necessary BuildRequires - etap, oauth, mochiweb
+
 * Wed Jun  2 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-9
 - Remove pid-file after stopping CouchDB
 
@@ -164,10 +192,10 @@ fi
 - Fix 'stop' and 'status' targets in the init-script (see rhbz #591026)
 
 * Thu May 27 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-5
-- Use system-wide erlang-etap instead of bundled copy
+- Use system-wide erlang-etap instead of bundled copy (rhbz #581281)
 
 * Fri May 14 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-4
-- Use system-wide erlang-oauth instead of bundled copy
+- Use system-wide erlang-oauth instead of bundled copy (rhbz #581283)
 
 * Thu May 13 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-3
 - Fixed init-script to use /etc/sysconfig/couchdb values (see rhbz #583004)
