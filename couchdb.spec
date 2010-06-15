@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -36,20 +36,16 @@ BuildRequires:	libicu-devel
 # /usr/bin/prove
 BuildRequires:	perl(Test::Harness)
 
-#Requires: erlang-crypto
-#Requires: erlang-erts
-#Requires: erlang-ibrowse
-#Requires: erlang-inets
-#Requires: erlang-kernel
-#Requires: erlang-mochiweb
-#Requires: erlang-oauth
-#Requires: erlang-ssl
-#Requires: erlang-stdlib
-#Requires: erlang-tools
-Requires:       erlang
-Requires:	erlang-oauth
-Requires:	erlang-mochiweb
+
+Requires:	erlang-crypto
+Requires:	erlang-erts
 Requires:	erlang-ibrowse
+Requires:	erlang-inets
+Requires:	erlang-kernel
+Requires:	erlang-mochiweb
+Requires:	erlang-oauth
+Requires:	erlang-stdlib
+Requires:	erlang-tools
 # For %{_bindir}/icu-config
 Requires:       libicu-devel
 
@@ -181,6 +177,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Tue Jun 15 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-12
+- Narrow explicit requires
+
 * Tue Jun  8 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-11
 - Remove bundled ibrowse library (see rhbz #581282).
 
