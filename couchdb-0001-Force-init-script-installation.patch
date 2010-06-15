@@ -1,7 +1,7 @@
-From 4180fb6424162cfb8ee49f108c86fc408ddf640d Mon Sep 17 00:00:00 2001
+From c18945d391db8e124cd0ab375cccc1c22f10049f Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:17:20 +0400
-Subject: [PATCH 1/7] Force init script installation
+Subject: [PATCH 1/9] Force init script installation
 
 ---
  configure.ac |   16 +++-------------

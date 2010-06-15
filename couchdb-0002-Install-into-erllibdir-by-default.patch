@@ -1,7 +1,7 @@
-From e3f247d873c8245c05f573295c1a2e021614f0af Mon Sep 17 00:00:00 2001
+From c34ad18d8be63ec405dbbf860b150cd0b93f78a8 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:18:29 +0400
-Subject: [PATCH 2/7] Install into erllibdir by default
+Subject: [PATCH 2/9] Install into erllibdir by default
 
 ---
  configure |    4 ++--

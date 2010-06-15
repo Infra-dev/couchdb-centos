@@ -1,7 +1,7 @@
-From 4cd1b65aa50d551664bec8d8ac8241d223c9448a Mon Sep 17 00:00:00 2001
+From 2054f93657cb57be30afa0dd45c129ed94399c40 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Mon, 7 Jun 2010 23:01:25 +0400
-Subject: [PATCH 7/7] Fix for system-wide mochiweb
+Subject: [PATCH 7/9] Fix for system-wide mochiweb
 
 ---
  src/couchdb/couch_db.hrl   |    4 ++--

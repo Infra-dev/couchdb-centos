@@ -1,0 +1,4121 @@
+From 40ebb18e8addac7be0daae86918a2f0a4d62e45d Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Tue, 8 Jun 2010 16:38:10 +0400
+Subject: [PATCH 8/9] Remove bundled ibrowse library
+
+---
+ configure                              |    3 -
+ configure.ac                           |    1 -
+ src/Makefile.am                        |    2 +-
+ src/Makefile.in                        |    2 +-
+ src/couchdb/couch_rep_changes_feed.erl |    2 +-
+ src/couchdb/couch_rep_httpc.erl        |    2 +-
+ src/couchdb/couch_rep_reader.erl       |    2 +-
+ src/ibrowse/Makefile.am                |   49 --
+ src/ibrowse/Makefile.in                |  475 ----------
+ src/ibrowse/ibrowse.app.in             |   13 -
+ src/ibrowse/ibrowse.erl                |  760 ----------------
+ src/ibrowse/ibrowse.hrl                |   12 -
+ src/ibrowse/ibrowse_app.erl            |   64 --
+ src/ibrowse/ibrowse_http_client.erl    | 1476 --------------------------------
+ src/ibrowse/ibrowse_lb.erl             |  216 -----
+ src/ibrowse/ibrowse_lib.erl            |  399 ---------
+ src/ibrowse/ibrowse_sup.erl            |   65 --
+ src/ibrowse/ibrowse_test.erl           |  377 --------
+ test/etap/test_util.erl.in             |    2 +-
+ 19 files changed, 6 insertions(+), 3916 deletions(-)
+ delete mode 100644 src/ibrowse/Makefile.am
+ delete mode 100644 src/ibrowse/Makefile.in
+ delete mode 100644 src/ibrowse/ibrowse.app.in
+ delete mode 100644 src/ibrowse/ibrowse.erl
+ delete mode 100644 src/ibrowse/ibrowse.hrl
+ delete mode 100644 src/ibrowse/ibrowse_app.erl
+ delete mode 100644 src/ibrowse/ibrowse_http_client.erl
+ delete mode 100644 src/ibrowse/ibrowse_lb.erl
+ delete mode 100644 src/ibrowse/ibrowse_lib.erl
+ delete mode 100644 src/ibrowse/ibrowse_sup.erl
+ delete mode 100644 src/ibrowse/ibrowse_test.erl
+
+diff --git a/configure b/configure
+index 2d728fe..889c135 100755
+--- a/configure
++++ b/configure
+@@ -12137,8 +12137,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
+ 
+ ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
+ 
+-ac_config_files="$ac_config_files src/ibrowse/Makefile"
+-
+ ac_config_files="$ac_config_files test/Makefile"
+ 
+ ac_config_files="$ac_config_files test/etap/Makefile"
+@@ -13154,7 +13152,6 @@ do
+     "src/couchdb/couch.app.tpl") CONFIG_FILES="$CONFIG_FILES src/couchdb/couch.app.tpl" ;;
+     "src/couchdb/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/Makefile" ;;
+     "src/couchdb/priv/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/priv/Makefile" ;;
+-    "src/ibrowse/Makefile") CONFIG_FILES="$CONFIG_FILES src/ibrowse/Makefile" ;;
+     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
+     "test/etap/Makefile") CONFIG_FILES="$CONFIG_FILES test/etap/Makefile" ;;
+     "test/etap/test_util.erl") CONFIG_FILES="$CONFIG_FILES test/etap/test_util.erl" ;;
+diff --git a/configure.ac b/configure.ac
+index a53df9b..b1c894a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -335,7 +335,6 @@ AC_CONFIG_FILES([src/Makefile])
+ AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
+ AC_CONFIG_FILES([src/couchdb/Makefile])
+ AC_CONFIG_FILES([src/couchdb/priv/Makefile])
+-AC_CONFIG_FILES([src/ibrowse/Makefile])
+ AC_CONFIG_FILES([test/Makefile])
+ AC_CONFIG_FILES([test/etap/Makefile])
+ AC_CONFIG_FILES([test/etap/test_util.erl])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 5a6646f..753b177 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -10,4 +10,4 @@
+ ## License for the specific language governing permissions and limitations under
+ ## the License.
+ 
+-SUBDIRS = couchdb ibrowse
++SUBDIRS = couchdb
+diff --git a/src/Makefile.in b/src/Makefile.in
+index d1e6ba5..8219ebf 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -239,7 +239,7 @@ version_minor = @version_minor@
+ version_release = @version_release@
+ version_revision = @version_revision@
+ version_stage = @version_stage@
+-SUBDIRS = couchdb ibrowse
++SUBDIRS = couchdb
+ all: all-recursive
+ 
+ .SUFFIXES:
+diff --git a/src/couchdb/couch_rep_changes_feed.erl b/src/couchdb/couch_rep_changes_feed.erl
+index 6aefd41..0f652ca 100644
+--- a/src/couchdb/couch_rep_changes_feed.erl
++++ b/src/couchdb/couch_rep_changes_feed.erl
+@@ -20,7 +20,7 @@
+ -define(BUFFER_SIZE, 1000).
+ 
+ -include("couch_db.hrl").
+--include("../ibrowse/ibrowse.hrl").
++-include_lib("ibrowse/include/ibrowse.hrl").
+ 
+ -record (state, {
+     changes_from = nil,
+diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
+index 59c3986..63783dc 100644
+--- a/src/couchdb/couch_rep_httpc.erl
++++ b/src/couchdb/couch_rep_httpc.erl
+@@ -12,7 +12,7 @@
+ 
+ -module(couch_rep_httpc).
+ -include("couch_db.hrl").
+--include("../ibrowse/ibrowse.hrl").
++-include_lib("ibrowse/include/ibrowse.hrl").
+ 
+ -export([db_exists/1, full_url/1, request/1, redirected_request/2,
+     spawn_worker_process/1, spawn_link_worker_process/1]).
+diff --git a/src/couchdb/couch_rep_reader.erl b/src/couchdb/couch_rep_reader.erl
+index 7f06150..4206ba4 100644
+--- a/src/couchdb/couch_rep_reader.erl
++++ b/src/couchdb/couch_rep_reader.erl
+@@ -25,7 +25,7 @@
+ -define (MAX_PIPELINE_SIZE, 50).
+ 
+ -include("couch_db.hrl").
+--include("../ibrowse/ibrowse.hrl").
++-include_lib("ibrowse/include/ibrowse.hrl").
+ 
+ -record (state, {
+     parent,
+diff --git a/src/ibrowse/Makefile.am b/src/ibrowse/Makefile.am
+deleted file mode 100644
+index 510f36a..0000000
+--- a/src/ibrowse/Makefile.am
++++ /dev/null
+@@ -1,49 +0,0 @@
+-## Licensed under the Apache License, Version 2.0 (the "License"); you may not
+-## use this file except in compliance with the License. You may obtain a copy of
+-## the License at
+-##
+-##   http://www.apache.org/licenses/LICENSE-2.0
+-##
+-## Unless required by applicable law or agreed to in writing, software
+-## distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+-## WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+-## License for the specific language governing permissions and limitations under
+-## the License.
+-
+-ibrowseebindir = $(localerlanglibdir)/ibrowse-1.5.2/ebin
+-
+-ibrowse_file_collection = \
+-	ibrowse.app.in \
+-    ibrowse.erl \
+-    ibrowse_app.erl \
+-    ibrowse_http_client.erl \
+-    ibrowse_lb.erl \
+-    ibrowse_lib.erl \
+-    ibrowse_sup.erl \
+-    ibrowse_test.erl
+-
+-ibrowseebin_make_generated_file_list = \
+-	ibrowse.app \
+-    ibrowse.beam \
+-    ibrowse_app.beam \
+-    ibrowse_http_client.beam \
+-    ibrowse_lb.beam \
+-    ibrowse_lib.beam \
+-    ibrowse_sup.beam \
+-    ibrowse_test.beam
+-
+-ibrowseebin_DATA = \
+-    $(ibrowseebin_make_generated_file_list)
+-
+-EXTRA_DIST =  \
+-    $(ibrowse_file_collection) \
+-    ibrowse.hrl
+-
+-CLEANFILES = \
+-    $(ibrowseebin_make_generated_file_list)
+-
+-%.app: %.app.in
+-	cp $< $@
+-
+-%.beam: %.erl
+-	$(ERLC) $(ERLC_FLAGS) $<
+diff --git a/src/ibrowse/Makefile.in b/src/ibrowse/Makefile.in
+deleted file mode 100644
+index 0b42325..0000000
+--- a/src/ibrowse/Makefile.in
++++ /dev/null
+@@ -1,475 +0,0 @@
+-# Makefile.in generated by automake 1.11 from Makefile.am.
+-# @configure_input@
+-
+-# Copyright (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
+-# 2003, 2004, 2005, 2006, 2007, 2008, 2009  Free Software Foundation,
+-# Inc.
+-# This Makefile.in is free software; the Free Software Foundation
+-# gives unlimited permission to copy and/or distribute it,
+-# with or without modifications, as long as this notice is preserved.
+-
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+-# PARTICULAR PURPOSE.
+-
+-@SET_MAKE@
+-
+-VPATH = @srcdir@
+-pkgdatadir = $(datadir)/@PACKAGE@
+-pkgincludedir = $(includedir)/@PACKAGE@
+-pkglibdir = $(libdir)/@PACKAGE@
+-pkglibexecdir = $(libexecdir)/@PACKAGE@
+-am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
+-install_sh_DATA = $(install_sh) -c -m 644
+-install_sh_PROGRAM = $(install_sh) -c
+-install_sh_SCRIPT = $(install_sh) -c
+-INSTALL_HEADER = $(INSTALL_DATA)
+-transform = $(program_transform_name)
+-NORMAL_INSTALL = :
+-PRE_INSTALL = :
+-POST_INSTALL = :
+-NORMAL_UNINSTALL = :
+-PRE_UNINSTALL = :
+-POST_UNINSTALL = :
+-build_triplet = @build@
+-host_triplet = @host@
+-subdir = src/ibrowse
+-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+-ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+-am__aclocal_m4_deps = $(top_srcdir)/m4/ac_check_curl.m4 \
+-	$(top_srcdir)/acinclude.m4 $(top_srcdir)/m4/ac_check_icu.m4 \
+-	$(top_srcdir)/configure.ac
+-am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+-	$(ACLOCAL_M4)
+-mkinstalldirs = $(install_sh) -d
+-CONFIG_HEADER = $(top_builddir)/config.h
+-CONFIG_CLEAN_FILES =
+-CONFIG_CLEAN_VPATH_FILES =
+-SOURCES =
+-DIST_SOURCES =
+-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+-am__vpath_adj = case $$p in \
+-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+-    *) f=$$p;; \
+-  esac;
+-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+-am__install_max = 40
+-am__nobase_strip_setup = \
+-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+-am__nobase_strip = \
+-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+-am__nobase_list = $(am__nobase_strip_setup); \
+-  for p in $$list; do echo "$$p $$p"; done | \
+-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+-    if (++n[$$2] == $(am__install_max)) \
+-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+-    END { for (dir in files) print dir, files[dir] }'
+-am__base_list = \
+-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+-am__installdirs = "$(DESTDIR)$(ibrowseebindir)"
+-DATA = $(ibrowseebin_DATA)
+-DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+-ACLOCAL = @ACLOCAL@
+-AMTAR = @AMTAR@
+-AR = @AR@
+-AUTOCONF = @AUTOCONF@
+-AUTOHEADER = @AUTOHEADER@
+-AUTOMAKE = @AUTOMAKE@
+-AWK = @AWK@
+-CC = @CC@
+-CCDEPMODE = @CCDEPMODE@
+-CFLAGS = @CFLAGS@
+-CPP = @CPP@
+-CPPFLAGS = @CPPFLAGS@
+-CURL_CFLAGS = @CURL_CFLAGS@
+-CURL_CONFIG = @CURL_CONFIG@
+-CURL_LDFLAGS = @CURL_LDFLAGS@
+-CURL_LIBS = @CURL_LIBS@
+-CYGPATH_W = @CYGPATH_W@
+-DEFS = @DEFS@
+-DEPDIR = @DEPDIR@
+-DSYMUTIL = @DSYMUTIL@
+-DUMPBIN = @DUMPBIN@
+-ECHO_C = @ECHO_C@
+-ECHO_N = @ECHO_N@
+-ECHO_T = @ECHO_T@
+-EGREP = @EGREP@
+-ERL = @ERL@
+-ERLC = @ERLC@
+-ERLC_FLAGS = @ERLC_FLAGS@
+-EXEEXT = @EXEEXT@
+-FGREP = @FGREP@
+-FLAGS = @FLAGS@
+-GREP = @GREP@
+-HELP2MAN_EXECUTABLE = @HELP2MAN_EXECUTABLE@
+-ICU_CFLAGS = @ICU_CFLAGS@
+-ICU_CONFIG = @ICU_CONFIG@
+-ICU_CXXFLAGS = @ICU_CXXFLAGS@
+-ICU_LIBS = @ICU_LIBS@
+-ICU_LOCAL_BIN = @ICU_LOCAL_BIN@
+-ICU_LOCAL_CFLAGS = @ICU_LOCAL_CFLAGS@
+-ICU_LOCAL_LDFLAGS = @ICU_LOCAL_LDFLAGS@
+-INSTALL = @INSTALL@
+-INSTALL_DATA = @INSTALL_DATA@
+-INSTALL_PROGRAM = @INSTALL_PROGRAM@
+-INSTALL_SCRIPT = @INSTALL_SCRIPT@
+-INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+-JSLIB = @JSLIB@
+-LD = @LD@
+-LDFLAGS = @LDFLAGS@
+-LIBOBJS = @LIBOBJS@
+-LIBS = @LIBS@
+-LIBTOOL = @LIBTOOL@
+-LIPO = @LIPO@
+-LN_S = @LN_S@
+-LTLIBOBJS = @LTLIBOBJS@
+-MAKEINFO = @MAKEINFO@
+-MKDIR_P = @MKDIR_P@
+-NM = @NM@
+-NMEDIT = @NMEDIT@
+-OBJDUMP = @OBJDUMP@
+-OBJEXT = @OBJEXT@
+-OTOOL = @OTOOL@
+-OTOOL64 = @OTOOL64@
+-PACKAGE = @PACKAGE@
+-PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+-PACKAGE_NAME = @PACKAGE_NAME@
+-PACKAGE_STRING = @PACKAGE_STRING@
+-PACKAGE_TARNAME = @PACKAGE_TARNAME@
+-PACKAGE_URL = @PACKAGE_URL@
+-PACKAGE_VERSION = @PACKAGE_VERSION@
+-PATH_SEPARATOR = @PATH_SEPARATOR@
+-RANLIB = @RANLIB@
+-SED = @SED@
+-SET_MAKE = @SET_MAKE@
+-SHELL = @SHELL@
+-STRIP = @STRIP@
+-VERSION = @VERSION@
+-abs_builddir = @abs_builddir@
+-abs_srcdir = @abs_srcdir@
+-abs_top_builddir = @abs_top_builddir@
+-abs_top_srcdir = @abs_top_srcdir@
+-ac_ct_CC = @ac_ct_CC@
+-ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+-am__include = @am__include@
+-am__leading_dot = @am__leading_dot@
+-am__quote = @am__quote@
+-am__tar = @am__tar@
+-am__untar = @am__untar@
+-bindir = @bindir@
+-bug_uri = @bug_uri@
+-build = @build@
+-build_alias = @build_alias@
+-build_cpu = @build_cpu@
+-build_os = @build_os@
+-build_vendor = @build_vendor@
+-builddir = @builddir@
+-datadir = @datadir@
+-datarootdir = @datarootdir@
+-docdir = @docdir@
+-dvidir = @dvidir@
+-exec_prefix = @exec_prefix@
+-host = @host@
+-host_alias = @host_alias@
+-host_cpu = @host_cpu@
+-host_os = @host_os@
+-host_vendor = @host_vendor@
+-htmldir = @htmldir@
+-includedir = @includedir@
+-infodir = @infodir@
+-initdir = @initdir@
+-install_sh = @install_sh@
+-launchddir = @launchddir@
+-libdir = @libdir@
+-libexecdir = @libexecdir@
+-localconfdir = @localconfdir@
+-localdatadir = @localdatadir@
+-localdocdir = @localdocdir@
+-localedir = @localedir@
+-localerlanglibdir = @localerlanglibdir@
+-locallibbindir = @locallibbindir@
+-locallibdir = @locallibdir@
+-localstatedir = @localstatedir@
+-localstatelibdir = @localstatelibdir@
+-localstatelogdir = @localstatelogdir@
+-localstaterundir = @localstaterundir@
+-lt_ECHO = @lt_ECHO@
+-mandir = @mandir@
+-mkdir_p = @mkdir_p@
+-oldincludedir = @oldincludedir@
+-package_author_address = @package_author_address@
+-package_author_name = @package_author_name@
+-package_identifier = @package_identifier@
+-package_name = @package_name@
+-package_tarname = @package_tarname@
+-pdfdir = @pdfdir@
+-prefix = @prefix@
+-program_transform_name = @program_transform_name@
+-psdir = @psdir@
+-sbindir = @sbindir@
+-sharedstatedir = @sharedstatedir@
+-srcdir = @srcdir@
+-sysconfdir = @sysconfdir@
+-target_alias = @target_alias@
+-top_build_prefix = @top_build_prefix@
+-top_builddir = @top_builddir@
+-top_srcdir = @top_srcdir@
+-version = @version@
+-version_major = @version_major@
+-version_minor = @version_minor@
+-version_release = @version_release@
+-version_revision = @version_revision@
+-version_stage = @version_stage@
+-ibrowseebindir = $(localerlanglibdir)/ibrowse-1.5.2/ebin
+-ibrowse_file_collection = \
+-	ibrowse.app.in \
+-    ibrowse.erl \
+-    ibrowse_app.erl \
+-    ibrowse_http_client.erl \
+-    ibrowse_lb.erl \
+-    ibrowse_lib.erl \
+-    ibrowse_sup.erl \
+-    ibrowse_test.erl
+-
+-ibrowseebin_make_generated_file_list = \
+-	ibrowse.app \
+-    ibrowse.beam \
+-    ibrowse_app.beam \
+-    ibrowse_http_client.beam \
+-    ibrowse_lb.beam \
+-    ibrowse_lib.beam \
+-    ibrowse_sup.beam \
+-    ibrowse_test.beam
+-
+-ibrowseebin_DATA = \
+-    $(ibrowseebin_make_generated_file_list)
+-
+-EXTRA_DIST = \
+-    $(ibrowse_file_collection) \
+-    ibrowse.hrl
+-
+-CLEANFILES = \
+-    $(ibrowseebin_make_generated_file_list)
+-
+-all: all-am
+-
+-.SUFFIXES:
+-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+-	@for dep in $?; do \
+-	  case '$(am__configure_deps)' in \
+-	    *$$dep*) \
+-	      ( cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh ) \
+-	        && { if test -f $@; then exit 0; else break; fi; }; \
+-	      exit 1;; \
+-	  esac; \
+-	done; \
+-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/ibrowse/Makefile'; \
+-	$(am__cd) $(top_srcdir) && \
+-	  $(AUTOMAKE) --foreign src/ibrowse/Makefile
+-.PRECIOUS: Makefile
+-Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+-	@case '$?' in \
+-	  *config.status*) \
+-	    cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh;; \
+-	  *) \
+-	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
+-	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
+-	esac;
+-
+-$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+-	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+-
+-$(top_srcdir)/configure:  $(am__configure_deps)
+-	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+-	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+-$(am__aclocal_m4_deps):
+-
+-mostlyclean-libtool:
+-	-rm -f *.lo
+-
+-clean-libtool:
+-	-rm -rf .libs _libs
+-install-ibrowseebinDATA: $(ibrowseebin_DATA)
+-	@$(NORMAL_INSTALL)
+-	test -z "$(ibrowseebindir)" || $(MKDIR_P) "$(DESTDIR)$(ibrowseebindir)"
+-	@list='$(ibrowseebin_DATA)'; test -n "$(ibrowseebindir)" || list=; \
+-	for p in $$list; do \
+-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+-	  echo "$$d$$p"; \
+-	done | $(am__base_list) | \
+-	while read files; do \
+-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(ibrowseebindir)'"; \
+-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(ibrowseebindir)" || exit $$?; \
+-	done
+-
+-uninstall-ibrowseebinDATA:
+-	@$(NORMAL_UNINSTALL)
+-	@list='$(ibrowseebin_DATA)'; test -n "$(ibrowseebindir)" || list=; \
+-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+-	test -n "$$files" || exit 0; \
+-	echo " ( cd '$(DESTDIR)$(ibrowseebindir)' && rm -f" $$files ")"; \
+-	cd "$(DESTDIR)$(ibrowseebindir)" && rm -f $$files
+-tags: TAGS
+-TAGS:
+-
+-ctags: CTAGS
+-CTAGS:
+-
+-
+-distdir: $(DISTFILES)
+-	@srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*]/\\\\&/g'`; \
+-	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's/[].[^$$\\*]/\\\\&/g'`; \
+-	list='$(DISTFILES)'; \
+-	  dist_files=`for file in $$list; do echo $$file; done | \
+-	  sed -e "s|^$$srcdirstrip/||;t" \
+-	      -e "s|^$$topsrcdirstrip/|$(top_builddir)/|;t"`; \
+-	case $$dist_files in \
+-	  */*) $(MKDIR_P) `echo "$$dist_files" | \
+-			   sed '/\//!d;s|^|$(distdir)/|;s,/[^/]*$$,,' | \
+-			   sort -u` ;; \
+-	esac; \
+-	for file in $$dist_files; do \
+-	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
+-	  if test -d $$d/$$file; then \
+-	    dir=`echo "/$$file" | sed -e 's,/[^/]*$$,,'`; \
+-	    if test -d "$(distdir)/$$file"; then \
+-	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
+-	    fi; \
+-	    if test -d $(srcdir)/$$file && test $$d != $(srcdir); then \
+-	      cp -fpR $(srcdir)/$$file "$(distdir)$$dir" || exit 1; \
+-	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
+-	    fi; \
+-	    cp -fpR $$d/$$file "$(distdir)$$dir" || exit 1; \
+-	  else \
+-	    test -f "$(distdir)/$$file" \
+-	    || cp -p $$d/$$file "$(distdir)/$$file" \
+-	    || exit 1; \
+-	  fi; \
+-	done
+-check-am: all-am
+-check: check-am
+-all-am: Makefile $(DATA)
+-installdirs:
+-	for dir in "$(DESTDIR)$(ibrowseebindir)"; do \
+-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+-	done
+-install: install-am
+-install-exec: install-exec-am
+-install-data: install-data-am
+-uninstall: uninstall-am
+-
+-install-am: all-am
+-	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+-
+-installcheck: installcheck-am
+-install-strip:
+-	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+-	  install_sh_PROGRAM="$(INSTALL_STRIP_PROGRAM)" INSTALL_STRIP_FLAG=-s \
+-	  `test -z '$(STRIP)' || \
+-	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
+-mostlyclean-generic:
+-
+-clean-generic:
+-	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+-
+-distclean-generic:
+-	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+-	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+-
+-maintainer-clean-generic:
+-	@echo "This command is intended for maintainers to use"
+-	@echo "it deletes files that may require special tools to rebuild."
+-clean: clean-am
+-
+-clean-am: clean-generic clean-libtool mostlyclean-am
+-
+-distclean: distclean-am
+-	-rm -f Makefile
+-distclean-am: clean-am distclean-generic
+-
+-dvi: dvi-am
+-
+-dvi-am:
+-
+-html: html-am
+-
+-html-am:
+-
+-info: info-am
+-
+-info-am:
+-
+-install-data-am: install-ibrowseebinDATA
+-
+-install-dvi: install-dvi-am
+-
+-install-dvi-am:
+-
+-install-exec-am:
+-
+-install-html: install-html-am
+-
+-install-html-am:
+-
+-install-info: install-info-am
+-
+-install-info-am:
+-
+-install-man:
+-
+-install-pdf: install-pdf-am
+-
+-install-pdf-am:
+-
+-install-ps: install-ps-am
+-
+-install-ps-am:
+-
+-installcheck-am:
+-
+-maintainer-clean: maintainer-clean-am
+-	-rm -f Makefile
+-maintainer-clean-am: distclean-am maintainer-clean-generic
+-
+-mostlyclean: mostlyclean-am
+-
+-mostlyclean-am: mostlyclean-generic mostlyclean-libtool
+-
+-pdf: pdf-am
+-
+-pdf-am:
+-
+-ps: ps-am
+-
+-ps-am:
+-
+-uninstall-am: uninstall-ibrowseebinDATA
+-
+-.MAKE: install-am install-strip
+-
+-.PHONY: all all-am check check-am clean clean-generic clean-libtool \
+-	distclean distclean-generic distclean-libtool distdir dvi \
+-	dvi-am html html-am info info-am install install-am \
+-	install-data install-data-am install-dvi install-dvi-am \
+-	install-exec install-exec-am install-html install-html-am \
+-	install-ibrowseebinDATA install-info install-info-am \
+-	install-man install-pdf install-pdf-am install-ps \
+-	install-ps-am install-strip installcheck installcheck-am \
+-	installdirs maintainer-clean maintainer-clean-generic \
+-	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+-	ps ps-am uninstall uninstall-am uninstall-ibrowseebinDATA
+-
+-
+-%.app: %.app.in
+-	cp $< $@
+-
+-%.beam: %.erl
+-	$(ERLC) $(ERLC_FLAGS) $<
+-
+-# Tell versions [3.59,3.63) of GNU make to not export all variables.
+-# Otherwise a system limit (for SysV at least) may be exceeded.
+-.NOEXPORT:
+diff --git a/src/ibrowse/ibrowse.app.in b/src/ibrowse/ibrowse.app.in
+deleted file mode 100644
+index 4f43dd9..0000000
+--- a/src/ibrowse/ibrowse.app.in
++++ /dev/null
+@@ -1,13 +0,0 @@
+-{application, ibrowse,
+-        [{description, "HTTP client application"},
+-         {vsn, "1.5.1"},
+-         {modules, [ ibrowse,
+-		     ibrowse_http_client,
+-		     ibrowse_app,
+-		     ibrowse_sup,
+-		     ibrowse_lib,
+-		     ibrowse_lb ]},
+-         {registered, []},
+-         {applications, [kernel,stdlib,sasl]},
+-	 {env, []},
+-	 {mod, {ibrowse_app, []}}]}.
+diff --git a/src/ibrowse/ibrowse.erl b/src/ibrowse/ibrowse.erl
+deleted file mode 100644
+index 1913ef5..0000000
+--- a/src/ibrowse/ibrowse.erl
++++ /dev/null
+@@ -1,760 +0,0 @@
+-%%%-------------------------------------------------------------------
+-%%% File    : ibrowse.erl
+-%%% Author  : Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%% Description : Load balancer process for HTTP client connections.
+-%%%
+-%%% Created : 11 Oct 2003 by Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%%-------------------------------------------------------------------
+-%% @author Chandrashekhar Mullaparthi <chandrashekhar dot mullaparthi at gmail dot com>
+-%% @copyright 2005-2009 Chandrashekhar Mullaparthi
+-%% @version 1.5.2
+-%% @doc The ibrowse application implements an HTTP 1.1 client. This
+-%% module implements the API of the HTTP client. There is one named
+-%% process called 'ibrowse' which assists in load balancing and maintaining configuration. There is one load balancing process per unique webserver. There is
+-%% one process to handle one TCP connection to a webserver
+-%% (implemented in the module ibrowse_http_client). Multiple connections to a
+-%% webserver are setup based on the settings for each webserver. The
+-%% ibrowse process also determines which connection to pipeline a
+-%% certain request on.  The functions to call are send_req/3,
+-%% send_req/4, send_req/5, send_req/6.
+-%%
+-%% <p>Here are a few sample invocations.</p>
+-%%
+-%% <code>
+-%% ibrowse:send_req("http://intranet/messenger/", [], get).
+-%% <br/><br/>
+-%%
+-%% ibrowse:send_req("http://www.google.com/", [], get, [],
+-%% 		 [{proxy_user, "XXXXX"},
+-%% 		  {proxy_password, "XXXXX"},
+-%% 		  {proxy_host, "proxy"},
+-%% 		  {proxy_port, 8080}], 1000).
+-%% <br/><br/>
+-%%
+-%%ibrowse:send_req("http://www.erlang.org/download/otp_src_R10B-3.tar.gz", [], get, [],
+-%% 		 [{proxy_user, "XXXXX"},
+-%% 		  {proxy_password, "XXXXX"},
+-%% 		  {proxy_host, "proxy"},
+-%% 		  {proxy_port, 8080},
+-%% 		  {save_response_to_file, true}], 1000).
+-%% <br/><br/>
+-%%
+-%% ibrowse:send_req("http://www.erlang.org", [], head).
+-%%
+-%% <br/><br/>
+-%% ibrowse:send_req("http://www.sun.com", [], options).
+-%%
+-%% <br/><br/>
+-%% ibrowse:send_req("http://www.bbc.co.uk", [], trace).
+-%%
+-%% <br/><br/>
+-%% ibrowse:send_req("http://www.google.com", [], get, [],
+-%%                   [{stream_to, self()}]).
+-%% </code>
+-%%
+-%% <p>A driver exists which implements URL encoding in C, but the
+-%% speed achieved using only erlang has been good enough, so the
+-%% driver isn't actually used.</p>
+-
+--module(ibrowse).
+--vsn('$Id: ibrowse.erl,v 1.8 2009/07/01 22:43:19 chandrusf Exp $ ').
+-
+--behaviour(gen_server).
+-%%--------------------------------------------------------------------
+-%% Include files
+-%%--------------------------------------------------------------------
+-
+-%%--------------------------------------------------------------------
+-%% External exports
+--export([start_link/0, start/0, stop/0]).
+-
+-%% gen_server callbacks
+--export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+-	 terminate/2, code_change/3]).
+-
+-%% API interface
+--export([
+-	 rescan_config/0,
+-	 rescan_config/1,
+-	 get_config_value/1,
+-	 get_config_value/2,
+-	 spawn_worker_process/2,
+-	 spawn_link_worker_process/2,
+-	 stop_worker_process/1,
+-	 send_req/3,
+-	 send_req/4,
+-	 send_req/5,
+-	 send_req/6,
+-	 send_req_direct/4,
+-	 send_req_direct/5,
+-	 send_req_direct/6,
+-	 send_req_direct/7,
+-	 stream_next/1,
+-	 set_max_sessions/3,
+-	 set_max_pipeline_size/3,
+-	 set_dest/3,
+-	 trace_on/0,
+-	 trace_off/0,
+-	 trace_on/2,
+-	 trace_off/2,
+-	 all_trace_off/0,
+-	 show_dest_status/0,
+-	 show_dest_status/2
+-	]).
+-
+--ifdef(debug).
+--compile(export_all).
+--endif.
+-
+--import(ibrowse_lib, [
+-		      parse_url/1,
+-		      get_value/3,
+-		      do_trace/2
+-		     ]).
+-
+--record(state, {trace = false}).
+-
+--include("ibrowse.hrl").
+--include_lib("stdlib/include/ms_transform.hrl").
+-
+--define(DEF_MAX_SESSIONS,10).
+--define(DEF_MAX_PIPELINE_SIZE,10).
+-
+-%%====================================================================
+-%% External functions
+-%%====================================================================
+-%%--------------------------------------------------------------------
+-%% Function: start_link/0
+-%% Description: Starts the server
+-%%--------------------------------------------------------------------
+-%% @doc Starts the ibrowse process linked to the calling process. Usually invoked by the supervisor ibrowse_sup
+-%% @spec start_link() -> {ok, pid()}
+-start_link() ->
+-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+-
+-%% @doc Starts the ibrowse process without linking. Useful when testing using the shell
+-start() ->
+-    gen_server:start({local, ?MODULE}, ?MODULE, [], [{debug, []}]).
+-
+-%% @doc Stop the ibrowse process. Useful when testing using the shell.
+-stop() ->
+-    catch gen_server:call(ibrowse, stop).
+-
+-%% @doc This is the basic function to send a HTTP request.
+-%% The Status return value indicates the HTTP status code returned by the webserver
+-%% @spec send_req(Url::string(), Headers::headerList(), Method::method()) -> response()
+-%% headerList() = [{header(), value()}]
+-%% header() = atom() | string()
+-%% value() = term()
+-%% method() = get | post | head | options | put | delete | trace | mkcol | propfind | proppatch | lock | unlock | move | copy
+-%% Status = string()
+-%% ResponseHeaders = [respHeader()]
+-%% respHeader() = {headerName(), headerValue()}
+-%% headerName() = string()
+-%% headerValue() = string()
+-%% response() = {ok, Status, ResponseHeaders, ResponseBody} | {ibrowse_req_id, req_id() } | {error, Reason}
+-%% req_id() = term()
+-%% ResponseBody = string() | {file, Filename}
+-%% Reason = term()
+-send_req(Url, Headers, Method) ->
+-    send_req(Url, Headers, Method, [], []).
+-
+-%% @doc Same as send_req/3.
+-%% If a list is specified for the body it has to be a flat list. The body can also be a fun/0 or a fun/1. <br/>
+-%% If fun/0, the connection handling process will repeatdely call the fun until it returns an error or eof. <pre>Fun() = {ok, Data} | eof</pre><br/>
+-%% If fun/1, the connection handling process will repeatedly call the fun with the supplied state until it returns an error or eof. <pre>Fun(State) = {ok, Data} | {ok, Data, NewState} | eof</pre>
+-%% @spec send_req(Url, Headers, Method::method(), Body::body()) -> response()
+-%% body() = [] | string() | binary() | fun_arity_0() | {fun_arity_1(), initial_state()}
+-%% initial_state() = term()
+-send_req(Url, Headers, Method, Body) ->
+-    send_req(Url, Headers, Method, Body, []).
+-
+-%% @doc Same as send_req/4.
+-%% For a description of SSL Options, look in the <a href="http://www.erlang.org/doc/apps/ssl/index.html">ssl</a> manpage. If the
+-%% HTTP Version to use is not specified, the default is 1.1.
+-%% <br/>
+-%% <p>The <code>host_header</code> option is useful in the case where ibrowse is
+-%% connecting to a component such as <a
+-%% href="http://www.stunnel.org">stunnel</a> which then sets up a
+-%% secure connection to a webserver. In this case, the URL supplied to
+-%% ibrowse must have the stunnel host/port details, but that won't
+-%% make sense to the destination webserver. This option can then be
+-%% used to specify what should go in the <code>Host</code> header in
+-%% the request.</p>
+-%% <ul>
+-%% <li>The <code>stream_to</code> option can be used to have the HTTP
+-%% response streamed to a process as messages as data arrives on the
+-%% socket. If the calling process wishes to control the rate at which
+-%% data is received from the server, the option <code>{stream_to,
+-%% {process(), once}}</code> can be specified. The calling process
+-%% will have to invoke <code>ibrowse:stream_next(Request_id)</code> to
+-%% receive the next packet.</li>
+-%%
+-%% <li>When both the options <code>save_response_to_file</code> and <code>stream_to</code> 
+-%% are specified, the former takes precedence.</li>
+-%%
+-%% <li>For the <code>save_response_to_file</code> option, the response body is saved to
+-%% file only if the status code is in the 200-299 range. If not, the response body is returned
+-%% as a string.</li>
+-%% <li>Whenever an error occurs in the processing of a request, ibrowse will return as much
+-%% information as it has, such as HTTP Status Code and HTTP Headers. When this happens, the response
+-%% is of the form <code>{error, {Reason, {stat_code, StatusCode}, HTTP_headers}}</code></li>
+-%%
+-%% <li>The <code>inactivity_timeout</code> option is useful when
+-%% dealing with large response bodies and/or slow links. In these
+-%% cases, it might be hard to estimate how long a request will take to
+-%% complete. In such cases, the client might want to timeout if no
+-%% data has been received on the link for a certain time interval.</li>
+-%%
+-%% <li>
+-%% The <code>connect_timeout</code> option is to specify how long the
+-%% client process should wait for connection establishment. This is
+-%% useful in scenarios where connections to servers are usually setup
+-%% very fast, but responses might take much longer compared to
+-%% connection setup. In such cases, it is better for the calling
+-%% process to timeout faster if there is a problem (DNS lookup
+-%% delays/failures, network routing issues, etc). The total timeout
+-%% value specified for the request will enforced. To illustrate using
+-%% an example:
+-%% <code>
+-%% ibrowse:send_req("http://www.example.com/cgi-bin/request", [], get, [], [{connect_timeout, 100}], 1000).
+-%% </code>
+-%% In the above invocation, if the connection isn't established within
+-%% 100 milliseconds, the request will fail with
+-%% <code>{error, conn_failed}</code>.<br/>
+-%% If connection setup succeeds, the total time allowed for the
+-%% request to complete will be 1000 milliseconds minus the time taken
+-%% for connection setup.
+-%% </li>
+-%% </ul>
+-%%
+-%% @spec send_req(Url::string(), Headers::headerList(), Method::method(), Body::body(), Options::optionList()) -> response()
+-%% optionList() = [option()]
+-%% option() = {max_sessions, integer()}        |
+-%%          {response_format,response_format()}|
+-%%          {stream_chunk_size, integer()}     |
+-%%          {max_pipeline_size, integer()}     |
+-%%          {trace, boolean()}                 |
+-%%          {is_ssl, boolean()}                |
+-%%          {ssl_options, [SSLOpt]}            |
+-%%          {pool_name, atom()}                |
+-%%          {proxy_host, string()}             |
+-%%          {proxy_port, integer()}            |
+-%%          {proxy_user, string()}             |
+-%%          {proxy_password, string()}         |
+-%%          {use_absolute_uri, boolean()}      |
+-%%          {basic_auth, {username(), password()}} |
+-%%          {cookie, string()}                 |
+-%%          {content_length, integer()}        |
+-%%          {content_type, string()}           |
+-%%          {save_response_to_file, srtf()}    |
+-%%          {stream_to, stream_to()}           |
+-%%          {http_vsn, {MajorVsn, MinorVsn}}   |
+-%%          {host_header, string()}            |
+-%%          {inactivity_timeout, integer()}    |
+-%%          {connect_timeout, integer()}       |
+-%%          {transfer_encoding, {chunked, ChunkSize}}
+-%%
+-%% stream_to() = process() | {process(), once}
+-%% process() = pid() | atom()
+-%% username() = string()
+-%% password() = string()
+-%% SSLOpt = term()
+-%% ChunkSize = integer()
+-%% srtf() = boolean() | filename()
+-%% filename() = string()
+-%% response_format() = list | binary
+-send_req(Url, Headers, Method, Body, Options) ->
+-    send_req(Url, Headers, Method, Body, Options, 30000).
+-
+-%% @doc Same as send_req/5.
+-%% All timeout values are in milliseconds.
+-%% @spec send_req(Url, Headers::headerList(), Method::method(), Body::body(), Options::optionList(), Timeout) -> response()
+-%% Timeout = integer() | infinity
+-send_req(Url, Headers, Method, Body, Options, Timeout) ->
+-    case catch parse_url(Url) of
+-	#url{host = Host,
+-	     port = Port,
+-	     protocol = Protocol} = Parsed_url ->
+-	    Lb_pid = case ets:lookup(ibrowse_lb, {Host, Port}) of
+-			 [] ->
+-			     get_lb_pid(Parsed_url);
+-			 [#lb_pid{pid = Lb_pid_1}] ->
+-			     Lb_pid_1
+-		     end,
+-	    Max_sessions = get_max_sessions(Host, Port, Options),
+-	    Max_pipeline_size = get_max_pipeline_size(Host, Port, Options),
+-	    Options_1 = merge_options(Host, Port, Options),
+-	    {SSLOptions, IsSSL} =
+-		case (Protocol == https) orelse
+-		     get_value(is_ssl, Options_1, false) of
+-		    false -> {[], false};
+-		    true -> {get_value(ssl_options, Options_1, []), true}
+-		end,
+-	    case ibrowse_lb:spawn_connection(Lb_pid, Parsed_url,
+-					     Max_sessions,
+-					     Max_pipeline_size,
+-					     {SSLOptions, IsSSL}) of
+-		{ok, Conn_Pid} ->
+-		    do_send_req(Conn_Pid, Parsed_url, Headers,
+-				Method, Body, Options_1, Timeout);
+-		Err ->
+-		    Err
+-	    end;
+-	Err ->
+-	    {error, {url_parsing_failed, Err}}
+-    end.
+-
+-merge_options(Host, Port, Options) ->
+-    Config_options = get_config_value({options, Host, Port}, []),
+-    lists:foldl(
+-      fun({Key, Val}, Acc) ->
+-			case lists:keysearch(Key, 1, Options) of
+-			    false ->
+-				[{Key, Val} | Acc];
+-			    _ ->
+-				Acc
+-			end
+-      end, Options, Config_options).
+-
+-get_lb_pid(Url) ->
+-    gen_server:call(?MODULE, {get_lb_pid, Url}).
+-
+-get_max_sessions(Host, Port, Options) ->
+-    get_value(max_sessions, Options,
+-	      get_config_value({max_sessions, Host, Port}, ?DEF_MAX_SESSIONS)).
+-
+-get_max_pipeline_size(Host, Port, Options) ->
+-    get_value(max_pipeline_size, Options,
+-	      get_config_value({max_pipeline_size, Host, Port}, ?DEF_MAX_PIPELINE_SIZE)).
+-
+-%% @doc Deprecated. Use set_max_sessions/3 and set_max_pipeline_size/3
+-%% for achieving the same effect.
+-set_dest(Host, Port, [{max_sessions, Max} | T]) ->
+-    set_max_sessions(Host, Port, Max),
+-    set_dest(Host, Port, T);
+-set_dest(Host, Port, [{max_pipeline_size, Max} | T]) ->
+-    set_max_pipeline_size(Host, Port, Max),
+-    set_dest(Host, Port, T);
+-set_dest(Host, Port, [{trace, Bool} | T]) when Bool == true; Bool == false ->
+-    ibrowse ! {trace, true, Host, Port},
+-    set_dest(Host, Port, T);
+-set_dest(_Host, _Port, [H | _]) ->
+-    exit({invalid_option, H});
+-set_dest(_, _, []) ->
+-    ok.
+-
+-%% @doc Set the maximum number of connections allowed to a specific Host:Port.
+-%% @spec set_max_sessions(Host::string(), Port::integer(), Max::integer()) -> ok
+-set_max_sessions(Host, Port, Max) when is_integer(Max), Max > 0 ->
+-    gen_server:call(?MODULE, {set_config_value, {max_sessions, Host, Port}, Max}).
+-
+-%% @doc Set the maximum pipeline size for each connection to a specific Host:Port.
+-%% @spec set_max_pipeline_size(Host::string(), Port::integer(), Max::integer()) -> ok
+-set_max_pipeline_size(Host, Port, Max) when is_integer(Max), Max > 0 ->
+-    gen_server:call(?MODULE, {set_config_value, {max_pipeline_size, Host, Port}, Max}).
+-
+-do_send_req(Conn_Pid, Parsed_url, Headers, Method, Body, Options, Timeout) ->
+-    case catch ibrowse_http_client:send_req(Conn_Pid, Parsed_url,
+-					    Headers, Method, ensure_bin(Body),
+-					    Options, Timeout) of
+-	{'EXIT', {timeout, _}} ->
+-	    {error, req_timedout};
+-	{'EXIT', Reason} ->
+-	    {error, {'EXIT', Reason}};
+-	{ok, St_code, Headers, Body} = Ret when is_binary(Body) ->
+-	    case get_value(response_format, Options, list) of
+-		list ->
+-		    {ok, St_code, Headers, binary_to_list(Body)};
+-		binary ->
+-		    Ret
+-	    end;
+-	Ret ->
+-	    Ret
+-    end.
+-
+-ensure_bin(L) when is_list(L)                     -> list_to_binary(L);
+-ensure_bin(B) when is_binary(B)                   -> B;
+-ensure_bin(Fun) when is_function(Fun)             -> Fun;
+-ensure_bin({Fun}) when is_function(Fun)           -> Fun;
+-ensure_bin({Fun, _} = Body) when is_function(Fun) -> Body.
+-
+-%% @doc Creates a HTTP client process to the specified Host:Port which
+-%% is not part of the load balancing pool. This is useful in cases
+-%% where some requests to a webserver might take a long time whereas
+-%% some might take a very short time. To avoid getting these quick
+-%% requests stuck in the pipeline behind time consuming requests, use
+-%% this function to get a handle to a connection process. <br/>
+-%% <b>Note:</b> Calling this function only creates a worker process. No connection
+-%% is setup. The connection attempt is made only when the first
+-%% request is sent via any of the send_req_direct/4,5,6,7 functions.<br/>
+-%% <b>Note:</b> It is the responsibility of the calling process to control
+-%% pipeline size on such connections.
+-%%
+-%% @spec spawn_worker_process(Host::string(), Port::integer()) -> {ok, pid()}
+-spawn_worker_process(Host, Port) ->
+-    ibrowse_http_client:start({Host, Port}).
+-
+-%% @doc Same as spawn_worker_process/2 except the the calling process
+-%% is linked to the worker process which is spawned.
+-spawn_link_worker_process(Host, Port) ->
+-    ibrowse_http_client:start_link({Host, Port}).
+-
+-%% @doc Terminate a worker process spawned using
+-%% spawn_worker_process/2 or spawn_link_worker_process/2. Requests in
+-%% progress will get the error response <pre>{error, closing_on_request}</pre>
+-%% @spec stop_worker_process(Conn_pid::pid()) -> ok
+-stop_worker_process(Conn_pid) ->
+-    ibrowse_http_client:stop(Conn_pid).
+-
+-%% @doc Same as send_req/3 except that the first argument is the PID
+-%% returned by spawn_worker_process/2 or spawn_link_worker_process/2
+-send_req_direct(Conn_pid, Url, Headers, Method) ->
+-    send_req_direct(Conn_pid, Url, Headers, Method, [], []).
+-
+-%% @doc Same as send_req/4 except that the first argument is the PID
+-%% returned by spawn_worker_process/2 or spawn_link_worker_process/2
+-send_req_direct(Conn_pid, Url, Headers, Method, Body) ->
+-    send_req_direct(Conn_pid, Url, Headers, Method, Body, []).
+-
+-%% @doc Same as send_req/5 except that the first argument is the PID
+-%% returned by spawn_worker_process/2 or spawn_link_worker_process/2
+-send_req_direct(Conn_pid, Url, Headers, Method, Body, Options) ->
+-    send_req_direct(Conn_pid, Url, Headers, Method, Body, Options, 30000).
+-
+-%% @doc Same as send_req/6 except that the first argument is the PID
+-%% returned by spawn_worker_process/2 or spawn_link_worker_process/2
+-send_req_direct(Conn_pid, Url, Headers, Method, Body, Options, Timeout) ->
+-    case catch parse_url(Url) of
+-	#url{host = Host,
+-	     port = Port} = Parsed_url ->
+-	    Options_1 = merge_options(Host, Port, Options),
+-	    case do_send_req(Conn_pid, Parsed_url, Headers, Method, Body, Options_1, Timeout) of
+-		{error, {'EXIT', {noproc, _}}} ->
+-		    {error, worker_is_dead};
+-		Ret ->
+-		    Ret
+-	    end;
+-	Err ->
+-	    {error, {url_parsing_failed, Err}}
+-    end.
+-
+-%% @doc Tell ibrowse to stream the next chunk of data to the
+-%% caller. Should be used in conjunction with the
+-%% <code>stream_to</code> option
+-%% @spec stream_next(Req_id :: req_id()) -> ok | {error, unknown_req_id}
+-stream_next(Req_id) ->
+-    case ets:lookup(ibrowse_stream, {req_id_pid, Req_id}) of
+-	[] ->
+-	    {error, unknown_req_id};
+-	[{_, Pid}] ->
+-	    catch Pid ! {stream_next, Req_id},
+-	    ok
+-    end.
+-
+-%% @doc Turn tracing on for the ibrowse process
+-trace_on() ->
+-    ibrowse ! {trace, true}.
+-%% @doc Turn tracing off for the ibrowse process
+-trace_off() ->
+-    ibrowse ! {trace, false}.
+-
+-%% @doc Turn tracing on for all connections to the specified HTTP
+-%% server. Host is whatever is specified as the domain name in the URL
+-%% @spec trace_on(Host, Port) -> ok
+-%% Host = string()
+-%% Port = integer()
+-trace_on(Host, Port) ->
+-    ibrowse ! {trace, true, Host, Port},
+-    ok.
+-
+-%% @doc Turn tracing OFF for all connections to the specified HTTP
+-%% server.
+-%% @spec trace_off(Host, Port) -> ok
+-trace_off(Host, Port) ->
+-    ibrowse ! {trace, false, Host, Port},
+-    ok.
+-
+-%% @doc Turn Off ALL tracing
+-%% @spec all_trace_off() -> ok
+-all_trace_off() ->
+-    ibrowse ! all_trace_off,
+-    ok.
+-
+-show_dest_status() ->
+-    Dests = lists:filter(fun({lb_pid, {Host, Port}, _}) when is_list(Host),
+-							     is_integer(Port) ->
+-				 true;
+-			    (_) ->
+-				 false
+-			 end, ets:tab2list(ibrowse_lb)),
+-    All_ets = ets:all(),
+-    io:format("~-40.40s | ~-5.5s | ~-10.10s | ~s~n",
+-	      ["Server:port", "ETS", "Num conns", "LB Pid"]),
+-    io:format("~80.80.=s~n", [""]),
+-    lists:foreach(fun({lb_pid, {Host, Port}, Lb_pid}) ->
+-			  case lists:dropwhile(
+-				 fun(Tid) ->
+-					 ets:info(Tid, owner) /= Lb_pid
+-				 end, All_ets) of
+-			      [] ->
+-				  io:format("~40.40s | ~-5.5s | ~-5.5s | ~s~n",
+-					    [Host ++ ":" ++ integer_to_list(Port),
+-					     "",
+-					     "",
+-					     io_lib:format("~p", [Lb_pid])]
+-					   );
+-			      [Tid | _] ->
+-				  catch (
+-				    begin
+-					Size = ets:info(Tid, size),
+-					io:format("~40.40s | ~-5.5s | ~-5.5s | ~s~n",
+-						  [Host ++ ":" ++ integer_to_list(Port),
+-						   integer_to_list(Tid),
+-						   integer_to_list(Size),
+-						   io_lib:format("~p", [Lb_pid])]
+-						 )
+-				    end
+-				   )
+-				  end
+-		  end, Dests).
+-
+-%% @doc Shows some internal information about load balancing to a
+-%% specified Host:Port. Info about workers spawned using
+-%% spawn_worker_process/2 or spawn_link_worker_process/2 is not
+-%% included.
+-show_dest_status(Host, Port) ->
+-    case ets:lookup(ibrowse_lb, {Host, Port}) of
+-	[] ->
+-	    no_active_processes;
+-	[#lb_pid{pid = Lb_pid}] ->
+-	    io:format("Load Balancer Pid     : ~p~n", [Lb_pid]),
+-	    io:format("LB process msg q size : ~p~n", [(catch process_info(Lb_pid, message_queue_len))]),
+-	    case lists:dropwhile(
+-		   fun(Tid) ->
+-			   ets:info(Tid, owner) /= Lb_pid
+-		   end, ets:all()) of
+-		[] ->
+-		    io:format("Couldn't locate ETS table for ~p~n", [Lb_pid]);
+-		[Tid | _] ->
+-		    First = ets:first(Tid),
+-		    Last = ets:last(Tid),
+-		    Size = ets:info(Tid, size),
+-		    io:format("LB ETS table id       : ~p~n", [Tid]),
+-		    io:format("Num Connections       : ~p~n", [Size]),
+-		    case Size of
+-			0 ->
+-			    ok;
+-			_ ->
+-			    {First_p_sz, _} = First,
+-			    {Last_p_sz, _} = Last,
+-			    io:format("Smallest pipeline     : ~1000.p~n", [First_p_sz]),
+-			    io:format("Largest pipeline      : ~1000.p~n", [Last_p_sz])
+-		    end
+-	    end
+-    end.
+-
+-%% @doc Clear current configuration for ibrowse and load from the file
+-%% ibrowse.conf in the IBROWSE_EBIN/../priv directory. Current
+-%% configuration is cleared only if the ibrowse.conf file is readable
+-%% using file:consult/1
+-rescan_config() ->
+-    gen_server:call(?MODULE, rescan_config).
+-
+-%% Clear current configuration for ibrowse and load from the specified
+-%% file. Current configuration is cleared only if the specified
+-%% file is readable using file:consult/1
+-rescan_config(File) when is_list(File) ->
+-    gen_server:call(?MODULE, {rescan_config, File}).
+-
+-%%====================================================================
+-%% Server functions
+-%%====================================================================
+-
+-%%--------------------------------------------------------------------
+-%% Function: init/1
+-%% Description: Initiates the server
+-%% Returns: {ok, State}          |
+-%%          {ok, State, Timeout} |
+-%%          ignore               |
+-%%          {stop, Reason}
+-%%--------------------------------------------------------------------
+-init(_) ->
+-    process_flag(trap_exit, true),
+-    State = #state{},
+-    put(my_trace_flag, State#state.trace),
+-    put(ibrowse_trace_token, "ibrowse"),
+-    ets:new(ibrowse_lb, [named_table, public, {keypos, 2}]),
+-    ets:new(ibrowse_conf, [named_table, protected, {keypos, 2}]),
+-    ets:new(ibrowse_stream, [named_table, public]),
+-    import_config(),
+-    {ok, #state{}}.
+-
+-import_config() ->
+-    case code:priv_dir(ibrowse) of
+-	{error, _} = Err ->
+-	    Err;
+-	PrivDir ->
+-	    Filename = filename:join(PrivDir, "ibrowse.conf"),
+-	    import_config(Filename)
+-    end.
+-
+-import_config(Filename) ->
+-    case file:consult(Filename) of
+-	{ok, Terms} ->
+-	    ets:delete_all_objects(ibrowse_conf),
+-	    Fun = fun({dest, Host, Port, MaxSess, MaxPipe, Options})
+-		     when is_list(Host), is_integer(Port),
+-		          is_integer(MaxSess), MaxSess > 0,
+-		          is_integer(MaxPipe), MaxPipe > 0, is_list(Options) ->
+-			  I = [{{max_sessions, Host, Port}, MaxSess},
+-			       {{max_pipeline_size, Host, Port}, MaxPipe},
+-			       {{options, Host, Port}, Options}],
+-			  lists:foreach(
+-			    fun({X, Y}) ->
+-				    ets:insert(ibrowse_conf,
+-					       #ibrowse_conf{key = X,
+-							     value = Y})
+-			    end, I);
+-		     ({K, V}) ->
+-			  ets:insert(ibrowse_conf,
+-				     #ibrowse_conf{key = K,
+-						   value = V});
+-		     (X) ->
+-			  io:format("Skipping unrecognised term: ~p~n", [X])
+-		  end,
+-	    lists:foreach(Fun, Terms);
+-	Err ->
+-	    Err
+-    end.
+-
+-%% @doc Internal export
+-get_config_value(Key) ->
+-    [#ibrowse_conf{value = V}] = ets:lookup(ibrowse_conf, Key),
+-    V.
+-
+-%% @doc Internal export
+-get_config_value(Key, DefVal) ->
+-    case ets:lookup(ibrowse_conf, Key) of
+-	[] ->
+-	    DefVal;
+-	[#ibrowse_conf{value = V}] ->
+-	    V
+-    end.
+-
+-set_config_value(Key, Val) ->
+-    ets:insert(ibrowse_conf, #ibrowse_conf{key = Key, value = Val}).
+-%%--------------------------------------------------------------------
+-%% Function: handle_call/3
+-%% Description: Handling call messages
+-%% Returns: {reply, Reply, State}          |
+-%%          {reply, Reply, State, Timeout} |
+-%%          {noreply, State}               |
+-%%          {noreply, State, Timeout}      |
+-%%          {stop, Reason, Reply, State}   | (terminate/2 is called)
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-handle_call({get_lb_pid, #url{host = Host, port = Port} = Url}, _From, State) ->
+-    Pid = do_get_connection(Url, ets:lookup(ibrowse_lb, {Host, Port})),
+-    {reply, Pid, State};
+-
+-handle_call(stop, _From, State) ->
+-    do_trace("IBROWSE shutting down~n", []),
+-    {stop, normal, ok, State};
+-
+-handle_call({set_config_value, Key, Val}, _From, State) ->
+-    set_config_value(Key, Val),
+-    {reply, ok, State};
+-
+-handle_call(rescan_config, _From, State) ->
+-    Ret = (catch import_config()),
+-    {reply, Ret, State};
+-
+-handle_call({rescan_config, File}, _From, State) ->
+-    Ret = (catch import_config(File)),
+-    {reply, Ret, State};
+-
+-handle_call(Request, _From, State) ->
+-    Reply = {unknown_request, Request},
+-    {reply, Reply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: handle_cast/2
+-%% Description: Handling cast messages
+-%% Returns: {noreply, State}          |
+-%%          {noreply, State, Timeout} |
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-
+-handle_cast(_Msg, State) ->
+-    {noreply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: handle_info/2
+-%% Description: Handling all non call/cast messages
+-%% Returns: {noreply, State}          |
+-%%          {noreply, State, Timeout} |
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-handle_info(all_trace_off, State) ->
+-    Mspec = [{{ibrowse_conf,{trace,'$1','$2'},true},[],[{{'$1','$2'}}]}],
+-    Trace_on_dests = ets:select(ibrowse_conf, Mspec),
+-    Fun = fun(#lb_pid{host_port = {H, P}, pid = Pid}, _) ->
+-		  case lists:member({H, P}, Trace_on_dests) of
+-		      false ->
+-			  ok;
+-		      true ->
+-			  catch Pid ! {trace, false}
+-		  end;
+-	     (_, Acc) ->
+-		  Acc
+-	  end,
+-    ets:foldl(Fun, undefined, ibrowse_lb),
+-    ets:select_delete(ibrowse_conf, [{{ibrowse_conf,{trace,'$1','$2'},true},[],['true']}]),
+-    {noreply, State};
+-
+-handle_info({trace, Bool}, State) ->
+-    put(my_trace_flag, Bool),
+-    {noreply, State};
+-
+-handle_info({trace, Bool, Host, Port}, State) ->
+-    Fun = fun(#lb_pid{host_port = {H, P}, pid = Pid}, _)
+-	     when H == Host,
+-		  P == Port ->
+-		  catch Pid ! {trace, Bool};
+-	     (_, Acc) ->
+-		  Acc
+-	  end,
+-    ets:foldl(Fun, undefined, ibrowse_lb),
+-    ets:insert(ibrowse_conf, #ibrowse_conf{key = {trace, Host, Port},
+-					   value = Bool}),
+-    {noreply, State};
+-
+-handle_info(_Info, State) ->
+-    {noreply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: terminate/2
+-%% Description: Shutdown the server
+-%% Returns: any (ignored by gen_server)
+-%%--------------------------------------------------------------------
+-terminate(_Reason, _State) ->
+-    ok.
+-
+-%%--------------------------------------------------------------------
+-%% Func: code_change/3
+-%% Purpose: Convert process state when code is changed
+-%% Returns: {ok, NewState}
+-%%--------------------------------------------------------------------
+-code_change(_OldVsn, State, _Extra) ->
+-    {ok, State}.
+-
+-%%--------------------------------------------------------------------
+-%%% Internal functions
+-%%--------------------------------------------------------------------
+-do_get_connection(#url{host = Host, port = Port}, []) ->
+-    {ok, Pid} = ibrowse_lb:start_link([Host, Port]),
+-    ets:insert(ibrowse_lb, #lb_pid{host_port = {Host, Port}, pid = Pid}),
+-    Pid;
+-do_get_connection(_Url, [#lb_pid{pid = Pid}]) ->
+-    Pid.
+diff --git a/src/ibrowse/ibrowse.hrl b/src/ibrowse/ibrowse.hrl
+deleted file mode 100644
+index ebf3bb3..0000000
+--- a/src/ibrowse/ibrowse.hrl
++++ /dev/null
+@@ -1,12 +0,0 @@
+--ifndef(IBROWSE_HRL).
+--define(IBROWSE_HRL, "ibrowse.hrl").
+-
+--record(url, {abspath, host, port, username, password, path, protocol}).
+-
+--record(lb_pid, {host_port, pid}).
+-
+--record(client_conn, {key, cur_pipeline_size = 0, reqs_served = 0}).
+-
+--record(ibrowse_conf, {key, value}).
+-
+--endif.
+diff --git a/src/ibrowse/ibrowse_app.erl b/src/ibrowse/ibrowse_app.erl
+deleted file mode 100644
+index 8c83e8f..0000000
+--- a/src/ibrowse/ibrowse_app.erl
++++ /dev/null
+@@ -1,64 +0,0 @@
+-%%%-------------------------------------------------------------------
+-%%% File    : ibrowse_app.erl
+-%%% Author  : Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%% Description :
+-%%%
+-%%% Created : 15 Oct 2003 by Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%%-------------------------------------------------------------------
+--module(ibrowse_app).
+--vsn('$Id: ibrowse_app.erl,v 1.1 2005/05/05 22:28:28 chandrusf Exp $ ').
+-
+--behaviour(application).
+-%%--------------------------------------------------------------------
+-%% Include files
+-%%--------------------------------------------------------------------
+-
+-%%--------------------------------------------------------------------
+-%% External exports
+-%%--------------------------------------------------------------------
+--export([
+-	 start/2,
+-	 stop/1
+-        ]).
+-
+-%%--------------------------------------------------------------------
+-%% Internal exports
+-%%--------------------------------------------------------------------
+--export([
+-        ]).
+-
+-%%--------------------------------------------------------------------
+-%% Macros
+-%%--------------------------------------------------------------------
+-
+-%%--------------------------------------------------------------------
+-%% Records
+-%%--------------------------------------------------------------------
+-
+-%%====================================================================
+-%% External functions
+-%%====================================================================
+-%%--------------------------------------------------------------------
+-%% Func: start/2
+-%% Returns: {ok, Pid}        |
+-%%          {ok, Pid, State} |
+-%%          {error, Reason}
+-%%--------------------------------------------------------------------
+-start(_Type, _StartArgs) ->
+-    case ibrowse_sup:start_link() of
+-	{ok, Pid} ->
+-	    {ok, Pid};
+-	Error ->
+-	    Error
+-    end.
+-
+-%%--------------------------------------------------------------------
+-%% Func: stop/1
+-%% Returns: any
+-%%--------------------------------------------------------------------
+-stop(_State) ->
+-    ok.
+-
+-%%====================================================================
+-%% Internal functions
+-%%====================================================================
+diff --git a/src/ibrowse/ibrowse_http_client.erl b/src/ibrowse/ibrowse_http_client.erl
+deleted file mode 100644
+index 5f62f70..0000000
+--- a/src/ibrowse/ibrowse_http_client.erl
++++ /dev/null
+@@ -1,1476 +0,0 @@
+-%%%-------------------------------------------------------------------
+-%%% File    : ibrowse_http_client.erl
+-%%% Author  : Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%% Description : The name says it all
+-%%%
+-%%% Created : 11 Oct 2003 by Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%%-------------------------------------------------------------------
+--module(ibrowse_http_client).
+--vsn('$Id: ibrowse_http_client.erl,v 1.19 2009/07/01 22:43:19 chandrusf Exp $ ').
+-
+--behaviour(gen_server).
+-%%--------------------------------------------------------------------
+-%% Include files
+-%%--------------------------------------------------------------------
+-
+-%%--------------------------------------------------------------------
+-%% External exports
+--export([
+-	 start_link/1,
+-	 start/1,
+-	 stop/1,
+-	 send_req/7
+-	]).
+-
+--ifdef(debug).
+--compile(export_all).
+--endif.
+-
+-%% gen_server callbacks
+--export([
+-	 init/1,
+-	 handle_call/3,
+-	 handle_cast/2,
+-	 handle_info/2,
+-	 terminate/2,
+-	 code_change/3
+-	]).
+-
+--include("ibrowse.hrl").
+-
+--record(state, {host, port,
+-		use_proxy = false, proxy_auth_digest,
+-		ssl_options = [], is_ssl = false, socket,
+-		reqs=queue:new(), cur_req, status=idle, http_status_code,
+-		reply_buffer = <<>>, rep_buf_size=0, streamed_size = 0,
+-		recvd_headers=[],
+-		is_closing, send_timer, content_length,
+-		deleted_crlf = false, transfer_encoding,
+-		chunk_size, chunk_size_buffer = <<>>, recvd_chunk_size,
+-		lb_ets_tid, cur_pipeline_size = 0, prev_req_id
+-	       }).
+-
+--record(request, {url, method, options, from,
+-		  stream_to, caller_controls_socket = false,
+-		  req_id,
+-		  stream_chunk_size,
+-		  save_response_to_file = false,
+-		  tmp_file_name, tmp_file_fd,
+-		  response_format}).
+-
+--import(ibrowse_lib, [
+-		      get_value/2,
+-		      get_value/3,
+-		      do_trace/2
+-		     ]).
+-
+--define(DEFAULT_STREAM_CHUNK_SIZE, 1024*1024).
+-
+-%%====================================================================
+-%% External functions
+-%%====================================================================
+-%%--------------------------------------------------------------------
+-%% Function: start_link/0
+-%% Description: Starts the server
+-%%--------------------------------------------------------------------
+-start(Args) ->
+-    gen_server:start(?MODULE, Args, []).
+-
+-start_link(Args) ->
+-    gen_server:start_link(?MODULE, Args, []).
+-
+-stop(Conn_pid) ->
+-    gen_server:call(Conn_pid, stop).
+-
+-send_req(Conn_Pid, Url, Headers, Method, Body, Options, Timeout) ->
+-    gen_server:call(
+-      Conn_Pid,
+-      {send_req, {Url, Headers, Method, Body, Options, Timeout}}, Timeout).
+-
+-%%====================================================================
+-%% Server functions
+-%%====================================================================
+-
+-%%--------------------------------------------------------------------
+-%% Function: init/1
+-%% Description: Initiates the server
+-%% Returns: {ok, State}          |
+-%%          {ok, State, Timeout} |
+-%%          ignore               |
+-%%          {stop, Reason}
+-%%--------------------------------------------------------------------
+-init({Lb_Tid, #url{host = Host, port = Port}, {SSLOptions, Is_ssl}}) ->
+-    State = #state{host = Host,
+-		   port = Port,
+-		   ssl_options = SSLOptions,
+-		   is_ssl = Is_ssl,
+-		   lb_ets_tid = Lb_Tid},
+-    put(ibrowse_trace_token, [Host, $:, integer_to_list(Port)]),
+-    put(my_trace_flag, ibrowse_lib:get_trace_status(Host, Port)),
+-    {ok, State};
+-init({Host, Port}) ->
+-    State = #state{host = Host,
+-		   port = Port},
+-    put(ibrowse_trace_token, [Host, $:, integer_to_list(Port)]),
+-    put(my_trace_flag, ibrowse_lib:get_trace_status(Host, Port)),
+-    {ok, State};
+-init(#url{host=Host, port=Port, protocol=Protocol}) ->
+-    State = #state{
+-        host = Host,
+-        port = Port,
+-        is_ssl = (Protocol == https),
+-        ssl_options = [{ssl_imp, new}]
+-    },
+-    put(ibrowse_trace_token, [Host, $:, integer_to_list(Port)]),
+-    put(my_trace_flag, ibrowse_lib:get_trace_status(Host, Port)),
+-    {ok, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: handle_call/3
+-%% Description: Handling call messages
+-%% Returns: {reply, Reply, State}          |
+-%%          {reply, Reply, State, Timeout} |
+-%%          {noreply, State}               |
+-%%          {noreply, State, Timeout}      |
+-%%          {stop, Reason, Reply, State}   | (terminate/2 is called)
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-%% Received a request when the remote server has already sent us a
+-%% Connection: Close header
+-handle_call({send_req, _}, _From, #state{is_closing = true} = State) ->
+-    {reply, {error, connection_closing}, State};
+-
+-handle_call({send_req, {Url, Headers, Method, Body, Options, Timeout}},
+-	    From, State) ->
+-    send_req_1(From, Url, Headers, Method, Body, Options, Timeout, State);
+-
+-handle_call(stop, _From, State) ->
+-    do_close(State),
+-    do_error_reply(State, closing_on_request),
+-    {stop, normal, ok, State#state{socket=undefined}};
+-
+-handle_call(Request, _From, State) ->
+-    Reply = {unknown_request, Request},
+-    {reply, Reply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: handle_cast/2
+-%% Description: Handling cast messages
+-%% Returns: {noreply, State}          |
+-%%          {noreply, State, Timeout} |
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-handle_cast(_Msg, State) ->
+-    {noreply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: handle_info/2
+-%% Description: Handling all non call/cast messages
+-%% Returns: {noreply, State}          |
+-%%          {noreply, State, Timeout} |
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-handle_info({tcp, _Sock, Data}, #state{status = Status} = State) ->
+-    do_trace("Data recvd in state: ~p. Size: ~p. ~p~n~n", [Status, size(Data), Data]),
+-    handle_sock_data(Data, State);
+-handle_info({ssl, _Sock, Data}, State) ->
+-    handle_sock_data(Data, State);
+-
+-handle_info({stream_next, Req_id}, #state{socket = Socket,
+-					  is_ssl = Is_ssl,
+-					  cur_req = #request{req_id = Req_id}} = State) ->
+-    do_setopts(Socket, [{active, once}], Is_ssl),
+-    {noreply, State};
+-
+-handle_info({stream_next, _Req_id}, State) ->
+-    {noreply, State};
+-
+-handle_info({tcp_closed, _Sock}, State) ->
+-    do_trace("TCP connection closed by peer!~n", []),
+-    handle_sock_closed(State),
+-    {stop, normal, State};
+-handle_info({ssl_closed, _Sock}, State) ->
+-    do_trace("SSL connection closed by peer!~n", []),
+-    handle_sock_closed(State),
+-    {stop, normal, State};
+-
+-handle_info({tcp_error, _Sock}, State) ->
+-    io:format("Error on connection to ~1000.p:~1000.p~n", [State#state.host, State#state.port]),
+-    handle_sock_closed(State),
+-    {stop, normal, State};
+-handle_info({ssl_error, _Sock}, State) ->
+-    io:format("Error on SSL connection to ~1000.p:~1000.p~n", [State#state.host, State#state.port]),
+-    handle_sock_closed(State),
+-    {stop, normal, State};
+-
+-handle_info({req_timedout, From}, State) ->
+-    case lists:keysearch(From, #request.from, queue:to_list(State#state.reqs)) of
+-	false ->
+-	    {noreply, State};
+-	{value, _} ->
+-	    shutting_down(State),
+-	    do_error_reply(State, req_timedout),
+-	    {stop, normal, State}
+-    end;
+-
+-handle_info(timeout, State) ->
+-    shutting_down(State),
+-    do_error_reply(State, req_timedout),
+-    {stop, normal, State};
+-
+-handle_info({trace, Bool}, State) ->
+-    put(my_trace_flag, Bool),
+-    {noreply, State};
+-
+-handle_info(Info, State) ->
+-    io:format("Unknown message recvd for ~1000.p:~1000.p -> ~p~n",
+-	      [State#state.host, State#state.port, Info]),
+-    io:format("Recvd unknown message ~p when in state: ~p~n", [Info, State]),
+-    {noreply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: terminate/2
+-%% Description: Shutdown the server
+-%% Returns: any (ignored by gen_server)
+-%%--------------------------------------------------------------------
+-terminate(_Reason, State) ->
+-    do_close(State).
+-
+-%%--------------------------------------------------------------------
+-%% Func: code_change/3
+-%% Purpose: Convert process state when code is changed
+-%% Returns: {ok, NewState}
+-%%--------------------------------------------------------------------
+-code_change(_OldVsn, State, _Extra) ->
+-    {ok, State}.
+-
+-%%--------------------------------------------------------------------
+-%%% Internal functions
+-%%--------------------------------------------------------------------
+-
+-%%--------------------------------------------------------------------
+-%% Handles data recvd on the socket
+-%%--------------------------------------------------------------------
+-handle_sock_data(Data, #state{status=idle}=State) ->
+-    do_trace("Data recvd on socket in state idle!. ~1000.p~n", [Data]),
+-    shutting_down(State),
+-    do_error_reply(State, data_in_status_idle),
+-    do_close(State),
+-    {stop, normal, State};
+-
+-handle_sock_data(Data, #state{status = get_header}=State) ->
+-    case parse_response(Data, State) of
+-	{error, _Reason} ->
+-	    shutting_down(State),
+-	    {stop, normal, State};
+-	stop ->
+-	    shutting_down(State),
+-	    {stop, normal, State};
+-	State_1 ->
+-	    active_once(State_1),
+-	    {noreply, State_1, get_inac_timeout(State_1)}
+-    end;
+-
+-handle_sock_data(Data, #state{status           = get_body,
+-			      content_length   = CL,
+-			      http_status_code = StatCode,
+-			      recvd_headers    = Headers,
+-			      chunk_size       = CSz} = State) ->
+-    case (CL == undefined) and (CSz == undefined) of
+-	true ->
+-	    case accumulate_response(Data, State) of
+-		{error, Reason} ->
+-		    shutting_down(State),
+-		    fail_pipelined_requests(State,
+-					    {error, {Reason, {stat_code, StatCode}, Headers}}),
+-		    {stop, normal, State};
+-		State_1 ->
+-		    active_once(State_1),
+-		    {noreply, State_1, get_inac_timeout(State_1)}
+-	    end;
+-	_ ->
+-	    case parse_11_response(Data, State) of
+-		{error, Reason} ->
+-		    shutting_down(State),
+-		    fail_pipelined_requests(State,
+-					    {error, {Reason, {stat_code, StatCode}, Headers}}),
+-		    {stop, normal, State};
+-		stop ->
+-		    shutting_down(State),
+-		    {stop, normal, State};
+-		State_1 ->
+-		    active_once(State_1),
+-		    {noreply, State_1, get_inac_timeout(State_1)}
+-	    end
+-    end.
+-
+-accumulate_response(Data,
+-		    #state{
+-		      cur_req = #request{save_response_to_file = true,
+-					 tmp_file_fd = undefined} = CurReq,
+-		      http_status_code=[$2 | _]}=State) ->
+-    TmpFilename = make_tmp_filename(),
+-    case file:open(TmpFilename, [write, delayed_write, raw]) of
+-	{ok, Fd} ->
+-	    accumulate_response(Data, State#state{
+-					cur_req = CurReq#request{
+-						    tmp_file_fd = Fd,
+-						    tmp_file_name = TmpFilename}});
+-	{error, Reason} ->
+-	    {error, {file_open_error, Reason}}
+-    end;
+-accumulate_response(Data, #state{cur_req = #request{save_response_to_file = true,
+-						    tmp_file_fd = Fd},
+-				 transfer_encoding=chunked,
+-				 reply_buffer = Reply_buf,
+-				 http_status_code=[$2 | _]
+-				} = State) ->
+-    case file:write(Fd, [Reply_buf, Data]) of
+-	ok ->
+-	    State#state{reply_buffer = <<>>};
+-	{error, Reason} ->
+-	    {error, {file_write_error, Reason}}
+-    end;
+-accumulate_response(Data, #state{cur_req = #request{save_response_to_file = true,
+-						    tmp_file_fd = Fd},
+-				 reply_buffer = RepBuf,
+-				 http_status_code=[$2 | _]
+-				} = State) ->
+-    case file:write(Fd, [RepBuf, Data]) of
+-	ok ->
+-	    State#state{reply_buffer = <<>>};
+-	{error, Reason} ->
+-	    {error, {file_write_error, Reason}}
+-    end;
+-accumulate_response(<<>>, State) ->
+-    State;
+-accumulate_response(Data, #state{reply_buffer = RepBuf,
+-				 rep_buf_size = RepBufSize,
+-				 streamed_size = Streamed_size,
+-				 cur_req = CurReq}=State) ->
+-    #request{stream_to=StreamTo, req_id=ReqId,
+-	     stream_chunk_size = Stream_chunk_size,
+-	     response_format = Response_format,
+-	     caller_controls_socket = Caller_controls_socket} = CurReq,
+-    RepBuf_1 = concat_binary([RepBuf, Data]),
+-    New_data_size = RepBufSize - Streamed_size,
+-    case StreamTo of
+-	undefined ->
+-	    State#state{reply_buffer = RepBuf_1};
+-	_ when Caller_controls_socket == true ->
+-	    do_interim_reply(StreamTo, Response_format, ReqId, RepBuf_1),
+-	    State#state{reply_buffer = <<>>,
+-			streamed_size = Streamed_size + size(RepBuf_1)};
+-	_ when New_data_size >= Stream_chunk_size ->
+-	    {Stream_chunk, Rem_data} = split_binary(RepBuf_1, Stream_chunk_size),
+-	    do_interim_reply(StreamTo, Response_format, ReqId, Stream_chunk),
+-	    accumulate_response(
+-	      Rem_data,
+-	      State#state{
+-		reply_buffer = <<>>,
+-		streamed_size = Streamed_size + Stream_chunk_size});
+-	_ ->
+-	    State#state{reply_buffer = RepBuf_1}
+-    end.
+-
+-make_tmp_filename() ->
+-    DownloadDir = ibrowse:get_config_value(download_dir, filename:absname("./")),
+-    {A,B,C} = now(),
+-    filename:join([DownloadDir,
+-		   "ibrowse_tmp_file_"++
+-		   integer_to_list(A) ++
+-		   integer_to_list(B) ++
+-		   integer_to_list(C)]).
+-
+-
+-%%--------------------------------------------------------------------
+-%% Handles the case when the server closes the socket
+-%%--------------------------------------------------------------------
+-handle_sock_closed(#state{status=get_header}=State) ->
+-    shutting_down(State),
+-    do_error_reply(State, connection_closed);
+-
+-handle_sock_closed(#state{cur_req=undefined} = State) ->
+-    shutting_down(State);
+-
+-%% We check for IsClosing because this the server could have sent a
+-%% Connection-Close header and has closed the socket to indicate end
+-%% of response. There maybe requests pipelined which need a response.
+-handle_sock_closed(#state{reply_buffer = Buf, reqs = Reqs, http_status_code = SC,
+-			  is_closing = IsClosing,
+-			  cur_req = #request{tmp_file_name=TmpFilename,
+-					     tmp_file_fd=Fd} = CurReq,
+-			  status = get_body, recvd_headers = Headers}=State) ->
+-    #request{from=From, stream_to=StreamTo, req_id=ReqId,
+-	     response_format = Resp_format} = CurReq,
+-    case IsClosing of
+-	true ->
+-	    {_, Reqs_1} = queue:out(Reqs),
+-	    case TmpFilename of
+-		undefined ->
+-		    do_reply(State, From, StreamTo, ReqId, Resp_format,
+-			     {ok, SC, Headers, Buf});
+-		_ ->
+-		    file:close(Fd),
+-		    do_reply(State, From, StreamTo, ReqId, Resp_format,
+-			     {ok, SC, Headers, {file, TmpFilename}})
+-	    end,
+-	    do_error_reply(State#state{reqs = Reqs_1}, connection_closed),
+-	    State;
+-	_ ->
+-	    do_error_reply(State, connection_closed),
+-	    State
+-    end.
+-
+-do_connect(Host, Port, _Options, #state{is_ssl=true, ssl_options=SSLOptions}, Timeout) ->
+-    ssl:connect(Host, Port,
+-		[binary, {nodelay, true}, {active, false} | SSLOptions],
+-		Timeout);
+-do_connect(Host, Port, _Options, _State, Timeout) ->
+-    gen_tcp:connect(Host, Port,
+-		    [binary, {nodelay, true}, {active, false}],
+-		    Timeout).
+-
+-do_send(Req, #state{socket = Sock, is_ssl = true})  ->  ssl:send(Sock, Req);
+-do_send(Req, #state{socket = Sock, is_ssl = false}) ->  gen_tcp:send(Sock, Req).
+-
+-%% @spec do_send_body(Sock::socket_descriptor(), Source::source_descriptor(), IsSSL::boolean()) -> ok | error()
+-%% source_descriptor() = fun_arity_0           |
+-%%                       {fun_arity_0}         |
+-%%                       {fun_arity_1, term()}
+-%% error() = term()
+-do_send_body(Source, State) when is_function(Source) ->
+-    do_send_body({Source}, State);
+-do_send_body({Source}, State) when is_function(Source) ->
+-    do_send_body1(Source, Source(), State);
+-do_send_body({Source, Source_state}, State) when is_function(Source) ->
+-    do_send_body1(Source, Source(Source_state), State);
+-do_send_body(Body, State) ->
+-    do_send(Body, State).
+-
+-do_send_body1(Source, Resp, State) ->
+-    case Resp of
+-	{ok, Data} ->
+-	    do_send(Data, State),
+-	    do_send_body({Source}, State);
+-	{ok, Data, New_source_state} ->
+-	    do_send(Data, State),
+-	    do_send_body({Source, New_source_state}, State);
+-	eof ->
+-	    ok;
+-	Err ->
+-	    Err
+-    end.
+-
+-do_close(#state{socket = undefined})            ->  ok;
+-do_close(#state{socket = Sock, is_ssl = true})  ->  ssl:close(Sock);
+-do_close(#state{socket = Sock, is_ssl = false}) ->  gen_tcp:close(Sock).
+-
+-active_once(#state{cur_req = #request{caller_controls_socket = true}}) ->
+-    ok;
+-active_once(#state{socket = Socket, is_ssl = Is_ssl}) ->
+-    do_setopts(Socket, [{active, once}], Is_ssl).
+-
+-do_setopts(Sock, Opts, true)  ->  ssl:setopts(Sock, Opts);
+-do_setopts(Sock, Opts, false) ->  inet:setopts(Sock, Opts).
+-
+-check_ssl_options(Options, State) ->
+-    case get_value(is_ssl, Options, false) of
+-	false ->
+-	    State;
+-	true ->
+-	    State#state{is_ssl=true, ssl_options=get_value(ssl_options, Options)}
+-    end.
+-
+-send_req_1(From,
+-	   #url{host = Host,
+-		port = Port} = Url,
+-	   Headers, Method, Body, Options, Timeout,
+-	   #state{socket = undefined} = State) ->
+-    {Host_1, Port_1, State_1} =
+-	case get_value(proxy_host, Options, false) of
+-	    false ->
+-		{Host, Port, State};
+-	    PHost ->
+-		ProxyUser     = get_value(proxy_user, Options, []),
+-		ProxyPassword = get_value(proxy_password, Options, []),
+-		Digest        = http_auth_digest(ProxyUser, ProxyPassword),
+-		{PHost, get_value(proxy_port, Options, 80),
+-		 State#state{use_proxy = true,
+-			     proxy_auth_digest = Digest}}
+-	end,
+-    State_2 = check_ssl_options(Options, State_1),
+-    do_trace("Connecting...~n", []),
+-    Start_ts = now(),
+-    Conn_timeout = get_value(connect_timeout, Options, Timeout),
+-    case do_connect(Host_1, Port_1, Options, State_2, Conn_timeout) of
+-	{ok, Sock} ->
+-	    do_trace("Connected!~n", []),
+-	    End_ts = now(),
+-	    Timeout_1 = case Timeout of
+-			    infinity ->
+-				infinity;
+-			    _ ->
+-				Timeout - trunc(round(timer:now_diff(End_ts, Start_ts) / 1000))
+-			end,
+-	    State_3 = State_2#state{socket = Sock},
+-	    send_req_1(From, Url, Headers, Method, Body, Options, Timeout_1, State_3);
+-	Err ->
+-	    shutting_down(State_2),
+-	    do_trace("Error connecting. Reason: ~1000.p~n", [Err]),
+-	    gen_server:reply(From, {error, conn_failed}),
+-	    {stop, normal, State_2}
+-    end;
+-send_req_1(From,
+-	   #url{abspath = AbsPath,
+-		host    = Host,
+-		port    = Port,
+-		path    = RelPath} = Url,
+-	   Headers, Method, Body, Options, Timeout,
+-	   #state{status = Status} = State) ->
+-    ReqId = make_req_id(),
+-    Resp_format = get_value(response_format, Options, list),
+-    {StreamTo, Caller_controls_socket} =
+-	case get_value(stream_to, Options, undefined) of
+-	    {Caller, once} when is_pid(Caller) or
+-				is_atom(Caller) ->
+-		Async_pid_rec = {{req_id_pid, ReqId}, self()},
+-		true = ets:insert(ibrowse_stream, Async_pid_rec),
+-		{Caller, true};
+-	    undefined ->
+-		{undefined, false};
+-	    Caller when is_pid(Caller) or
+-			is_atom(Caller) ->
+-		{Caller, false};
+-	    Stream_to_inv ->
+-		exit({invalid_option, {stream_to, Stream_to_inv}})
+-	end,
+-    SaveResponseToFile = get_value(save_response_to_file, Options, false),
+-    NewReq = #request{url                    = Url,
+-		      method                 = Method,
+-		      stream_to              = StreamTo,
+-		      caller_controls_socket = Caller_controls_socket,
+-		      options                = Options,
+-		      req_id                 = ReqId,
+-		      save_response_to_file  = SaveResponseToFile,
+-		      stream_chunk_size      = get_stream_chunk_size(Options),
+-		      response_format        = Resp_format,
+-		      from                   = From},
+-    State_1 = State#state{reqs=queue:in(NewReq, State#state.reqs)},
+-    Headers_1 = add_auth_headers(Url, Options, Headers, State),
+-    HostHeaderValue = case lists:keysearch(host_header, 1, Options) of
+-			  false ->
+-			      case Port of
+-				  80 -> Host;
+-				  _ -> [Host, ":", integer_to_list(Port)]
+-			      end;
+-			  {value, {_, Host_h_val}} ->
+-			      Host_h_val
+-		      end,
+-    {Req, Body_1} = make_request(Method,
+-				 [{"Host", HostHeaderValue} | Headers_1],
+-				 AbsPath, RelPath, Body, Options, State#state.use_proxy),
+-    case get(my_trace_flag) of
+-	true ->
+-	    %%Avoid the binary operations if trace is not on...
+-	    NReq = binary_to_list(list_to_binary(Req)),
+-	    do_trace("Sending request: ~n"
+-		     "--- Request Begin ---~n~s~n"
+-		     "--- Request End ---~n", [NReq]);
+-	_ -> ok
+-    end,
+-    case do_send(Req, State) of
+-	ok ->
+-	    case do_send_body(Body_1, State) of
+-		ok ->
+-		    State_2 = inc_pipeline_counter(State_1),
+-		    active_once(State_1),
+-		    Ref = case Timeout of
+-			      infinity ->
+-				  undefined;
+-			      _ ->
+-				  erlang:send_after(Timeout, self(), {req_timedout, From})
+-			  end,
+-		    State_3 = case Status of
+-				  idle ->
+-				      State_2#state{status     = get_header,
+-						    cur_req    = NewReq,
+-						    send_timer = Ref};
+-				  _ ->
+-				      State_2#state{send_timer = Ref}
+-			      end,
+-		    case StreamTo of
+-			undefined ->
+-			    ok;
+-			_ ->
+-			    gen_server:reply(From, {ibrowse_req_id, ReqId})
+-		    end,
+-		    {noreply, State_3, get_inac_timeout(State_3)};
+-		Err ->
+-		    shutting_down(State_1),
+-		    do_trace("Send failed... Reason: ~p~n", [Err]),
+-		    gen_server:reply(From, {error, send_failed}),
+-		    {stop, normal, State_1}
+-	    end;
+-	Err ->
+-	    shutting_down(State_1),
+-	    do_trace("Send failed... Reason: ~p~n", [Err]),
+-	    gen_server:reply(From, {error, send_failed}),
+-	    {stop, normal, State_1}
+-    end.
+-
+-add_auth_headers(#url{username = User,
+-		      password = UPw},
+-		 Options,
+-		 Headers,
+-		 #state{use_proxy = UseProxy,
+-		        proxy_auth_digest = ProxyAuthDigest}) ->
+-    Headers_1 = case User of
+-		    undefined ->
+-			case get_value(basic_auth, Options, undefined) of
+-			    undefined ->
+-				Headers;
+-			    {U,P} ->
+-				[{"Authorization", ["Basic ", http_auth_digest(U, P)]} | Headers]
+-			end;
+-		    _ ->
+-			[{"Authorization", ["Basic ", http_auth_digest(User, UPw)]} | Headers]
+-		end,
+-    case UseProxy of
+-	false ->
+-	    Headers_1;
+-	true when ProxyAuthDigest == [] ->
+-	    Headers_1;
+-	true ->
+-	    [{"Proxy-Authorization", ["Basic ", ProxyAuthDigest]} | Headers_1]
+-    end.
+-
+-http_auth_digest([], []) ->
+-    [];
+-http_auth_digest(Username, Password) ->
+-    encode_base64(Username ++ [$: | Password]).
+-
+-encode_base64([]) ->
+-    [];
+-encode_base64([A]) ->
+-    [e(A bsr 2), e((A band 3) bsl 4), $=, $=];
+-encode_base64([A,B]) ->
+-    [e(A bsr 2), e(((A band 3) bsl 4) bor (B bsr 4)), e((B band 15) bsl 2), $=];
+-encode_base64([A,B,C|Ls]) ->
+-    encode_base64_do(A,B,C, Ls).
+-encode_base64_do(A,B,C, Rest) ->
+-    BB = (A bsl 16) bor (B bsl 8) bor C,
+-    [e(BB bsr 18), e((BB bsr 12) band 63),
+-     e((BB bsr 6) band 63), e(BB band 63)|encode_base64(Rest)].
+-
+-e(X) when X >= 0, X < 26 -> X+65;
+-e(X) when X>25, X<52     -> X+71;
+-e(X) when X>51, X<62     -> X-4;
+-e(62)                    -> $+;
+-e(63)                    -> $/;
+-e(X)                     -> exit({bad_encode_base64_token, X}).
+-
+-make_request(Method, Headers, AbsPath, RelPath, Body, Options, UseProxy) ->
+-    HttpVsn = http_vsn_string(get_value(http_vsn, Options, {1,1})),
+-    Headers_1 =
+-	case get_value(content_length, Headers, false) of
+-	    false when (Body == []) or
+-	               (Body == <<>>) or
+-	               is_tuple(Body) or
+-	               is_function(Body) ->
+-		Headers;
+-	    false when is_binary(Body) ->
+-		[{"content-length", integer_to_list(size(Body))} | Headers];
+-	    false ->
+-		[{"content-length", integer_to_list(length(Body))} | Headers];
+-	    _ ->
+-		Headers
+-	end,
+-    {Headers_2, Body_1} =
+-	case get_value(transfer_encoding, Options, false) of
+-	    false ->
+-		{Headers_1, Body};
+-	    {chunked, ChunkSize} ->
+-		{[{X, Y} || {X, Y} <- Headers_1,
+-			    X /= "Content-Length",
+-			    X /= "content-length",
+-			    X /= content_length] ++
+-		 [{"Transfer-Encoding", "chunked"}],
+-		 chunk_request_body(Body, ChunkSize)}
+-	end,
+-    Headers_3 = cons_headers(Headers_2),
+-    Uri = case get_value(use_absolute_uri, Options, false) or UseProxy of
+-	      true ->
+-		  AbsPath;
+-	      false ->
+-		  RelPath
+-	  end,
+-    {[method(Method), " ", Uri, " ", HttpVsn, crnl(), Headers_3, crnl()], Body_1}.
+-
+-http_vsn_string({0,9}) -> "HTTP/0.9";
+-http_vsn_string({1,0}) -> "HTTP/1.0";
+-http_vsn_string({1,1}) -> "HTTP/1.1".
+-
+-cons_headers(Headers) ->
+-    cons_headers(Headers, []).
+-cons_headers([], Acc) ->
+-    encode_headers(Acc);
+-cons_headers([{basic_auth, {U,P}} | T], Acc) ->
+-    cons_headers(T, [{"Authorization",
+-		      ["Basic ", ibrowse_lib:encode_base64(U++":"++P)]} | Acc]);
+-cons_headers([{cookie, Cookie} | T], Acc) ->
+-    cons_headers(T, [{"Cookie", Cookie} | Acc]);
+-cons_headers([{content_length, L} | T], Acc) ->
+-    cons_headers(T, [{"Content-Length", L} | Acc]);
+-cons_headers([{content_type, L} | T], Acc) ->
+-    cons_headers(T, [{"Content-Type", L} | Acc]);
+-cons_headers([H | T], Acc) ->
+-    cons_headers(T, [H | Acc]).
+-
+-encode_headers(L) ->
+-    encode_headers(L, []).
+-encode_headers([{http_vsn, _Val} | T], Acc) ->
+-    encode_headers(T, Acc);
+-encode_headers([{Name,Val} | T], Acc) when is_list(Name) ->
+-    encode_headers(T, [[Name, ": ", fmt_val(Val), crnl()] | Acc]);
+-encode_headers([{Name,Val} | T], Acc) when is_atom(Name) ->
+-    encode_headers(T, [[atom_to_list(Name), ": ", fmt_val(Val), crnl()] | Acc]);
+-encode_headers([], Acc) ->
+-    lists:reverse(Acc).
+-
+-chunk_request_body(Body, ChunkSize) ->
+-    chunk_request_body(Body, ChunkSize, []).
+-
+-chunk_request_body(Body, _ChunkSize, Acc) when Body == <<>>; Body == [] ->
+-    LastChunk = "0\r\n",
+-    lists:reverse(["\r\n", LastChunk | Acc]);
+-chunk_request_body(Body, ChunkSize, Acc) when is_binary(Body),
+-                                              size(Body) >= ChunkSize ->
+-    <<ChunkBody:ChunkSize/binary, Rest/binary>> = Body,
+-    Chunk = [ibrowse_lib:dec2hex(4, ChunkSize),"\r\n",
+-	     ChunkBody, "\r\n"],
+-    chunk_request_body(Rest, ChunkSize, [Chunk | Acc]);
+-chunk_request_body(Body, _ChunkSize, Acc) when is_binary(Body) ->
+-    BodySize = size(Body),
+-    Chunk = [ibrowse_lib:dec2hex(4, BodySize),"\r\n",
+-	     Body, "\r\n"],
+-    LastChunk = "0\r\n",
+-    lists:reverse(["\r\n", LastChunk, Chunk | Acc]);
+-chunk_request_body(Body, ChunkSize, Acc) when is_list(Body),
+-                                              length(Body) >= ChunkSize ->
+-    {ChunkBody, Rest} = split_list_at(Body, ChunkSize),
+-    Chunk = [ibrowse_lib:dec2hex(4, ChunkSize),"\r\n",
+-	     ChunkBody, "\r\n"],
+-    chunk_request_body(Rest, ChunkSize, [Chunk | Acc]);
+-chunk_request_body(Body, _ChunkSize, Acc) when is_list(Body) ->
+-    BodySize = length(Body),
+-    Chunk = [ibrowse_lib:dec2hex(4, BodySize),"\r\n",
+-	     Body, "\r\n"],
+-    LastChunk = "0\r\n",
+-    lists:reverse(["\r\n", LastChunk, Chunk | Acc]).
+-
+-
+-parse_response(_Data, #state{cur_req = undefined}=State) ->
+-    State#state{status = idle};
+-parse_response(Data, #state{reply_buffer = Acc, reqs = Reqs,
+-			    cur_req = CurReq} = State) ->
+-    #request{from=From, stream_to=StreamTo, req_id=ReqId,
+-	     method=Method, response_format = Resp_format} = CurReq,
+-    MaxHeaderSize = ibrowse:get_config_value(max_headers_size, infinity),
+-    case scan_header(Acc, Data) of
+-	{yes, Headers, Data_1}  ->
+-	    do_trace("Recvd Header Data -> ~s~n----~n", [Headers]),
+-	    do_trace("Recvd headers~n--- Headers Begin ---~n~s~n--- Headers End ---~n~n", [Headers]),
+-	    {HttpVsn, StatCode, Headers_1} = parse_headers(Headers),
+-	    do_trace("HttpVsn: ~p StatusCode: ~p Headers_1 -> ~1000.p~n", [HttpVsn, StatCode, Headers_1]),
+-	    LCHeaders = [{to_lower(X), Y} || {X,Y} <- Headers_1],
+-	    ConnClose = to_lower(get_value("connection", LCHeaders, "false")),
+-	    IsClosing = is_connection_closing(HttpVsn, ConnClose),
+-	    case IsClosing of
+-		true ->
+-                    shutting_down(State);
+-		false ->
+-		    ok
+-	    end,
+-	    State_1 = State#state{recvd_headers=Headers_1, status=get_body,
+-				  reply_buffer = <<>>,
+-				  http_status_code=StatCode, is_closing=IsClosing},
+-	    put(conn_close, ConnClose),
+-	    TransferEncoding = to_lower(get_value("transfer-encoding", LCHeaders, "false")),
+-	    case get_value("content-length", LCHeaders, undefined) of
+-		_ when Method == head ->
+-		    {_, Reqs_1} = queue:out(Reqs),
+-		    send_async_headers(ReqId, StreamTo, StatCode, Headers_1),
+-		    State_1_1 = do_reply(State_1, From, StreamTo, ReqId, Resp_format,
+-					 {ok, StatCode, Headers_1, []}),
+-		    cancel_timer(State_1_1#state.send_timer, {eat_message, {req_timedout, From}}),
+-		    State_2 = reset_state(State_1_1),
+-		    State_3 = set_cur_request(State_2#state{reqs = Reqs_1}),
+-		    parse_response(Data_1, State_3);
+-		_ when hd(StatCode) == $1 ->
+-		    %% No message body is expected. Server may send
+-		    %% one or more 1XX responses before a proper
+-		    %% response.
+-		    send_async_headers(ReqId, StreamTo, StatCode, Headers_1),
+-		    do_trace("Recvd a status code of ~p. Ignoring and waiting for a proper response~n", [StatCode]),
+-		    parse_response(Data_1, State_1#state{recvd_headers = [],
+-							 status = get_header});
+-		_ when StatCode == "204";
+-		       StatCode == "304" ->
+-		    %% No message body is expected for these Status Codes.
+-		    %% RFC2616 - Sec 4.4
+-		    {_, Reqs_1} = queue:out(Reqs),
+-		    send_async_headers(ReqId, StreamTo, StatCode, Headers_1),
+-		    State_1_1 = do_reply(State_1, From, StreamTo, ReqId, Resp_format,
+-					 {ok, StatCode, Headers_1, []}),
+-		    cancel_timer(State_1_1#state.send_timer, {eat_message, {req_timedout, From}}),
+-		    State_2 = reset_state(State_1_1),
+-		    State_3 = set_cur_request(State_2#state{reqs = Reqs_1}),
+-		    parse_response(Data_1, State_3);
+-		_ when TransferEncoding == "chunked" ->
+-		    do_trace("Chunked encoding detected...~n",[]),
+-		    send_async_headers(ReqId, StreamTo, StatCode, Headers_1),
+-		    case parse_11_response(Data_1, State_1#state{transfer_encoding=chunked,
+-								 chunk_size=chunk_start,
+-								 reply_buffer = <<>>}) of
+-			{error, Reason} ->
+-			    fail_pipelined_requests(State_1,
+-						    {error, {Reason,
+-							     {stat_code, StatCode}, Headers_1}}),
+-			    {error, Reason};
+-			State_2 ->
+-			    State_2
+-		    end;
+-		undefined when HttpVsn == "HTTP/1.0";
+-			       ConnClose == "close" ->
+-		    send_async_headers(ReqId, StreamTo, StatCode, Headers_1),
+-		    State_1#state{reply_buffer = Data_1};
+-		undefined ->
+-		    fail_pipelined_requests(State_1,
+-					    {error, {content_length_undefined,
+-						     {stat_code, StatCode}, Headers}}),
+-		    {error, content_length_undefined};
+-		V ->
+-		    case catch list_to_integer(V) of
+-			V_1 when is_integer(V_1), V_1 >= 0 ->
+-			    send_async_headers(ReqId, StreamTo, StatCode, Headers_1),
+-			    do_trace("Recvd Content-Length of ~p~n", [V_1]),
+-			    State_2 = State_1#state{rep_buf_size=0,
+-						    reply_buffer = <<>>,
+-						    content_length=V_1},
+-			    case parse_11_response(Data_1, State_2) of
+-				{error, Reason} ->
+-				    fail_pipelined_requests(State_1,
+-							    {error, {Reason,
+-								     {stat_code, StatCode}, Headers_1}}),
+-				    {error, Reason};
+-				State_3 ->
+-				    State_3
+-			    end;
+-			_ ->
+-			    fail_pipelined_requests(State_1,
+-					    {error, {content_length_undefined,
+-						     {stat_code, StatCode}, Headers}}),
+-			    {error, content_length_undefined}
+-		    end
+-	    end;
+-	{no, Acc_1} when MaxHeaderSize == infinity ->
+-	    State#state{reply_buffer = Acc_1};
+-	{no, Acc_1} when size(Acc_1) < MaxHeaderSize ->
+-	    State#state{reply_buffer = Acc_1};
+-	{no, _Acc_1} ->
+-	    fail_pipelined_requests(State, {error, max_headers_size_exceeded}),
+-	    {error, max_headers_size_exceeded}
+-    end.
+-
+-is_connection_closing("HTTP/0.9", _)       -> true;
+-is_connection_closing(_, "close")          -> true;
+-is_connection_closing("HTTP/1.0", "false") -> true;
+-is_connection_closing(_, _)                -> false.
+-
+-%% This clause determines the chunk size when given data from the beginning of the chunk
+-parse_11_response(DataRecvd,
+-		  #state{transfer_encoding = chunked,
+-			 chunk_size = chunk_start,
+-			 chunk_size_buffer = Chunk_sz_buf
+-			} = State) ->
+-    case scan_crlf(Chunk_sz_buf, DataRecvd) of
+-	{yes, ChunkHeader, Data_1} ->
+-	    case parse_chunk_header(ChunkHeader) of
+-		{error, Reason} ->
+-		    {error, Reason};
+-		ChunkSize ->
+-		    %%
+-		    %% Do we have to preserve the chunk encoding when
+-		    %% streaming? NO. This should be transparent to the client
+-		    %% process. Chunked encoding was only introduced to make
+-		    %% it efficient for the server.
+-		    %%
+-		    RemLen = size(Data_1),
+-		    do_trace("Determined chunk size: ~p. Already recvd: ~p~n", [ChunkSize, RemLen]),
+-		    parse_11_response(Data_1, State#state{chunk_size_buffer = <<>>,
+-							  deleted_crlf = true,
+-							  recvd_chunk_size = 0,
+-							  chunk_size = ChunkSize})
+-	    end;
+-	{no, Data_1} ->
+-	    State#state{chunk_size_buffer = Data_1}
+-    end;
+-
+-%% This clause is to remove the CRLF between two chunks
+-%%
+-parse_11_response(DataRecvd,
+-		  #state{transfer_encoding = chunked,
+-			 chunk_size = tbd,
+-			 chunk_size_buffer = Buf}=State) ->
+-    case scan_crlf(Buf, DataRecvd) of
+-	{yes, _, NextChunk} ->
+-	    State_1 = State#state{chunk_size = chunk_start,
+-				  chunk_size_buffer = <<>>,
+-				  deleted_crlf = true},
+-	    parse_11_response(NextChunk, State_1);
+-	{no, Data_1} ->
+-	    State#state{chunk_size_buffer = Data_1}
+-    end;
+-
+-%% This clause deals with the end of a chunked transfer. ibrowse does
+-%% not support Trailers in the Chunked Transfer encoding. Any trailer
+-%% received is silently discarded.
+-parse_11_response(DataRecvd,
+-		  #state{transfer_encoding = chunked, chunk_size = 0,
+-			 cur_req = CurReq,
+-			 deleted_crlf = DelCrlf,
+-			 chunk_size_buffer = Trailer, reqs = Reqs}=State) ->
+-    do_trace("Detected end of chunked transfer...~n", []),
+-    DataRecvd_1 = case DelCrlf of
+-		      false ->
+-			  DataRecvd;
+-		      true ->
+-			  <<$\r, $\n, DataRecvd/binary>>
+-                  end,
+-    case scan_header(Trailer, DataRecvd_1) of
+-	{yes, _TEHeaders, Rem} ->
+-	    {_, Reqs_1} = queue:out(Reqs),
+-	    State_1 = handle_response(CurReq, State#state{reqs = Reqs_1}),
+-	    parse_response(Rem, reset_state(State_1));
+-	{no, Rem} ->
+-	    State#state{chunk_size_buffer = Rem, deleted_crlf = false}
+-    end;
+-
+-%% This clause extracts a chunk, given the size.
+-parse_11_response(DataRecvd,
+-		  #state{transfer_encoding = chunked,
+-			 chunk_size = CSz,
+-			 recvd_chunk_size = Recvd_csz,
+-			 rep_buf_size = RepBufSz} = State) ->
+-    NeedBytes = CSz - Recvd_csz,
+-    DataLen = size(DataRecvd),
+-    do_trace("Recvd more data: size: ~p. NeedBytes: ~p~n", [DataLen, NeedBytes]),
+-    case DataLen >= NeedBytes of
+-	true ->
+-	    {RemChunk, RemData} = split_binary(DataRecvd, NeedBytes),
+-	    do_trace("Recvd another chunk...~n", []),
+-	    do_trace("RemData -> ~p~n", [RemData]),
+-	    case accumulate_response(RemChunk, State) of
+-		{error, Reason} ->
+-		    do_trace("Error accumulating response --> ~p~n", [Reason]),
+-		    {error, Reason};
+-		#state{} = State_1 ->
+-		    State_2 = State_1#state{chunk_size=tbd},
+-		    parse_11_response(RemData, State_2)
+-	    end;
+-	false ->
+-	    accumulate_response(DataRecvd,
+-				State#state{rep_buf_size = RepBufSz + DataLen,
+-					    recvd_chunk_size = Recvd_csz + DataLen})
+-    end;
+-
+-%% This clause to extract the body when Content-Length is specified
+-parse_11_response(DataRecvd,
+-		  #state{content_length=CL, rep_buf_size=RepBufSz,
+-			 reqs=Reqs}=State) ->
+-    NeedBytes = CL - RepBufSz,
+-    DataLen = size(DataRecvd),
+-    case DataLen >= NeedBytes of
+-	true ->
+-	    {RemBody, Rem} = split_binary(DataRecvd, NeedBytes),
+-	    {_, Reqs_1} = queue:out(Reqs),
+-	    State_1 = accumulate_response(RemBody, State),
+-	    State_2 = handle_response(State_1#state.cur_req, State_1#state{reqs=Reqs_1}),
+-	    State_3 = reset_state(State_2),
+-	    parse_response(Rem, State_3);
+-	false ->
+-	    accumulate_response(DataRecvd, State#state{rep_buf_size = (RepBufSz+DataLen)})
+-    end.
+-
+-handle_response(#request{from=From, stream_to=StreamTo, req_id=ReqId,
+-			 response_format = Resp_format,
+-			 save_response_to_file = SaveResponseToFile,
+-			 tmp_file_name = TmpFilename,
+-			 tmp_file_fd = Fd
+-			},
+-		#state{http_status_code = SCode,
+-		       send_timer = ReqTimer,
+-		       reply_buffer = RepBuf,
+-		       recvd_headers = RespHeaders}=State) when SaveResponseToFile /= false ->
+-    Body = RepBuf,
+-    State_1 = set_cur_request(State),
+-    file:close(Fd),
+-    ResponseBody = case TmpFilename of
+-		       undefined ->
+-			   Body;
+-		       _ ->
+-			   {file, TmpFilename}
+-		   end,
+-    State_2 = do_reply(State_1, From, StreamTo, ReqId, Resp_format,
+-		       {ok, SCode, RespHeaders, ResponseBody}),
+-    cancel_timer(ReqTimer, {eat_message, {req_timedout, From}}),
+-    State_2;
+-handle_response(#request{from=From, stream_to=StreamTo, req_id=ReqId,
+-			 response_format = Resp_format},
+-		#state{http_status_code=SCode, recvd_headers=RespHeaders,
+-		       reply_buffer = RepBuf,
+-		       send_timer=ReqTimer}=State) ->
+-    Body = RepBuf,
+-%%    State_1 = set_cur_request(State),
+-    State_1 = case get(conn_close) of
+-	"close" ->
+-	    do_reply(State, From, StreamTo, ReqId, Resp_format,
+-		     {ok, SCode, RespHeaders, Body}),
+-	    exit(normal);
+-	_ ->
+-	    State_1_1 = do_reply(State, From, StreamTo, ReqId, Resp_format,
+-				 {ok, SCode, RespHeaders, Body}),
+-	    cancel_timer(ReqTimer, {eat_message, {req_timedout, From}}),
+-	    State_1_1
+-    end,
+-    set_cur_request(State_1).
+-
+-reset_state(State) ->
+-    State#state{status            = get_header,
+-		rep_buf_size      = 0,
+-		streamed_size     = 0,
+-		content_length    = undefined,
+-		reply_buffer      = <<>>,
+-		chunk_size_buffer = <<>>,
+-		recvd_headers     = [],
+-		deleted_crlf      = false,
+-		http_status_code  = undefined,
+-		chunk_size        = undefined,
+-		transfer_encoding = undefined}.
+-
+-set_cur_request(#state{reqs = Reqs} = State) ->
+-    case queue:to_list(Reqs) of
+-	[] ->
+-	    State#state{cur_req = undefined};
+-	[NextReq | _] ->
+-	    State#state{cur_req = NextReq}
+-    end.
+-
+-parse_headers(Headers) ->
+-    case scan_crlf(Headers) of
+-	{yes, StatusLine, T} ->
+-	    parse_headers(StatusLine, T);
+-	{no, StatusLine} ->
+-	    parse_headers(StatusLine, <<>>)
+-    end.
+-
+-parse_headers(StatusLine, Headers) ->
+-    Headers_1 = parse_headers_1(Headers),
+-    case parse_status_line(StatusLine) of
+-	{ok, HttpVsn, StatCode, _Msg} ->
+-	    put(http_prot_vsn, HttpVsn),
+-	    {HttpVsn, StatCode, Headers_1};
+-	_ -> %% A HTTP 0.9 response?
+-	    put(http_prot_vsn, "HTTP/0.9"),
+-	    {"HTTP/0.9", undefined, Headers}
+-    end.
+-
+-% From RFC 2616
+-%
+-%    HTTP/1.1 header field values can be folded onto multiple lines if
+-%    the continuation line begins with a space or horizontal tab. All
+-%    linear white space, including folding, has the same semantics as
+-%    SP. A recipient MAY replace any linear white space with a single
+-%    SP before interpreting the field value or forwarding the message
+-%    downstream.
+-	parse_headers_1(B) when is_binary(B) ->
+-					   parse_headers_1(binary_to_list(B));
+-	parse_headers_1(String) ->
+-					   parse_headers_1(String, [], []).
+-
+-parse_headers_1([$\n, H |T], [$\r | L], Acc) when H == 32;
+-						  H == $\t ->
+-    parse_headers_1(lists:dropwhile(fun(X) ->
+-					    is_whitespace(X)
+-				    end, T), [32 | L], Acc);
+-parse_headers_1([$\n|T], [$\r | L], Acc) ->
+-    case parse_header(lists:reverse(L)) of
+-	invalid ->
+-	    parse_headers_1(T, [], Acc);
+-	NewHeader ->
+-	    parse_headers_1(T, [], [NewHeader | Acc])
+-    end;
+-parse_headers_1([H|T],  L, Acc) ->
+-    parse_headers_1(T, [H|L], Acc);
+-parse_headers_1([], [], Acc) ->
+-    lists:reverse(Acc);
+-parse_headers_1([], L, Acc) ->
+-    Acc_1 = case parse_header(lists:reverse(L)) of
+-		invalid ->
+-		    Acc;
+-		NewHeader ->
+-		    [NewHeader | Acc]
+-	    end,
+-    lists:reverse(Acc_1).
+-
+-parse_status_line(Line) when is_binary(Line) ->
+-    parse_status_line(binary_to_list(Line));
+-parse_status_line(Line) ->
+-    parse_status_line(Line, get_prot_vsn, [], []).
+-parse_status_line([32 | T], get_prot_vsn, ProtVsn, StatCode) ->
+-    parse_status_line(T, get_status_code, ProtVsn, StatCode);
+-parse_status_line([32 | T], get_status_code, ProtVsn, StatCode) ->
+-    {ok, lists:reverse(ProtVsn), lists:reverse(StatCode), T};
+-parse_status_line([H | T], get_prot_vsn, ProtVsn, StatCode) ->
+-    parse_status_line(T, get_prot_vsn, [H|ProtVsn], StatCode);
+-parse_status_line([H | T], get_status_code, ProtVsn, StatCode) ->
+-    parse_status_line(T, get_status_code, ProtVsn, [H | StatCode]);
+-parse_status_line([], _, _, _) ->
+-    http_09.
+-
+-parse_header(B) when is_binary(B) ->
+-    parse_header(binary_to_list(B));
+-parse_header(L) ->
+-    parse_header(L, []).
+-parse_header([$: | V], Acc) ->
+-    {lists:reverse(Acc), string:strip(V)};
+-parse_header([H | T], Acc) ->
+-    parse_header(T, [H | Acc]);
+-parse_header([], _) ->
+-    invalid.
+-
+-scan_header(Bin) ->
+-    case get_crlf_crlf_pos(Bin, 0) of
+-	{yes, Pos} ->
+-	    {Headers, <<_:4/binary, Body/binary>>} = split_binary(Bin, Pos),
+-	    {yes, Headers, Body};
+-	no ->
+-	    {no, Bin}
+-    end.
+-
+-scan_header(Bin1, Bin2) when size(Bin1) < 4 ->
+-    scan_header(<<Bin1/binary, Bin2/binary>>);
+-scan_header(Bin1, <<>>) ->
+-    scan_header(Bin1);
+-scan_header(Bin1, Bin2) ->
+-    Bin1_already_scanned_size = size(Bin1) - 4,
+-    <<Headers_prefix:Bin1_already_scanned_size/binary, Rest/binary>> = Bin1,
+-    Bin_to_scan = <<Rest/binary, Bin2/binary>>,
+-    case get_crlf_crlf_pos(Bin_to_scan, 0) of
+-	{yes, Pos} ->
+-	    {Headers_suffix, <<_:4/binary, Body/binary>>} = split_binary(Bin_to_scan, Pos),
+-	    {yes, <<Headers_prefix/binary, Headers_suffix/binary>>, Body};
+-	no ->
+-	    {no, <<Bin1/binary, Bin2/binary>>}
+-    end.
+-
+-get_crlf_crlf_pos(<<$\r, $\n, $\r, $\n, _/binary>>, Pos) -> {yes, Pos};
+-get_crlf_crlf_pos(<<_, Rest/binary>>, Pos)               -> get_crlf_crlf_pos(Rest, Pos + 1);
+-get_crlf_crlf_pos(<<>>, _)                               -> no.
+-
+-scan_crlf(Bin) ->
+-    case get_crlf_pos(Bin) of
+-	{yes, Pos} ->
+-	    {Prefix, <<_, _, Suffix/binary>>} = split_binary(Bin, Pos),
+-	    {yes, Prefix, Suffix};
+-	no ->
+-	    {no, Bin}
+-    end.
+-
+-scan_crlf(<<>>, Bin2) ->
+-    scan_crlf(Bin2);
+-scan_crlf(Bin1, Bin2) when size(Bin1) < 2 ->
+-    scan_crlf(<<Bin1/binary, Bin2/binary>>);
+-scan_crlf(Bin1, Bin2) ->
+-    scan_crlf_1(size(Bin1) - 2, Bin1, Bin2).
+-
+-scan_crlf_1(Bin1_head_size, Bin1, Bin2) ->
+-    <<Bin1_head:Bin1_head_size/binary, Bin1_tail/binary>> = Bin1,
+-    Bin3 = <<Bin1_tail/binary, Bin2/binary>>,
+-    case get_crlf_pos(Bin3) of
+-	{yes, Pos} ->
+-	    {Prefix, <<_, _, Suffix/binary>>} = split_binary(Bin3, Pos),
+-	    {yes, concat_binary([Bin1_head, Prefix]), Suffix};
+-	no ->
+-	    {no, concat_binary([Bin1, Bin2])}
+-    end.
+-
+-get_crlf_pos(Bin) ->
+-    get_crlf_pos(Bin, 0).
+-
+-get_crlf_pos(<<$\r, $\n, _/binary>>, Pos) -> {yes, Pos};
+-get_crlf_pos(<<_, Rest/binary>>, Pos)     -> get_crlf_pos(Rest, Pos + 1);
+-get_crlf_pos(<<>>, _)                     -> no.
+-
+-%% scan_crlf(<<$\n, T/binary>>, [$\r | L]) -> {yes, lists:reverse(L), T};
+-%% scan_crlf(<<H, T/binary>>,  L)          -> scan_crlf(T, [H|L]);
+-%% scan_crlf(<<>>, L)                      -> {no, L};
+-%% scan_crlf([$\n|T], [$\r | L])           -> {yes, lists:reverse(L), T};
+-%% scan_crlf([H|T],  L)                    -> scan_crlf(T, [H|L]);
+-%% scan_crlf([], L)                        -> {no, L}.
+-
+-fmt_val(L) when is_list(L)    -> L;
+-fmt_val(I) when is_integer(I) -> integer_to_list(I);
+-fmt_val(A) when is_atom(A)    -> atom_to_list(A);
+-fmt_val(Term)                 -> io_lib:format("~p", [Term]).
+-
+-crnl() -> "\r\n".
+-
+-method(get)       -> "GET";
+-method(post)      -> "POST";
+-method(head)      -> "HEAD";
+-method(options)   -> "OPTIONS";
+-method(put)       -> "PUT";
+-method(delete)    -> "DELETE";
+-method(trace)     -> "TRACE";
+-method(mkcol)     -> "MKCOL";
+-method(propfind)  -> "PROPFIND";
+-method(proppatch) -> "PROPPATCH";
+-method(lock)      -> "LOCK";
+-method(unlock)    -> "UNLOCK";
+-method(move)      -> "MOVE";
+-method(copy)      -> "COPY".
+-
+-%% From RFC 2616
+-%%
+-% The chunked encoding modifies the body of a message in order to
+-% transfer it as a series of chunks, each with its own size indicator,
+-% followed by an OPTIONAL trailer containing entity-header
+-% fields. This allows dynamically produced content to be transferred
+-% along with the information necessary for the recipient to verify
+-% that it has received the full message.
+-% 	Chunked-Body = 	*chunk
+-% 			last-chunk
+-% 			trailer
+-% 			CRLF
+-% 	chunk = chunk-size [ chunk-extension ] CRLF
+-% 		chunk-data CRLF
+-% 	chunk-size = 1*HEX
+-% 	last-chunk = 1*("0") [ chunk-extension ] CRLF
+-% 	chunk-extension= *( ";" chunk-ext-name [ "=" chunk-ext-val ] )
+-% 	chunk-ext-name = token
+-% 	chunk-ext-val = token | quoted-string
+-% 	chunk-data = chunk-size(OCTET)
+-% 	trailer = *(entity-header CRLF)
+-% The chunk-size field is a string of hex digits indicating the size
+-% of the chunk. The chunked encoding is ended by any chunk whose size
+-% is zero, followed by the trailer, which is terminated by an empty
+-% line.
+-%%
+-%% The parsing implemented here discards all chunk extensions. It also
+-%% strips trailing spaces from the chunk size fields as Apache 1.3.27 was
+-%% sending them.
+-parse_chunk_header([]) ->
+-    throw({error, invalid_chunk_size});
+-parse_chunk_header(ChunkHeader) ->
+-    parse_chunk_header(ChunkHeader, []).
+-
+-parse_chunk_header(<<$;, _/binary>>, Acc) ->
+-    hexlist_to_integer(lists:reverse(Acc));
+-parse_chunk_header(<<H, T/binary>>, Acc) ->
+-    case is_whitespace(H) of
+-	true ->
+-	    parse_chunk_header(T, Acc);
+-	false ->
+-	    parse_chunk_header(T, [H | Acc])
+-    end;
+-parse_chunk_header(<<>>, Acc) ->
+-    hexlist_to_integer(lists:reverse(Acc)).
+-
+-is_whitespace($\s)  -> true;
+-is_whitespace($\r) -> true;
+-is_whitespace($\n) -> true;
+-is_whitespace($\t) -> true;
+-is_whitespace(_)   -> false.
+-
+-
+-send_async_headers(_ReqId, undefined, _StatCode, _Headers) ->
+-    ok;
+-send_async_headers(ReqId, StreamTo, StatCode, Headers) ->
+-    catch StreamTo ! {ibrowse_async_headers, ReqId, StatCode, Headers}.
+-
+-format_response_data(Resp_format, Body) ->
+-    case Resp_format of
+-	list when is_list(Body) ->
+-	    flatten(Body);
+-	list when is_binary(Body) ->
+-	    binary_to_list(Body);
+-	binary when is_list(Body) ->
+-	    list_to_binary(Body);
+-	_ ->
+-	    %% This is to cater for sending messages such as
+-	    %% {chunk_start, _}, chunk_end etc
+-	    Body
+-    end.
+-
+-do_reply(State, From, undefined, _, Resp_format, {ok, St_code, Headers, Body}) ->
+-    Msg_1 = {ok, St_code, Headers, format_response_data(Resp_format, Body)},
+-    gen_server:reply(From, Msg_1),
+-    dec_pipeline_counter(State);
+-do_reply(State, From, undefined, _, _, Msg) ->
+-    gen_server:reply(From, Msg),
+-    dec_pipeline_counter(State);
+-do_reply(#state{prev_req_id = Prev_req_id} = State,
+-	 _From, StreamTo, ReqId, Resp_format, {ok, _, _, Body}) ->
+-    State_1 = dec_pipeline_counter(State),
+-    case Body of
+-	[] ->
+-	    ok;
+-	_ ->
+-	    Body_1 = format_response_data(Resp_format, Body),
+-	    catch StreamTo ! {ibrowse_async_response, ReqId, Body_1}
+-    end,
+-    catch StreamTo ! {ibrowse_async_response_end, ReqId},
+-    %% We don't want to delete the Req-id to Pid mapping straightaway
+-    %% as the client may send a stream_next message just while we are
+-    %% sending back this ibrowse_async_response_end message. If we
+-    %% deleted this mapping straightaway, the caller will see a
+-    %% {error, unknown_req_id} when it calls ibrowse:stream_next/1. To
+-    %% get around this, we store the req id, and clear it after the
+-    %% next request. If there are wierd combinations of stream,
+-    %% stream_once and sync requests on the same connection, it will
+-    %% take a while for the req_id-pid mapping to get cleared, but it
+-    %% should do no harm.
+-    ets:delete(ibrowse_stream, {req_id_pid, Prev_req_id}),
+-    State_1#state{prev_req_id = ReqId};
+-do_reply(State, _From, StreamTo, ReqId, Resp_format, Msg) ->
+-    State_1 = dec_pipeline_counter(State),
+-    Msg_1 = format_response_data(Resp_format, Msg),
+-    catch StreamTo ! {ibrowse_async_response, ReqId, Msg_1},
+-    State_1.
+-
+-do_interim_reply(undefined, _, _ReqId, _Msg) ->
+-    ok;
+-do_interim_reply(StreamTo, Response_format, ReqId, Msg) ->
+-    Msg_1 = format_response_data(Response_format, Msg),
+-    catch StreamTo ! {ibrowse_async_response, ReqId, Msg_1}.
+-
+-do_error_reply(#state{reqs = Reqs} = State, Err) ->
+-    ReqList = queue:to_list(Reqs),
+-    lists:foreach(fun(#request{from=From, stream_to=StreamTo, req_id=ReqId,
+-			       response_format = Resp_format}) ->
+-			  ets:delete(ibrowse_stream, {req_id_pid, ReqId}),
+-                          do_reply(State, From, StreamTo, ReqId, Resp_format, {error, Err})
+-		  end, ReqList).
+-
+-fail_pipelined_requests(#state{reqs = Reqs, cur_req = CurReq} = State, Reply) ->
+-    {_, Reqs_1} = queue:out(Reqs),
+-    #request{from=From, stream_to=StreamTo, req_id=ReqId,
+-	     response_format = Resp_format} = CurReq,
+-    do_reply(State, From, StreamTo, ReqId, Resp_format, Reply),
+-    do_error_reply(State#state{reqs = Reqs_1}, previous_request_failed).
+-
+-split_list_at(List, N) ->
+-    split_list_at(List, N, []).
+-split_list_at([], _, Acc) ->
+-    {lists:reverse(Acc), []};
+-split_list_at(List2, 0, List1) ->
+-    {lists:reverse(List1), List2};
+-split_list_at([H | List2], N, List1) ->
+-    split_list_at(List2, N-1, [H | List1]).
+-
+-hexlist_to_integer(List) ->
+-    hexlist_to_integer(lists:reverse(List), 1, 0).
+-hexlist_to_integer([H | T], Multiplier, Acc) ->
+-    hexlist_to_integer(T, Multiplier*16, Multiplier*to_ascii(H) + Acc);
+-hexlist_to_integer([], _, Acc) ->
+-    Acc.
+-
+-to_ascii($A) -> 10;
+-to_ascii($a) -> 10;
+-to_ascii($B) -> 11;
+-to_ascii($b) -> 11;
+-to_ascii($C) -> 12;
+-to_ascii($c) -> 12;
+-to_ascii($D) -> 13;
+-to_ascii($d) -> 13;
+-to_ascii($E) -> 14;
+-to_ascii($e) -> 14;
+-to_ascii($F) -> 15;
+-to_ascii($f) -> 15;
+-to_ascii($1) -> 1;
+-to_ascii($2) -> 2;
+-to_ascii($3) -> 3;
+-to_ascii($4) -> 4;
+-to_ascii($5) -> 5;
+-to_ascii($6) -> 6;
+-to_ascii($7) -> 7;
+-to_ascii($8) -> 8;
+-to_ascii($9) -> 9;
+-to_ascii($0) -> 0.
+-
+-cancel_timer(undefined) -> ok;
+-cancel_timer(Ref)       -> erlang:cancel_timer(Ref).
+-
+-cancel_timer(Ref, {eat_message, Msg}) ->
+-    cancel_timer(Ref),
+-    receive
+-	Msg ->
+-	    ok
+-    after 0 ->
+-	    ok
+-    end.
+-
+-make_req_id() ->
+-    now().
+-
+-to_lower(Str) ->
+-    to_lower(Str, []).
+-to_lower([H|T], Acc) when H >= $A, H =< $Z ->
+-    to_lower(T, [H+32|Acc]);
+-to_lower([H|T], Acc) ->
+-    to_lower(T, [H|Acc]);
+-to_lower([], Acc) ->
+-    lists:reverse(Acc).
+-
+-shutting_down(#state{lb_ets_tid = undefined}) ->
+-    ok;
+-shutting_down(#state{lb_ets_tid = Tid,
+-		     cur_pipeline_size = Sz}) ->
+-    catch ets:delete(Tid, {Sz, self()}).
+-
+-inc_pipeline_counter(#state{is_closing = true} = State) ->
+-    State;
+-inc_pipeline_counter(#state{cur_pipeline_size = Pipe_sz} = State) ->
+-    State#state{cur_pipeline_size = Pipe_sz + 1}.
+-
+-dec_pipeline_counter(#state{is_closing = true} = State) ->
+-    State;
+-dec_pipeline_counter(#state{lb_ets_tid = undefined} = State) ->
+-    State;
+-dec_pipeline_counter(#state{cur_pipeline_size = Pipe_sz,
+-			    lb_ets_tid = Tid} = State) ->
+-    ets:delete(Tid, {Pipe_sz, self()}),
+-    ets:insert(Tid, {{Pipe_sz - 1, self()}, []}),
+-    State#state{cur_pipeline_size = Pipe_sz - 1}.
+-
+-flatten([H | _] = L) when is_integer(H) ->
+-    L;
+-flatten([H | _] = L) when is_list(H) ->
+-    lists:flatten(L);
+-flatten([]) ->
+-    [].
+-
+-get_stream_chunk_size(Options) ->
+-    case lists:keysearch(stream_chunk_size, 1, Options) of
+-	{value, {_, V}} when V > 0 ->
+-	    V;
+-	_ ->
+-	    ?DEFAULT_STREAM_CHUNK_SIZE
+-    end.
+-
+-get_inac_timeout(#state{cur_req = #request{options = Opts}}) ->
+-    get_value(inactivity_timeout, Opts, infinity);
+-get_inac_timeout(#state{cur_req = undefined}) ->
+-    infinity.
+diff --git a/src/ibrowse/ibrowse_lb.erl b/src/ibrowse/ibrowse_lb.erl
+deleted file mode 100644
+index 834054a..0000000
+--- a/src/ibrowse/ibrowse_lb.erl
++++ /dev/null
+@@ -1,216 +0,0 @@
+-%%%-------------------------------------------------------------------
+-%%% File    : ibrowse_lb.erl
+-%%% Author  : chandru <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%% Description :
+-%%%
+-%%% Created :  6 Mar 2008 by chandru <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%%-------------------------------------------------------------------
+--module(ibrowse_lb).
+-
+--vsn('$Id: ibrowse_lb.erl,v 1.2 2009/07/01 22:43:19 chandrusf Exp $ ').
+--author(chandru).
+--behaviour(gen_server).
+-%%--------------------------------------------------------------------
+-%% Include files
+-%%--------------------------------------------------------------------
+-
+-%%--------------------------------------------------------------------
+-%% External exports
+--export([
+-	 start_link/1,
+-	 spawn_connection/5
+-	]).
+-
+-%% gen_server callbacks
+--export([
+-	 init/1,
+-	 handle_call/3,
+-	 handle_cast/2,
+-	 handle_info/2,
+-	 terminate/2,
+-	 code_change/3
+-	]).
+-
+--record(state, {parent_pid,
+-		ets_tid,
+-		host,
+-		port,
+-		max_sessions,
+-		max_pipeline_size,
+-		num_cur_sessions = 0}).
+-
+--include("ibrowse.hrl").
+-
+-%%====================================================================
+-%% External functions
+-%%====================================================================
+-%%--------------------------------------------------------------------
+-%% Function: start_link/0
+-%% Description: Starts the server
+-%%--------------------------------------------------------------------
+-start_link(Args) ->
+-    gen_server:start_link(?MODULE, Args, []).
+-
+-%%====================================================================
+-%% Server functions
+-%%====================================================================
+-
+-%%--------------------------------------------------------------------
+-%% Function: init/1
+-%% Description: Initiates the server
+-%% Returns: {ok, State}          |
+-%%          {ok, State, Timeout} |
+-%%          ignore               |
+-%%          {stop, Reason}
+-%%--------------------------------------------------------------------
+-init([Host, Port]) ->
+-    process_flag(trap_exit, true),
+-    Max_sessions = ibrowse:get_config_value({max_sessions, Host, Port}, 10),
+-    Max_pipe_sz = ibrowse:get_config_value({max_pipeline_size, Host, Port}, 10),
+-    put(my_trace_flag, ibrowse_lib:get_trace_status(Host, Port)),
+-    put(ibrowse_trace_token, ["LB: ", Host, $:, integer_to_list(Port)]),
+-    Tid = ets:new(ibrowse_lb, [public, ordered_set]),
+-    {ok, #state{parent_pid = whereis(ibrowse),
+-		host = Host,
+-		port = Port,
+-		ets_tid = Tid,
+-		max_pipeline_size = Max_pipe_sz,
+-	        max_sessions = Max_sessions}}.
+-
+-spawn_connection(Lb_pid, Url,
+-		 Max_sessions,
+-		 Max_pipeline_size,
+-		 SSL_options)
+-  when is_pid(Lb_pid),
+-       is_record(Url, url),
+-       is_integer(Max_pipeline_size),
+-       is_integer(Max_sessions) ->
+-    gen_server:call(Lb_pid,
+-		    {spawn_connection, Url, Max_sessions, Max_pipeline_size, SSL_options}).
+-%%--------------------------------------------------------------------
+-%% Function: handle_call/3
+-%% Description: Handling call messages
+-%% Returns: {reply, Reply, State}          |
+-%%          {reply, Reply, State, Timeout} |
+-%%          {noreply, State}               |
+-%%          {noreply, State, Timeout}      |
+-%%          {stop, Reason, Reply, State}   | (terminate/2 is called)
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-% handle_call({spawn_connection, _Url, Max_sess, Max_pipe, _}, _From,
+-% 	    #state{max_sessions = Max_sess,
+-% 		   ets_tid = Tid,
+-% 		   max_pipeline_size = Max_pipe_sz,
+-% 		   num_cur_sessions = Num} = State)
+-%     when Num >= Max ->
+-%     Reply = find_best_connection(Tid),
+-%     {reply, sorry_dude_reuse, State};
+-
+-%% Update max_sessions in #state with supplied value
+-handle_call({spawn_connection, _Url, Max_sess, Max_pipe, _}, _From,
+-	    #state{num_cur_sessions = Num} = State)
+-    when Num >= Max_sess ->
+-    State_1 = maybe_create_ets(State),
+-    Reply = find_best_connection(State_1#state.ets_tid, Max_pipe),
+-    {reply, Reply, State_1#state{max_sessions = Max_sess}};
+-
+-handle_call({spawn_connection, Url, _Max_sess, _Max_pipe, SSL_options}, _From,
+-	    #state{num_cur_sessions = Cur} = State) ->
+-    State_1 = maybe_create_ets(State),
+-    Tid = State_1#state.ets_tid,
+-    {ok, Pid} = ibrowse_http_client:start_link({Tid, Url, SSL_options}),
+-    ets:insert(Tid, {{1, Pid}, []}),
+-    {reply, {ok, Pid}, State_1#state{num_cur_sessions = Cur + 1}};
+-
+-handle_call(Request, _From, State) ->
+-    Reply = {unknown_request, Request},
+-    {reply, Reply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: handle_cast/2
+-%% Description: Handling cast messages
+-%% Returns: {noreply, State}          |
+-%%          {noreply, State, Timeout} |
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-handle_cast(_Msg, State) ->
+-    {noreply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: handle_info/2
+-%% Description: Handling all non call/cast messages
+-%% Returns: {noreply, State}          |
+-%%          {noreply, State, Timeout} |
+-%%          {stop, Reason, State}            (terminate/2 is called)
+-%%--------------------------------------------------------------------
+-handle_info({'EXIT', Parent, _Reason}, #state{parent_pid = Parent} = State) ->
+-    {stop, normal, State};
+-
+-handle_info({'EXIT', _Pid, _Reason}, #state{ets_tid = undefined} = State) ->
+-    {noreply, State};
+-
+-handle_info({'EXIT', Pid, _Reason},
+-	    #state{num_cur_sessions = Cur,
+-		   ets_tid = Tid} = State) ->
+-    ets:match_delete(Tid, {{'_', Pid}, '_'}),
+-    Cur_1 = Cur - 1,
+-    State_1 = case Cur_1 of
+-		  0 ->
+-		      ets:delete(Tid),
+-		      State#state{ets_tid = undefined};
+-		  _ ->
+-		      State
+-	      end,
+-    {noreply, State_1#state{num_cur_sessions = Cur_1}};
+-
+-handle_info({trace, Bool}, #state{ets_tid = undefined} = State) ->
+-    put(my_trace_flag, Bool),
+-    {noreply, State};
+-
+-handle_info({trace, Bool}, #state{ets_tid = Tid} = State) ->
+-    ets:foldl(fun({{_, Pid}, _}, Acc) when is_pid(Pid) ->
+-		      catch Pid ! {trace, Bool},
+-		      Acc;
+-		 (_, Acc) ->
+-		      Acc
+-	      end, undefined, Tid),
+-    put(my_trace_flag, Bool),
+-    {noreply, State};
+-
+-handle_info(_Info, State) ->
+-    {noreply, State}.
+-
+-%%--------------------------------------------------------------------
+-%% Function: terminate/2
+-%% Description: Shutdown the server
+-%% Returns: any (ignored by gen_server)
+-%%--------------------------------------------------------------------
+-terminate(_Reason, _State) ->
+-    ok.
+-
+-%%--------------------------------------------------------------------
+-%% Func: code_change/3
+-%% Purpose: Convert process state when code is changed
+-%% Returns: {ok, NewState}
+-%%--------------------------------------------------------------------
+-code_change(_OldVsn, State, _Extra) ->
+-    {ok, State}.
+-
+-%%--------------------------------------------------------------------
+-%%% Internal functions
+-%%--------------------------------------------------------------------
+-find_best_connection(Tid, Max_pipe) ->
+-    case ets:first(Tid) of
+-	{Cur_sz, Pid} when Cur_sz < Max_pipe ->
+-	    ets:delete(Tid, {Cur_sz, Pid}),
+-	    ets:insert(Tid, {{Cur_sz + 1, Pid}, []}),
+-	    {ok, Pid};
+-	_ ->
+-	    {error, retry_later}
+-    end.
+-
+-maybe_create_ets(#state{ets_tid = undefined} = State) ->
+-    Tid = ets:new(ibrowse_lb, [public, ordered_set]),
+-    State#state{ets_tid = Tid};
+-maybe_create_ets(State) ->
+-    State.
+diff --git a/src/ibrowse/ibrowse_lib.erl b/src/ibrowse/ibrowse_lib.erl
+deleted file mode 100644
+index 6c7b154..0000000
+--- a/src/ibrowse/ibrowse_lib.erl
++++ /dev/null
+@@ -1,399 +0,0 @@
+-%%% File    : ibrowse_lib.erl
+-%%% Author  : Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%% Description :
+-%%% Created : 27 Feb 2004 by Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%% @doc Module with a few useful functions
+-
+--module(ibrowse_lib).
+--vsn('$Id: ibrowse_lib.erl,v 1.6 2008/03/27 01:35:50 chandrusf Exp $ ').
+--author('chandru').
+--ifdef(debug).
+--compile(export_all).
+--endif.
+-
+--include("ibrowse.hrl").
+-
+--export([
+-	 get_trace_status/2,
+-	 do_trace/2,
+-	 do_trace/3,
+-	 url_encode/1,
+-	 decode_rfc822_date/1,
+-	 status_code/1,
+-	 dec2hex/2,
+-	 drv_ue/1,
+-	 drv_ue/2,
+-	 encode_base64/1,
+-	 decode_base64/1,
+-	 get_value/2,
+-	 get_value/3,
+-	 parse_url/1,
+-	 printable_date/0
+-	]).
+-
+-get_trace_status(Host, Port) ->
+-    ibrowse:get_config_value({trace, Host, Port}, false).
+-
+-drv_ue(Str) ->
+-    [{port, Port}| _] = ets:lookup(ibrowse_table, port),
+-    drv_ue(Str, Port).
+-drv_ue(Str, Port) ->
+-    case erlang:port_control(Port, 1, Str) of
+-	[] ->
+-	    Str;
+-	Res ->
+-	    Res
+-    end.
+-
+-%% @doc URL-encodes a string based on RFC 1738. Returns a flat list.
+-%% @spec url_encode(Str) -> UrlEncodedStr
+-%% Str = string()
+-%% UrlEncodedStr = string()
+-url_encode(Str) when is_list(Str) ->
+-    url_encode_char(lists:reverse(Str), []).
+-
+-url_encode_char([X | T], Acc) when X >= $0, X =< $9 ->
+-    url_encode_char(T, [X | Acc]);
+-url_encode_char([X | T], Acc) when X >= $a, X =< $z ->
+-    url_encode_char(T, [X | Acc]);
+-url_encode_char([X | T], Acc) when X >= $A, X =< $Z ->
+-    url_encode_char(T, [X | Acc]);
+-url_encode_char([X | T], Acc) when X == $-; X == $_; X == $. ->
+-    url_encode_char(T, [X | Acc]);
+-url_encode_char([32 | T], Acc) ->
+-    url_encode_char(T, [$+ | Acc]);
+-url_encode_char([X | T], Acc) ->
+-    url_encode_char(T, [$%, d2h(X bsr 4), d2h(X band 16#0f) | Acc]);
+-url_encode_char([], Acc) ->
+-    Acc.
+-
+-d2h(N) when N<10 -> N+$0;
+-d2h(N) -> N+$a-10.
+-
+-decode_rfc822_date(String) when is_list(String) ->
+-    case catch decode_rfc822_date_1(string:tokens(String, ", \t\r\n")) of
+-	{'EXIT', _} ->
+-	    {error, invalid_date};
+-	Res ->
+-	    Res
+-    end.
+-
+-% TODO: Have to handle the Zone
+-decode_rfc822_date_1([_,DayInt,Month,Year, Time,Zone]) ->
+-    decode_rfc822_date_1([DayInt,Month,Year, Time,Zone]);
+-decode_rfc822_date_1([Day,Month,Year, Time,_Zone]) ->
+-    DayI = list_to_integer(Day),
+-    MonthI = month_int(Month),
+-    YearI = list_to_integer(Year),
+-    TimeTup = case string:tokens(Time, ":") of
+-		  [H,M] ->
+-		      {list_to_integer(H),
+-		       list_to_integer(M),
+-		       0};
+-		  [H,M,S] ->
+-		      {list_to_integer(H),
+-		       list_to_integer(M),
+-		       list_to_integer(S)}
+-	      end,
+-    {{YearI,MonthI,DayI}, TimeTup}.
+-
+-month_int("Jan") -> 1;
+-month_int("Feb") -> 2;
+-month_int("Mar") -> 3;
+-month_int("Apr") -> 4;
+-month_int("May") -> 5;
+-month_int("Jun") -> 6;
+-month_int("Jul") -> 7;
+-month_int("Aug") -> 8;
+-month_int("Sep") -> 9;
+-month_int("Oct") -> 10;
+-month_int("Nov") -> 11;
+-month_int("Dec") -> 12.
+-
+-%% @doc Given a status code, returns an atom describing the status code.
+-%% @spec status_code(StatusCode::status_code()) -> StatusDescription
+-%% status_code() = string() | integer()
+-%% StatusDescription = atom()
+-status_code(100) -> continue;
+-status_code(101) -> switching_protocols;
+-status_code(102) -> processing;
+-status_code(200) -> ok;
+-status_code(201) -> created;
+-status_code(202) -> accepted;
+-status_code(203) -> non_authoritative_information;
+-status_code(204) -> no_content;
+-status_code(205) -> reset_content;
+-status_code(206) -> partial_content;
+-status_code(207) -> multi_status;
+-status_code(300) -> multiple_choices;
+-status_code(301) -> moved_permanently;
+-status_code(302) -> found;
+-status_code(303) -> see_other;
+-status_code(304) -> not_modified;
+-status_code(305) -> use_proxy;
+-status_code(306) -> unused;
+-status_code(307) -> temporary_redirect;
+-status_code(400) -> bad_request;
+-status_code(401) -> unauthorized;
+-status_code(402) -> payment_required;
+-status_code(403) -> forbidden;
+-status_code(404) -> not_found;
+-status_code(405) -> method_not_allowed;
+-status_code(406) -> not_acceptable;
+-status_code(407) -> proxy_authentication_required;
+-status_code(408) -> request_timeout;
+-status_code(409) -> conflict;
+-status_code(410) -> gone;
+-status_code(411) -> length_required;
+-status_code(412) -> precondition_failed;
+-status_code(413) -> request_entity_too_large;
+-status_code(414) -> request_uri_too_long;
+-status_code(415) -> unsupported_media_type;
+-status_code(416) -> requested_range_not_satisfiable;
+-status_code(417) -> expectation_failed;
+-status_code(422) -> unprocessable_entity;
+-status_code(423) -> locked;
+-status_code(424) -> failed_dependency;
+-status_code(500) -> internal_server_error;
+-status_code(501) -> not_implemented;
+-status_code(502) -> bad_gateway;
+-status_code(503) -> service_unavailable;
+-status_code(504) -> gateway_timeout;
+-status_code(505) -> http_version_not_supported;
+-status_code(507) -> insufficient_storage;
+-status_code(X) when is_list(X) -> status_code(list_to_integer(X));
+-status_code(_)   -> unknown_status_code.
+-
+-%% @doc dec2hex taken from gtk.erl in std dist
+-%% M = integer() -- number of hex digits required
+-%% N = integer() -- the number to represent as hex
+-%% @spec dec2hex(M::integer(), N::integer()) -> string()
+-dec2hex(M,N) -> dec2hex(M,N,[]).
+-
+-dec2hex(0,_N,Ack) -> Ack;
+-dec2hex(M,N,Ack) -> dec2hex(M-1,N bsr 4,[d2h(N band 15)|Ack]).
+-
+-%% @doc Implements the base64 encoding algorithm. The output data type matches in the input data type.
+-%% @spec encode_base64(In) -> Out
+-%% In = string() | binary()
+-%% Out = string() | binary()
+-encode_base64(List) when is_list(List) ->
+-    encode_base64_1(list_to_binary(List));
+-encode_base64(Bin) when is_binary(Bin) ->
+-    List = encode_base64_1(Bin),
+-    list_to_binary(List).
+-
+-encode_base64_1(<<A:6, B:6, C:6, D:6, Rest/binary>>) ->
+-    [int_to_b64(A), int_to_b64(B),
+-     int_to_b64(C), int_to_b64(D) | encode_base64_1(Rest)];
+-encode_base64_1(<<A:6, B:6, C:4>>) ->
+-    [int_to_b64(A), int_to_b64(B), int_to_b64(C bsl 2), $=];
+-encode_base64_1(<<A:6, B:2>>) ->
+-    [int_to_b64(A), int_to_b64(B bsl 4), $=, $=];
+-encode_base64_1(<<>>) ->
+-    [].
+-
+-%% @doc Implements the base64 decoding algorithm. The output data type matches in the input data type.
+-%% @spec decode_base64(In) -> Out | exit({error, invalid_input})
+-%% In = string() | binary()
+-%% Out = string() | binary()
+-decode_base64(List) when is_list(List) ->
+-    decode_base64_1(List, []);
+-decode_base64(Bin) when is_binary(Bin) ->
+-    List = decode_base64_1(binary_to_list(Bin), []),
+-    list_to_binary(List).
+-
+-decode_base64_1([H | T], Acc) when ((H == $\t) or
+-				    (H == 32) or
+-				    (H == $\r) or
+-				    (H == $\n)) ->
+-    decode_base64_1(T, Acc);
+-
+-decode_base64_1([$=, $=], Acc) ->
+-    lists:reverse(Acc);
+-decode_base64_1([$=, _ | _], _Acc) ->
+-    exit({error, invalid_input});
+-
+-decode_base64_1([A1, B1, $=, $=], Acc) ->
+-    A = b64_to_int(A1),
+-    B = b64_to_int(B1),
+-    Oct1 = (A bsl 2) bor (B bsr 4),
+-    decode_base64_1([], [Oct1 | Acc]);
+-decode_base64_1([A1, B1, C1, $=], Acc) ->
+-    A = b64_to_int(A1),
+-    B = b64_to_int(B1),
+-    C = b64_to_int(C1),
+-    Oct1 = (A bsl 2) bor (B bsr 4),
+-    Oct2 = ((B band 16#f) bsl 6) bor (C bsr 2),
+-    decode_base64_1([], [Oct2, Oct1 | Acc]);
+-decode_base64_1([A1, B1, C1, D1 | T], Acc) ->
+-    A = b64_to_int(A1),
+-    B = b64_to_int(B1),
+-    C = b64_to_int(C1),
+-    D = b64_to_int(D1),
+-    Oct1 = (A bsl 2) bor (B bsr 4),
+-    Oct2 = ((B band 16#f) bsl 4) bor (C bsr 2),
+-    Oct3 = ((C band 2#11) bsl 6) bor D,
+-    decode_base64_1(T, [Oct3, Oct2, Oct1 | Acc]);
+-decode_base64_1([], Acc) ->
+-    lists:reverse(Acc).
+-
+-%% Taken from httpd_util.erl
+-int_to_b64(X) when X >= 0, X =< 25 -> X + $A;
+-int_to_b64(X) when X >= 26, X =< 51 -> X - 26 + $a;
+-int_to_b64(X) when X >= 52, X =< 61 -> X - 52 + $0;
+-int_to_b64(62) -> $+;
+-int_to_b64(63) -> $/.
+-
+-%% Taken from httpd_util.erl
+-b64_to_int(X) when X >= $A, X =< $Z -> X - $A;
+-b64_to_int(X) when X >= $a, X =< $z -> X - $a + 26;
+-b64_to_int(X) when X >= $0, X =< $9 -> X - $0 + 52;
+-b64_to_int($+) -> 62;
+-b64_to_int($/) -> 63.
+-
+-get_value(Tag, TVL, DefVal) ->
+-    case lists:keysearch(Tag, 1, TVL) of
+-	false ->
+-	    DefVal;
+-	{value, {_, Val}} ->
+-	    Val
+-    end.
+-
+-get_value(Tag, TVL) ->
+-    {value, {_, V}} = lists:keysearch(Tag,1,TVL),
+-    V.
+-
+-parse_url(Url) ->
+-    parse_url(Url, get_protocol, #url{abspath=Url}, []).
+-
+-parse_url([$:, $/, $/ | _], get_protocol, Url, []) ->
+-    {invalid_uri_1, Url};
+-parse_url([$:, $/, $/ | T], get_protocol, Url, TmpAcc) ->
+-    Prot = list_to_atom(lists:reverse(TmpAcc)),
+-    parse_url(T, get_username,
+-	      Url#url{protocol = Prot},
+-	      []);
+-parse_url([$/ | T], get_username, Url, TmpAcc) ->
+-    %% No username/password. No  port number
+-    Url#url{host = lists:reverse(TmpAcc),
+-	    port = default_port(Url#url.protocol),
+-	    path = [$/ | T]};
+-parse_url([$: | T], get_username, Url, TmpAcc) ->
+-    %% It is possible that no username/password has been
+-    %% specified. But we'll continue with the assumption that there is
+-    %% a username/password. If we encounter a '@' later on, there is a
+-    %% username/password indeed. If we encounter a '/', it was
+-    %% actually the hostname
+-    parse_url(T, get_password,
+-	      Url#url{username = lists:reverse(TmpAcc)},
+-	      []);
+-parse_url([$@ | T], get_username, Url, TmpAcc) ->
+-    parse_url(T, get_host,
+-	      Url#url{username = lists:reverse(TmpAcc),
+-		      password = ""},
+-	      []);
+-parse_url([$@ | T], get_password, Url, TmpAcc) ->
+-    parse_url(T, get_host,
+-	      Url#url{password = lists:reverse(TmpAcc)},
+-	      []);
+-parse_url([$/ | T], get_password, Url, TmpAcc) ->
+-    %% Ok, what we thought was the username/password was the hostname
+-    %% and portnumber
+-    #url{username=User} = Url,
+-    Port = list_to_integer(lists:reverse(TmpAcc)),
+-    Url#url{host = User,
+-	    port = Port,
+-	    username = undefined,
+-	    password = undefined,
+-	    path = [$/ | T]};
+-parse_url([$: | T], get_host, #url{} = Url, TmpAcc) ->
+-    parse_url(T, get_port,
+-	      Url#url{host = lists:reverse(TmpAcc)},
+-	      []);
+-parse_url([$/ | T], get_host, #url{protocol=Prot} = Url, TmpAcc) ->
+-    Url#url{host = lists:reverse(TmpAcc),
+-	    port = default_port(Prot),
+-	    path = [$/ | T]};
+-parse_url([$/ | T], get_port, #url{protocol=Prot} = Url, TmpAcc) ->
+-    Port = case TmpAcc of
+-	       [] ->
+-		   default_port(Prot);
+-	       _ ->
+-		   list_to_integer(lists:reverse(TmpAcc))
+-	   end,
+-    Url#url{port = Port, path = [$/ | T]};
+-parse_url([H | T], State, Url, TmpAcc) ->
+-    parse_url(T, State, Url, [H | TmpAcc]);
+-parse_url([], get_host, Url, TmpAcc) when TmpAcc /= [] ->
+-    Url#url{host = lists:reverse(TmpAcc),
+-	    port = default_port(Url#url.protocol),
+-	    path = "/"};
+-parse_url([], get_username, Url, TmpAcc) when TmpAcc /= [] ->
+-    Url#url{host = lists:reverse(TmpAcc),
+-	    port = default_port(Url#url.protocol),
+-	    path = "/"};
+-parse_url([], get_port, #url{protocol=Prot} = Url, TmpAcc) ->
+-    Port = case TmpAcc of
+-	       [] ->
+-		   default_port(Prot);
+-	       _ ->
+-		   list_to_integer(lists:reverse(TmpAcc))
+-	   end,
+-    Url#url{port = Port,
+-	    path = "/"};
+-parse_url([], get_password, Url, TmpAcc) ->
+-    %% Ok, what we thought was the username/password was the hostname
+-    %% and portnumber
+-    #url{username=User} = Url,
+-    Port = case TmpAcc of
+-	       [] ->
+-		   default_port(Url#url.protocol);
+-	       _ ->
+-		   list_to_integer(lists:reverse(TmpAcc))
+-	   end,
+-    Url#url{host = User,
+-	    port = Port,
+-	    username = undefined,
+-	    password = undefined,
+-	    path = "/"};
+-parse_url([], State, Url, TmpAcc) ->
+-    {invalid_uri_2, State, Url, TmpAcc}.
+-
+-default_port(http)  -> 80;
+-default_port(https) -> 443;
+-default_port(ftp)   -> 21.
+-
+-printable_date() ->
+-    {{Y,Mo,D},{H, M, S}} = calendar:local_time(),
+-    {_,_,MicroSecs} = now(),
+-    [integer_to_list(Y),
+-     $-,
+-     integer_to_list(Mo),
+-     $-,
+-     integer_to_list(D),
+-     $_,
+-     integer_to_list(H),
+-     $:,
+-     integer_to_list(M),
+-     $:,
+-     integer_to_list(S),
+-     $:,
+-     integer_to_list(MicroSecs div 1000)].
+-
+-do_trace(Fmt, Args) ->
+-    do_trace(get(my_trace_flag), Fmt, Args).
+-
+--ifdef(DEBUG).
+-do_trace(_, Fmt, Args) ->
+-    io:format("~s -- (~s) - "++Fmt,
+-	      [printable_date(),
+-	       get(ibrowse_trace_token) | Args]).
+--else.
+-do_trace(true, Fmt, Args) ->
+-    io:format("~s -- (~s) - "++Fmt,
+-	      [printable_date(),
+-	       get(ibrowse_trace_token) | Args]);
+-do_trace(_, _, _) ->
+-    ok.
+--endif.
+diff --git a/src/ibrowse/ibrowse_sup.erl b/src/ibrowse/ibrowse_sup.erl
+deleted file mode 100644
+index 1b9b863..0000000
+--- a/src/ibrowse/ibrowse_sup.erl
++++ /dev/null
+@@ -1,65 +0,0 @@
+-%%%-------------------------------------------------------------------
+-%%% File    : ibrowse_sup.erl
+-%%% Author  : Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%% Description :
+-%%%
+-%%% Created : 15 Oct 2003 by Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%%-------------------------------------------------------------------
+--module(ibrowse_sup).
+--vsn('$Id: ibrowse_sup.erl,v 1.1 2005/05/05 22:28:28 chandrusf Exp $ ').
+-
+--behaviour(supervisor).
+-%%--------------------------------------------------------------------
+-%% Include files
+-%%--------------------------------------------------------------------
+-
+-%%--------------------------------------------------------------------
+-%% External exports
+-%%--------------------------------------------------------------------
+--export([
+-	 start_link/0
+-        ]).
+-
+-%%--------------------------------------------------------------------
+-%% Internal exports
+-%%--------------------------------------------------------------------
+--export([
+-	 init/1
+-        ]).
+-
+-%%--------------------------------------------------------------------
+-%% Macros
+-%%--------------------------------------------------------------------
+--define(SERVER, ?MODULE).
+-
+-%%--------------------------------------------------------------------
+-%% Records
+-%%--------------------------------------------------------------------
+-
+-%%====================================================================
+-%% External functions
+-%%====================================================================
+-%%--------------------------------------------------------------------
+-%% Function: start_link/0
+-%% Description: Starts the supervisor
+-%%--------------------------------------------------------------------
+-start_link() ->
+-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+-
+-%%====================================================================
+-%% Server functions
+-%%====================================================================
+-%%--------------------------------------------------------------------
+-%% Func: init/1
+-%% Returns: {ok,  {SupFlags,  [ChildSpec]}} |
+-%%          ignore                          |
+-%%          {error, Reason}
+-%%--------------------------------------------------------------------
+-init([]) ->
+-    AChild = {ibrowse,{ibrowse,start_link,[]},
+-	      permanent,2000,worker,[ibrowse, ibrowse_http_client]},
+-    {ok,{{one_for_all,10,1}, [AChild]}}.
+-
+-%%====================================================================
+-%% Internal functions
+-%%====================================================================
+diff --git a/src/ibrowse/ibrowse_test.erl b/src/ibrowse/ibrowse_test.erl
+deleted file mode 100644
+index 3dc66ec..0000000
+--- a/src/ibrowse/ibrowse_test.erl
++++ /dev/null
+@@ -1,377 +0,0 @@
+-%%% File    : ibrowse_test.erl
+-%%% Author  : Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-%%% Description : Test ibrowse
+-%%% Created : 14 Oct 2003 by Chandrashekhar Mullaparthi <chandrashekhar.mullaparthi@t-mobile.co.uk>
+-
+--module(ibrowse_test).
+--vsn('$Id: ibrowse_test.erl,v 1.4 2009/07/01 22:43:19 chandrusf Exp $ ').
+--export([
+-	 load_test/3,
+-	 send_reqs_1/3,
+-	 do_send_req/2,
+-	 unit_tests/0,
+-	 unit_tests/1,
+-	 unit_tests_1/2,
+-	 drv_ue_test/0,
+-	 drv_ue_test/1,
+-	 ue_test/0,
+-	 ue_test/1,
+-	 verify_chunked_streaming/0,
+-	 verify_chunked_streaming/1,
+-	 i_do_async_req_list/4,
+-	 test_stream_once/3,
+-	 test_stream_once/4
+-	]).
+-
+-test_stream_once(Url, Method, Options) ->
+-    test_stream_once(Url, Method, Options, 5000).
+-
+-test_stream_once(Url, Method, Options, Timeout) ->
+-    case ibrowse:send_req(Url, [], Method, [], [{stream_to, {self(), once}} | Options], Timeout) of
+-	{ibrowse_req_id, Req_id} ->
+-	    case ibrowse:stream_next(Req_id) of
+-		ok ->
+-		    test_stream_once(Req_id);
+-		Err ->
+-		    Err
+-	    end;
+-	Err ->
+-	    Err
+-    end.
+-
+-test_stream_once(Req_id) ->
+-    receive
+-	{ibrowse_async_headers, Req_id, StatCode, Headers} ->
+-	    io:format("Recvd headers~n~p~n", [{ibrowse_async_headers, Req_id, StatCode, Headers}]),
+-	    case ibrowse:stream_next(Req_id) of
+-		ok ->
+-		    test_stream_once(Req_id);
+-		Err ->
+-		    Err
+-	    end;
+-	{ibrowse_async_response, Req_id, {error, Err}} ->
+-	    io:format("Recvd error: ~p~n", [Err]);
+-	{ibrowse_async_response, Req_id, Body_1} ->
+-	    io:format("Recvd body part: ~n~p~n", [{ibrowse_async_response, Req_id, Body_1}]),
+-	    case ibrowse:stream_next(Req_id) of
+-		ok ->
+-		    test_stream_once(Req_id);
+-		Err ->
+-		    Err
+-	    end;
+-	{ibrowse_async_response_end, Req_id} ->
+-	    ok
+-    end.
+-%% Use ibrowse:set_max_sessions/3 and ibrowse:set_max_pipeline_size/3 to
+-%% tweak settings before running the load test. The defaults are 10 and 10.
+-load_test(Url, NumWorkers, NumReqsPerWorker) when is_list(Url),
+-                                                  is_integer(NumWorkers),
+-                                                  is_integer(NumReqsPerWorker),
+-                                                  NumWorkers > 0,
+-                                                  NumReqsPerWorker > 0 ->
+-    proc_lib:spawn(?MODULE, send_reqs_1, [Url, NumWorkers, NumReqsPerWorker]).
+-
+-send_reqs_1(Url, NumWorkers, NumReqsPerWorker) ->
+-    Start_time = now(),
+-    ets:new(pid_table, [named_table, public]),
+-    ets:new(ibrowse_test_results, [named_table, public]),
+-    ets:new(ibrowse_errors, [named_table, public, ordered_set]),
+-    init_results(),
+-    process_flag(trap_exit, true),
+-    log_msg("Starting spawning of workers...~n", []),
+-    spawn_workers(Url, NumWorkers, NumReqsPerWorker),
+-    log_msg("Finished spawning workers...~n", []),
+-    do_wait(),
+-    End_time = now(),
+-    log_msg("All workers are done...~n", []),
+-    log_msg("ibrowse_test_results table: ~n~p~n", [ets:tab2list(ibrowse_test_results)]),
+-    log_msg("Start time: ~1000.p~n", [calendar:now_to_local_time(Start_time)]),
+-    log_msg("End time  : ~1000.p~n", [calendar:now_to_local_time(End_time)]),
+-    Elapsed_time_secs = trunc(timer:now_diff(End_time, Start_time) / 1000000),
+-    log_msg("Elapsed   : ~p~n", [Elapsed_time_secs]),
+-    log_msg("Reqs/sec  : ~p~n", [round(trunc((NumWorkers*NumReqsPerWorker) / Elapsed_time_secs))]),
+-    dump_errors().
+-
+-init_results() ->
+-    ets:insert(ibrowse_test_results, {crash, 0}),
+-    ets:insert(ibrowse_test_results, {send_failed, 0}),
+-    ets:insert(ibrowse_test_results, {other_error, 0}),
+-    ets:insert(ibrowse_test_results, {success, 0}),
+-    ets:insert(ibrowse_test_results, {retry_later, 0}),
+-    ets:insert(ibrowse_test_results, {trid_mismatch, 0}),
+-    ets:insert(ibrowse_test_results, {success_no_trid, 0}),
+-    ets:insert(ibrowse_test_results, {failed, 0}),
+-    ets:insert(ibrowse_test_results, {timeout, 0}),
+-    ets:insert(ibrowse_test_results, {req_id, 0}).
+-
+-spawn_workers(_Url, 0, _) ->
+-    ok;
+-spawn_workers(Url, NumWorkers, NumReqsPerWorker) ->
+-    Pid = proc_lib:spawn_link(?MODULE, do_send_req, [Url, NumReqsPerWorker]),
+-    ets:insert(pid_table, {Pid, []}),
+-    spawn_workers(Url, NumWorkers - 1, NumReqsPerWorker).
+-
+-do_wait() ->
+-    receive
+-	{'EXIT', _, normal} ->
+-	    do_wait();
+-	{'EXIT', Pid, Reason} ->
+-	    ets:delete(pid_table, Pid),
+-	    ets:insert(ibrowse_errors, {Pid, Reason}),
+-	    ets:update_counter(ibrowse_test_results, crash, 1),
+-	    do_wait();
+-	Msg ->
+-	    io:format("Recvd unknown message...~p~n", [Msg]),
+-	    do_wait()
+-    after 1000 ->
+-	    case ets:info(pid_table, size) of
+-		0 ->
+-		    done;
+-		_ ->
+-		    do_wait()
+-	    end
+-    end.
+-
+-do_send_req(Url, NumReqs) ->
+-    do_send_req_1(Url, NumReqs).
+-
+-do_send_req_1(_Url, 0) ->
+-    ets:delete(pid_table, self());
+-do_send_req_1(Url, NumReqs) ->
+-    Counter = integer_to_list(ets:update_counter(ibrowse_test_results, req_id, 1)),
+-    case ibrowse:send_req(Url, [{"ib_req_id", Counter}], get, [], [], 10000) of
+-	{ok, _Status, Headers, _Body} ->
+-	    case lists:keysearch("ib_req_id", 1, Headers) of
+-		{value, {_, Counter}} ->
+-		    ets:update_counter(ibrowse_test_results, success, 1);
+-		{value, _} ->
+-		    ets:update_counter(ibrowse_test_results, trid_mismatch, 1);
+-		false ->
+-		    ets:update_counter(ibrowse_test_results, success_no_trid, 1)
+-	    end;
+-	{error, req_timedout} ->
+-	    ets:update_counter(ibrowse_test_results, timeout, 1);
+-	{error, send_failed} ->
+-	    ets:update_counter(ibrowse_test_results, send_failed, 1);
+-	{error, retry_later} ->
+-	    ets:update_counter(ibrowse_test_results, retry_later, 1);
+-	Err ->
+-	    ets:insert(ibrowse_errors, {now(), Err}),
+-	    ets:update_counter(ibrowse_test_results, other_error, 1),
+-	    ok
+-    end,
+-    do_send_req_1(Url, NumReqs-1).
+-
+-dump_errors() ->
+-    case ets:info(ibrowse_errors, size) of
+-	0 ->
+-	    ok;
+-	_ ->
+-	    {A, B, C} = now(),
+-	    Filename = lists:flatten(
+-			 io_lib:format("ibrowse_errors_~p_~p_~p.txt" , [A, B, C])),
+-	    case file:open(Filename, [write, delayed_write, raw]) of
+-		{ok, Iod} ->
+-		    dump_errors(ets:first(ibrowse_errors), Iod);
+-		Err ->
+-		    io:format("failed to create file ~s. Reason: ~p~n", [Filename, Err]),
+-		    ok
+-	    end
+-    end.
+-
+-dump_errors('$end_of_table', Iod) ->
+-    file:close(Iod);
+-dump_errors(Key, Iod) ->
+-    [{_, Term}] = ets:lookup(ibrowse_errors, Key),
+-    file:write(Iod, io_lib:format("~p~n", [Term])),
+-    dump_errors(ets:next(ibrowse_errors, Key), Iod).
+-
+-%%------------------------------------------------------------------------------
+-%% Unit Tests
+-%%------------------------------------------------------------------------------
+--define(TEST_LIST, [{"http://intranet/messenger", get},
+-		    {"http://www.google.co.uk", get},
+-		    {"http://www.google.com", get},
+-		    {"http://www.google.com", options},
+-		    {"http://www.sun.com", get},
+-		    {"http://www.oracle.com", get},
+-		    {"http://www.bbc.co.uk", get},
+-		    {"http://www.bbc.co.uk", trace},
+-		    {"http://www.bbc.co.uk", options},
+-		    {"http://yaws.hyber.org", get},
+-		    {"http://jigsaw.w3.org/HTTP/ChunkedScript", get},
+-		    {"http://jigsaw.w3.org/HTTP/TE/foo.txt", get},
+-		    {"http://jigsaw.w3.org/HTTP/TE/bar.txt", get},
+-		    {"http://jigsaw.w3.org/HTTP/connection.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/cc.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/cc-private.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/cc-proxy-revalidate.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/cc-nocache.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/h-content-md5.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/h-retry-after.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/h-retry-after-date.html", get},
+-		    {"http://jigsaw.w3.org/HTTP/neg", get},
+-		    {"http://jigsaw.w3.org/HTTP/negbad", get},
+-		    {"http://jigsaw.w3.org/HTTP/400/toolong/", get},
+-		    {"http://jigsaw.w3.org/HTTP/300/", get},
+-		    {"http://jigsaw.w3.org/HTTP/Basic/", get, [{basic_auth, {"guest", "guest"}}]},
+-		    {"http://jigsaw.w3.org/HTTP/CL/", get},
+-		    {"http://www.httpwatch.com/httpgallery/chunked/", get}
+-		   ]).
+-
+-unit_tests() ->
+-    unit_tests([]).
+-
+-unit_tests(Options) ->
+-    Options_1 = Options ++ [{connect_timeout, 5000}],
+-    {Pid, Ref} = erlang:spawn_monitor(?MODULE, unit_tests_1, [self(), Options_1]),
+-    receive
+-	{done, Pid} ->
+-	    ok;
+-	{'DOWN', Ref, _, _, Info} ->
+-	    io:format("Test process crashed: ~p~n", [Info])
+-    after 60000 ->
+-	    exit(Pid, kill),
+-	    io:format("Timed out waiting for tests to complete~n", [])
+-    end.
+-
+-unit_tests_1(Parent, Options) ->
+-    lists:foreach(fun({Url, Method}) ->
+-			  execute_req(Url, Method, Options);
+-		     ({Url, Method, X_Opts}) ->
+-			  execute_req(Url, Method, X_Opts ++ Options)
+-		  end, ?TEST_LIST),
+-    Parent ! {done, self()}.
+-
+-verify_chunked_streaming() ->
+-    verify_chunked_streaming([]).
+-
+-verify_chunked_streaming(Options) ->
+-    Url = "http://www.httpwatch.com/httpgallery/chunked/",
+-    io:format("URL: ~s~n", [Url]),
+-    io:format("Fetching data without streaming...~n", []),
+-    Result_without_streaming = ibrowse:send_req(
+-				 Url, [], get, [],
+-				 [{response_format, binary} | Options]),
+-    io:format("Fetching data with streaming as list...~n", []),
+-    Async_response_list = do_async_req_list(
+-			    Url, get, [{response_format, list} | Options]),
+-    io:format("Fetching data with streaming as binary...~n", []),
+-    Async_response_bin = do_async_req_list(
+-			   Url, get, [{response_format, binary} | Options]),
+-    compare_responses(Result_without_streaming, Async_response_list, Async_response_bin).
+-
+-compare_responses({ok, St_code, _, Body}, {ok, St_code, _, Body}, {ok, St_code, _, Body}) ->
+-    success;
+-compare_responses({ok, St_code, _, Body_1}, {ok, St_code, _, Body_2}, {ok, St_code, _, Body_3}) ->
+-    case Body_1 of
+-	Body_2 ->
+-	    io:format("Body_1 and Body_2 match~n", []);
+-	Body_3 ->
+-	    io:format("Body_1 and Body_3 match~n", []);
+-	_ when Body_2 == Body_3 ->
+-	    io:format("Body_2 and Body_3 match~n", []);
+-	_ ->
+-	    io:format("All three bodies are different!~n", [])
+-    end,
+-    io:format("Body_1 -> ~p~n", [Body_1]),
+-    io:format("Body_2 -> ~p~n", [Body_2]),
+-    io:format("Body_3 -> ~p~n", [Body_3]),
+-    fail_bodies_mismatch;
+-compare_responses(R1, R2, R3) ->
+-    io:format("R1 -> ~p~n", [R1]),
+-    io:format("R2 -> ~p~n", [R2]),
+-    io:format("R3 -> ~p~n", [R3]),
+-    fail.
+-
+-%% do_async_req_list(Url) ->
+-%%     do_async_req_list(Url, get).
+-
+-%% do_async_req_list(Url, Method) ->
+-%%     do_async_req_list(Url, Method, [{stream_to, self()},
+-%% 				    {stream_chunk_size, 1000}]).
+-
+-do_async_req_list(Url, Method, Options) ->
+-    {Pid,_} = erlang:spawn_monitor(?MODULE, i_do_async_req_list,
+-				   [self(), Url, Method,
+-				    Options ++ [{stream_chunk_size, 1000}]]),
+-    io:format("Spawned process ~p~n", [Pid]),
+-    wait_for_resp(Pid).
+-
+-wait_for_resp(Pid) ->
+-    receive
+-	{async_result, Pid, Res} ->
+-	    Res;
+-	{async_result, Other_pid, _} ->
+-	    io:format("~p: Waiting for result from ~p: got from ~p~n", [self(), Pid, Other_pid]),
+-	    wait_for_resp(Pid);
+-	{'DOWN', _, _, Pid, Reason} ->
+-	    {'EXIT', Reason};
+-	{'DOWN', _, _, _, _} ->
+-	    wait_for_resp(Pid);
+-	Msg ->
+-	    io:format("Recvd unknown message: ~p~n", [Msg]),
+-	    wait_for_resp(Pid)
+-    after 10000 ->
+-	  {error, timeout}
+-    end.
+-
+-i_do_async_req_list(Parent, Url, Method, Options) ->
+-    Res = ibrowse:send_req(Url, [], Method, [], [{stream_to, self()} | Options]),
+-    case Res of
+-	{ibrowse_req_id, Req_id} ->
+-	    Result = wait_for_async_resp(Req_id, undefined, undefined, []),
+-	    Parent ! {async_result, self(), Result};
+-	Err ->
+-	    Parent ! {async_result, self(), Err}
+-    end.
+-
+-wait_for_async_resp(Req_id, Acc_Stat_code, Acc_Headers, Body) ->
+-    receive
+-	{ibrowse_async_headers, Req_id, StatCode, Headers} ->
+-	    wait_for_async_resp(Req_id, StatCode, Headers, Body);
+-	{ibrowse_async_response_end, Req_id} ->
+-	    Body_1 = list_to_binary(lists:reverse(Body)),
+-	    {ok, Acc_Stat_code, Acc_Headers, Body_1};
+-	{ibrowse_async_response, Req_id, Data} ->
+-	    wait_for_async_resp(Req_id, Acc_Stat_code, Acc_Headers, [Data | Body]);
+-	Err ->
+-	    {ok, Acc_Stat_code, Acc_Headers, Err}
+-    end.
+-
+-execute_req(Url, Method, Options) ->
+-    io:format("~7.7w, ~50.50s: ", [Method, Url]),
+-    Result = (catch ibrowse:send_req(Url, [], Method, [], Options)),
+-    case Result of
+-	{ok, SCode, _H, _B} ->
+-	    io:format("Status code: ~p~n", [SCode]);
+-	Err ->
+-	    io:format("Err -> ~p~n", [Err])
+-    end.
+-
+-drv_ue_test() ->
+-    drv_ue_test(lists:duplicate(1024, 127)).
+-drv_ue_test(Data) ->
+-    [{port, Port}| _] = ets:lookup(ibrowse_table, port),
+-%     erl_ddll:unload_driver("ibrowse_drv"),
+-%     timer:sleep(1000),
+-%     erl_ddll:load_driver("../priv", "ibrowse_drv"),
+-%     Port = open_port({spawn, "ibrowse_drv"}, []),
+-    {Time, Res} = timer:tc(ibrowse_lib, drv_ue, [Data, Port]),
+-    io:format("Time -> ~p~n", [Time]),
+-    io:format("Data Length -> ~p~n", [length(Data)]),
+-    io:format("Res Length -> ~p~n", [length(Res)]).
+-%    io:format("Result -> ~s~n", [Res]).
+-
+-ue_test() ->
+-    ue_test(lists:duplicate(1024, $?)).
+-ue_test(Data) ->
+-    {Time, Res} = timer:tc(ibrowse_lib, url_encode, [Data]),
+-    io:format("Time -> ~p~n", [Time]),
+-    io:format("Data Length -> ~p~n", [length(Data)]),
+-    io:format("Res Length -> ~p~n", [length(Res)]).
+-%    io:format("Result -> ~s~n", [Res]).
+-
+-log_msg(Fmt, Args) ->
+-    io:format("~s -- " ++ Fmt,
+-	      [ibrowse_lib:printable_date() | Args]).
+diff --git a/test/etap/test_util.erl.in b/test/etap/test_util.erl.in
+index 948958c..2650fbb 100644
+--- a/test/etap/test_util.erl.in
++++ b/test/etap/test_util.erl.in
+@@ -22,7 +22,7 @@ builddir() ->
+     "@abs_top_builddir@".
+ 
+ init_code_path() ->
+-    Paths = ["couchdb", "ibrowse"],
++    Paths = ["couchdb"],
+     lists:foreach(fun(Name) ->
+         code:add_pathz(filename:join([builddir(), "src", Name]))
+     end, Paths).
+-- 
+1.6.6.1
+

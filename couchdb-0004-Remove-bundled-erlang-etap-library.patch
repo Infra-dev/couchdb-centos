@@ -1,7 +1,7 @@
-From 4312a2e8f45586ea2d6f2794854100da6f4092b7 Mon Sep 17 00:00:00 2001
+From 418ef87bda575be30e9f1c06615a0406ea4adc16 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:22:37 +0400
-Subject: [PATCH 4/7] Remove bundled erlang-etap library
+Subject: [PATCH 4/9] Remove bundled erlang-etap library
 
 ---
  configure                     |    3 -

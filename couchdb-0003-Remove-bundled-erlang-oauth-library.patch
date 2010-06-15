@@ -1,7 +1,7 @@
-From 8d31e5ff75531deecbf9279fe0e819e9c4bdae5c Mon Sep 17 00:00:00 2001
+From a90dc29c0acf05144ec696d627e5152fc9863fd3 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:19:51 +0400
-Subject: [PATCH 3/7] Remove bundled erlang-oauth library
+Subject: [PATCH 3/9] Remove bundled erlang-oauth library
 
 ---
  configure                            |    3 -

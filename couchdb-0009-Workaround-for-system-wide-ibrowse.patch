@@ -1,0 +1,31 @@
+From 277b71edffb50cc8cbfd967f7c163452d9a91a68 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Tue, 8 Jun 2010 17:30:49 +0400
+Subject: [PATCH 9/9] Workaround for system-wide ibrowse
+
+---
+ src/couchdb/couch_rep_httpc.erl |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
+index 63783dc..d430590 100644
+--- a/src/couchdb/couch_rep_httpc.erl
++++ b/src/couchdb/couch_rep_httpc.erl
+@@ -170,12 +170,12 @@ redirected_request(Req, RedirectUrl) ->
+ 
+ spawn_worker_process(Req) ->
+     Url = ibrowse_lib:parse_url(Req#http_db.url),
+-    {ok, Pid} = ibrowse_http_client:start(Url),
++    {ok, Pid} = ibrowse_http_client:start({undefined, Url, {[{ssl_imp, new}], (Url#url.protocol == https)}}),
+     Pid.
+ 
+ spawn_link_worker_process(Req) ->
+     Url = ibrowse_lib:parse_url(Req#http_db.url),
+-    {ok, Pid} = ibrowse_http_client:start_link(Url),
++    {ok, Pid} = ibrowse_http_client:start_link({undefined, Url, {[{ssl_imp, new}], (Url#url.protocol == https)}}),
+     Pid.
+ 
+ maybe_decompress(Headers, Body) ->
+-- 
+1.6.6.1
+

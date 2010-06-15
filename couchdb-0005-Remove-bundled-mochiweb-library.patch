@@ -1,7 +1,7 @@
-From 29bc14d67186bc0b7fc82b31ca1bae9354a439a2 Mon Sep 17 00:00:00 2001
+From 34f67a3a90904eba2c7dc085584e790b28ac6fbd Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Mon, 7 Jun 2010 15:08:06 +0400
-Subject: [PATCH 5/7] Remove bundled mochiweb library
+Subject: [PATCH 5/9] Remove bundled mochiweb library
 
 ---
  configure                               |    3 -

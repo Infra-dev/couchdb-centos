@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        0.10.2
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -20,16 +20,19 @@ Patch5:		couchdb-0005-Remove-bundled-mochiweb-library.patch
 Patch6:		couchdb-0006-Remove-pid-file-after-stop.patch
 # Backported from 0.11.0
 Patch7:		couchdb-0007-Fix-for-system-wide-mochiweb.patch
+Patch8:		couchdb-0008-Remove-bundled-ibrowse-library.patch
+Patch9:		couchdb-0009-Workaround-for-system-wide-ibrowse.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  curl-devel
-BuildRequires:  erlang
+BuildRequires:	curl-devel
+BuildRequires:	erlang
 BuildRequires:	erlang-etap
+BuildRequires:	erlang-ibrowse
 BuildRequires:	erlang-mochiweb
 BuildRequires:	erlang-oauth
-BuildRequires:  help2man
-BuildRequires:  js-devel
-BuildRequires:  libicu-devel
+BuildRequires:	help2man
+BuildRequires:	js-devel
+BuildRequires:	libicu-devel
 # /usr/bin/prove
 BuildRequires:	perl(Test::Harness)
 
@@ -46,6 +49,7 @@ BuildRequires:	perl(Test::Harness)
 Requires:       erlang
 Requires:	erlang-oauth
 Requires:	erlang-mochiweb
+Requires:	erlang-ibrowse
 # For %{_bindir}/icu-config
 Requires:       libicu-devel
 
@@ -75,6 +79,8 @@ JavaScript acting as the default view definition language.
 %patch5 -p1 -b .remove_bundled_mochiweb
 %patch6 -p1 -b .remove_pid_file
 %patch7 -p1 -b .fix_for_mochi
+%patch8 -p1 -b .remove_bundled_ibrowse
+%patch9 -p1 -b .workaround_for_ssl
 # Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
@@ -167,7 +173,7 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/couchdb
 %{_initrddir}/couchdb
 %{_bindir}/*
-%{_libdir}/erlang/lib/*
+%{_libdir}/erlang/lib/couch-%{version}
 %{_datadir}/couchdb
 %{_mandir}/man1/*
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/couchdb
@@ -175,6 +181,9 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Tue Jun  8 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-11
+- Remove bundled ibrowse library (see rhbz #581282).
+
 * Mon Jun  7 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-10
 - Use system-wide erlang-mochiweb instead of bundled copy (rhbz #581284)
 - Added %%check target and necessary BuildRequires - etap, oauth, mochiweb
