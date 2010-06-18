@@ -3,8 +3,8 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        0.10.2
-Release:        12%{?dist}
+Version:        0.11.0
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -12,16 +12,14 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
-Patch1:		couchdb-0001-Force-init-script-installation.patch
-Patch2:		couchdb-0002-Install-into-erllibdir-by-default.patch
-Patch3:		couchdb-0003-Remove-bundled-erlang-oauth-library.patch
-Patch4:		couchdb-0004-Remove-bundled-erlang-etap-library.patch
-Patch5:		couchdb-0005-Remove-bundled-mochiweb-library.patch
-Patch6:		couchdb-0006-Remove-pid-file-after-stop.patch
-# Backported from 0.11.0
-Patch7:		couchdb-0007-Fix-for-system-wide-mochiweb.patch
-Patch8:		couchdb-0008-Remove-bundled-ibrowse-library.patch
-Patch9:		couchdb-0009-Workaround-for-system-wide-ibrowse.patch
+Patch1:		couchdb0.11.0-0001-Force-init-script-installation.patch
+Patch2:		couchdb0.11.0-0002-Install-into-erllibdir-by-default.patch
+Patch3:		couchdb0.11.0-0003-Remove-bundled-erlang-oauth-library.patch
+Patch4:		couchdb0.11.0-0004-Remove-bundled-erlang-etap-library.patch
+Patch5:		couchdb0.11.0-0005-Remove-bundled-mochiweb-library.patch
+Patch6:		couchdb0.11.0-0006-Remove-pid-file-after-stop.patch
+Patch7:		couchdb0.11.0-0007-Remove-bundled-ibrowse-library.patch
+Patch8:		couchdb0.11.0-0008-Workaround-for-system-wide-ibrowse.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	curl-devel
@@ -33,7 +31,7 @@ BuildRequires:	erlang-oauth
 BuildRequires:	help2man
 BuildRequires:	js-devel
 BuildRequires:	libicu-devel
-# /usr/bin/prove
+# For /usr/bin/prove
 BuildRequires:	perl(Test::Harness)
 
 
@@ -44,10 +42,9 @@ Requires:	erlang-inets
 Requires:	erlang-kernel
 Requires:	erlang-mochiweb
 Requires:	erlang-oauth
+Requires:	erlang-sasl
 Requires:	erlang-stdlib
 Requires:	erlang-tools
-# For %{_bindir}/icu-config
-Requires:       libicu-devel
 
 #Initscripts
 Requires(post): chkconfig
@@ -74,9 +71,8 @@ JavaScript acting as the default view definition language.
 %patch4 -p1 -b .remove_bundled_etap
 %patch5 -p1 -b .remove_bundled_mochiweb
 %patch6 -p1 -b .remove_pid_file
-%patch7 -p1 -b .fix_for_mochi
-%patch8 -p1 -b .remove_bundled_ibrowse
-%patch9 -p1 -b .workaround_for_ssl
+%patch7 -p1 -b .remove_bundled_ibrowse
+%patch8 -p1 -b .workaround_for_ssl
 # Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
@@ -127,7 +123,7 @@ sed -i s,^COUCHDB_RESPAWN_TIMEOUT=5,COUCHDB_RESPAWN_TIMEOUT=0,g $RPM_BUILD_ROOT%
 
 
 %check
-make check && cd test && sh runner.sh || exit 1
+make check || exit 1
 
 
 %clean
@@ -143,11 +139,7 @@ exit 0
 
 
 %post
-/sbin/ldconfig
 /sbin/chkconfig --add couchdb
-
-
-%postun -p /sbin/ldconfig
 
 
 %preun
@@ -177,6 +169,13 @@ fi
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
 %changelog
+* Tue Jun 18 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.0-1
+- Ver. 0.11.0 (a feature-freeze release candidate)
+
+* Fri Jun 18 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-13
+- Remove ldconfig invocation (no system-wide shared libraries)
+- Removed icu-config requires
+
 * Tue Jun 15 2010 Peter Lemenkov <lemenkov@gmail.com> 0.10.2-12
 - Narrow explicit requires
 

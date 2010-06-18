@@ -1,7 +1,7 @@
-From 34f67a3a90904eba2c7dc085584e790b28ac6fbd Mon Sep 17 00:00:00 2001
+From 2b794d728dbedbdc5f8674c26673fc7d8da319ec Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Mon, 7 Jun 2010 15:08:06 +0400
-Subject: [PATCH 5/9] Remove bundled mochiweb library
+Subject: [PATCH 5/8] Remove bundled mochiweb library
 
 ---
  configure                               |    3 -
@@ -9,37 +9,33 @@ Subject: [PATCH 5/9] Remove bundled mochiweb library
  src/Makefile.am                         |    2 +-
  src/Makefile.in                         |    2 +-
  src/mochiweb/Makefile.am                |   80 ---
- src/mochiweb/Makefile.in                |  506 ------------------
+ src/mochiweb/Makefile.in                |  513 ------------------
  src/mochiweb/mochifmt.erl               |  426 ---------------
  src/mochiweb/mochifmt_records.erl       |   30 -
  src/mochiweb/mochifmt_std.erl           |   23 -
  src/mochiweb/mochihex.erl               |   75 ---
- src/mochiweb/mochijson.erl              |  525 ------------------
- src/mochiweb/mochijson2.erl             |  621 ----------------------
+ src/mochiweb/mochijson.erl              |  528 ------------------
+ src/mochiweb/mochijson2.erl             |  663 -----------------------
  src/mochiweb/mochinum.erl               |  289 ----------
  src/mochiweb/mochiweb.app.in            |   32 --
  src/mochiweb/mochiweb.erl               |  110 ----
  src/mochiweb/mochiweb_app.erl           |   20 -
- src/mochiweb/mochiweb_charref.erl       |  295 -----------
+ src/mochiweb/mochiweb_charref.erl       |  295 ----------
  src/mochiweb/mochiweb_cookies.erl       |  257 ---------
  src/mochiweb/mochiweb_echo.erl          |   31 --
- src/mochiweb/mochiweb_headers.erl       |  186 -------
- src/mochiweb/mochiweb_html.erl          |  880 -------------------------------
- src/mochiweb/mochiweb_http.erl          |  142 -----
- src/mochiweb/mochiweb_multipart.erl     |  429 ---------------
- src/mochiweb/mochiweb_request.erl       |  790 ---------------------------
+ src/mochiweb/mochiweb_headers.erl       |  251 ---------
+ src/mochiweb/mochiweb_html.erl          |  893 -------------------------------
+ src/mochiweb/mochiweb_http.erl          |  152 ------
+ src/mochiweb/mochiweb_multipart.erl     |  530 ------------------
+ src/mochiweb/mochiweb_request.erl       |  867 ------------------------------
  src/mochiweb/mochiweb_response.erl      |   56 --
- src/mochiweb/mochiweb_skel.erl          |   71 ---
+ src/mochiweb/mochiweb_skel.erl          |   73 ---
  src/mochiweb/mochiweb_socket_server.erl |  248 ---------
  src/mochiweb/mochiweb_sup.erl           |   34 --
- src/mochiweb/mochiweb_util.erl          |  579 --------------------
- src/mochiweb/reloader.erl               |  124 -----
- test/etap/030-doc-from-json.t           |    2 +-
- test/etap/031-doc-to-json.t             |    2 +-
+ src/mochiweb/mochiweb_util.erl          |  859 -----------------------------
+ src/mochiweb/reloader.erl               |  123 -----
  test/etap/test_util.erl.in              |    2 +-
- test/run_native_process.es              |    1 -
- test/runner.sh                          |    2 +-
- 35 files changed, 6 insertions(+), 6870 deletions(-)
+ 31 files changed, 3 insertions(+), 7465 deletions(-)
  delete mode 100644 src/mochiweb/Makefile.am
  delete mode 100644 src/mochiweb/Makefile.in
  delete mode 100644 src/mochiweb/mochifmt.erl
@@ -68,10 +64,10 @@ Subject: [PATCH 5/9] Remove bundled mochiweb library
  delete mode 100644 src/mochiweb/reloader.erl
 
 diff --git a/configure b/configure
-index ca7732f..2d728fe 100755
+index 707abc4..c2dc5e5 100755
 --- a/configure
 +++ b/configure
-@@ -12139,8 +12139,6 @@ ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
+@@ -12258,8 +12258,6 @@ ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
  
  ac_config_files="$ac_config_files src/ibrowse/Makefile"
  
@@ -79,27 +75,27 @@ index ca7732f..2d728fe 100755
 -
  ac_config_files="$ac_config_files test/Makefile"
  
- ac_config_files="$ac_config_files test/etap/Makefile"
-@@ -13157,7 +13155,6 @@ do
+ ac_config_files="$ac_config_files test/bench/Makefile"
+@@ -13282,7 +13280,6 @@ do
      "src/couchdb/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/Makefile" ;;
      "src/couchdb/priv/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/priv/Makefile" ;;
      "src/ibrowse/Makefile") CONFIG_FILES="$CONFIG_FILES src/ibrowse/Makefile" ;;
 -    "src/mochiweb/Makefile") CONFIG_FILES="$CONFIG_FILES src/mochiweb/Makefile" ;;
      "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
+     "test/bench/Makefile") CONFIG_FILES="$CONFIG_FILES test/bench/Makefile" ;;
      "test/etap/Makefile") CONFIG_FILES="$CONFIG_FILES test/etap/Makefile" ;;
-     "test/etap/test_util.erl") CONFIG_FILES="$CONFIG_FILES test/etap/test_util.erl" ;;
 diff --git a/configure.ac b/configure.ac
-index 0478b4f..a53df9b 100644
+index 34358de..a3b2316 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -336,7 +336,6 @@ AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
+@@ -389,7 +389,6 @@ AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
  AC_CONFIG_FILES([src/ibrowse/Makefile])
 -AC_CONFIG_FILES([src/mochiweb/Makefile])
  AC_CONFIG_FILES([test/Makefile])
+ AC_CONFIG_FILES([test/bench/Makefile])
  AC_CONFIG_FILES([test/etap/Makefile])
- AC_CONFIG_FILES([test/etap/test_util.erl])
 diff --git a/src/Makefile.am b/src/Makefile.am
 index 19a5d20..5a6646f 100644
 --- a/src/Makefile.am
@@ -111,10 +107,10 @@ index 19a5d20..5a6646f 100644
 -SUBDIRS = couchdb ibrowse mochiweb
 +SUBDIRS = couchdb ibrowse
 diff --git a/src/Makefile.in b/src/Makefile.in
-index 2422e39..d1e6ba5 100644
+index 24da88c..91874d4 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -239,7 +239,7 @@ version_minor = @version_minor@
+@@ -246,7 +246,7 @@ version_minor = @version_minor@
  version_release = @version_release@
  version_revision = @version_revision@
  version_stage = @version_stage@
@@ -125,7 +121,7 @@ index 2422e39..d1e6ba5 100644
  .SUFFIXES:
 diff --git a/src/mochiweb/Makefile.am b/src/mochiweb/Makefile.am
 deleted file mode 100644
-index 608d4dc..0000000
+index c191abf..0000000
 --- a/src/mochiweb/Makefile.am
 +++ /dev/null
 @@ -1,80 +0,0 @@
@@ -141,7 +137,7 @@ index 608d4dc..0000000
 -## License for the specific language governing permissions and limitations under
 -## the License.
 -
--mochiwebebindir = $(localerlanglibdir)/mochiweb-r97/ebin
+-mochiwebebindir = $(localerlanglibdir)/mochiweb-r113/ebin
 -
 -mochiweb_file_collection = \
 -    mochifmt.erl \
@@ -211,10 +207,10 @@ index 608d4dc..0000000
 -	$(ERLC) $(ERLC_FLAGS) $<
 diff --git a/src/mochiweb/Makefile.in b/src/mochiweb/Makefile.in
 deleted file mode 100644
-index df1c548..0000000
+index aec731e..0000000
 --- a/src/mochiweb/Makefile.in
 +++ /dev/null
-@@ -1,506 +0,0 @@
+@@ -1,513 +0,0 @@
 -# Makefile.in generated by automake 1.11 from Makefile.am.
 -# @configure_input@
 -
@@ -329,12 +325,16 @@ index df1c548..0000000
 -ICU_LOCAL_BIN = @ICU_LOCAL_BIN@
 -ICU_LOCAL_CFLAGS = @ICU_LOCAL_CFLAGS@
 -ICU_LOCAL_LDFLAGS = @ICU_LOCAL_LDFLAGS@
+-INNO_COMPILER_EXECUTABLE = @INNO_COMPILER_EXECUTABLE@
 -INSTALL = @INSTALL@
 -INSTALL_DATA = @INSTALL_DATA@
 -INSTALL_PROGRAM = @INSTALL_PROGRAM@
 -INSTALL_SCRIPT = @INSTALL_SCRIPT@
 -INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 -JSLIB = @JSLIB@
+-JS_LIB_BASE = @JS_LIB_BASE@
+-JS_LIB_BINARY = @JS_LIB_BINARY@
+-JS_LIB_DIR = @JS_LIB_DIR@
 -LD = @LD@
 -LDFLAGS = @LDFLAGS@
 -LIBOBJS = @LIBOBJS@
@@ -416,7 +416,10 @@ index df1c548..0000000
 -lt_ECHO = @lt_ECHO@
 -mandir = @mandir@
 -mkdir_p = @mkdir_p@
+-msvc_redist_dir = @msvc_redist_dir@
+-msvc_redist_name = @msvc_redist_name@
 -oldincludedir = @oldincludedir@
+-openssl_bin_dir = @openssl_bin_dir@
 -package_author_address = @package_author_address@
 -package_author_name = @package_author_name@
 -package_identifier = @package_identifier@
@@ -440,7 +443,7 @@ index df1c548..0000000
 -version_release = @version_release@
 -version_revision = @version_revision@
 -version_stage = @version_stage@
--mochiwebebindir = $(localerlanglibdir)/mochiweb-r97/ebin
+-mochiwebebindir = $(localerlanglibdir)/mochiweb-r113/ebin
 -mochiweb_file_collection = \
 -    mochifmt.erl \
 -    mochifmt_records.erl \
@@ -1301,10 +1304,10 @@ index 7fe6899..0000000
 -
 diff --git a/src/mochiweb/mochijson.erl b/src/mochiweb/mochijson.erl
 deleted file mode 100644
-index 029642a..0000000
+index 74695a7..0000000
 --- a/src/mochiweb/mochijson.erl
 +++ /dev/null
-@@ -1,525 +0,0 @@
+@@ -1,528 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2006 Mochi Media, Inc.
 -
@@ -1493,7 +1496,8 @@ index 029642a..0000000
 -           end,
 -    [NewC | json_encode_string_utf8_1(Cs)];
 -json_encode_string_utf8_1(All=[C | _]) when C >= 16#80, C =< 16#10FFFF ->
--    json_encode_string_unicode(xmerl_ucs:from_utf8(All));
+-    [?Q | Rest] = json_encode_string_unicode(xmerl_ucs:from_utf8(All)),
+-    Rest;
 -json_encode_string_utf8_1([]) ->
 -    "\"".
 -
@@ -1766,15 +1770,17 @@ index 029642a..0000000
 -equiv_list([], []) ->
 -    true;
 -equiv_list([V1 | L1], [V2 | L2]) ->
--    case equiv(V1, V2) of
--        true ->
--            equiv_list(L1, L2);
--        false ->
--            false
--    end.
+-    equiv(V1, V2) andalso equiv_list(L1, L2).
 -
 -test_all() ->
+-    test_issue33(),
 -    test_one(e2j_test_vec(utf8), 1).
+-
+-test_issue33() ->
+-    %% http://code.google.com/p/mochiweb/issues/detail?id=33
+-    Js = {struct, [{"key", [194, 163]}]},
+-    Encoder = encoder([{input_encoding, utf8}]),
+-    "{\"key\":\"\\u00a3\"}" = lists:flatten(Encoder(Js)).
 -
 -test_one([], _N) ->
 -    %% io:format("~p tests passed~n", [N-1]),
@@ -1832,10 +1838,10 @@ index 029642a..0000000
 -    ].
 diff --git a/src/mochiweb/mochijson2.erl b/src/mochiweb/mochijson2.erl
 deleted file mode 100644
-index ee19458..0000000
+index 66f68bf..0000000
 --- a/src/mochiweb/mochijson2.erl
 +++ /dev/null
-@@ -1,621 +0,0 @@
+@@ -1,663 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2007 Mochi Media, Inc.
 -
@@ -1880,7 +1886,8 @@ index ee19458..0000000
 -%% @type json_term() = json_string() | json_number() | json_array() |
 -%%                     json_object()
 -
---record(encoder, {handler=null}).
+--record(encoder, {handler=null,
+-                  utf8=false}).
 -
 --record(decoder, {object_hook=null,
 -                  offset=0,
@@ -1890,6 +1897,8 @@ index ee19458..0000000
 -
 -%% @spec encoder([encoder_option()]) -> function()
 -%% @doc Create an encoder/1 with the given options.
+-%% @type encoder_option() = handler_option() | utf8_option()
+-%% @type utf8_option() = boolean(). Emit unicode as utf8 (default - false)
 -encoder(Options) ->
 -    State = parse_encoder_options(Options, #encoder{}),
 -    fun (O) -> json_encode(O, State) end.
@@ -1908,10 +1917,7 @@ index ee19458..0000000
 -%% @spec decode(iolist()) -> json_term()
 -%% @doc Decode the given iolist to Erlang terms.
 -decode(S) ->
--    try json_decode(S, #decoder{})
--    catch
--        _:_ -> throw({invalid_json, S})
--    end.
+-    json_decode(S, #decoder{}).
 -
 -test() ->
 -    test_all().
@@ -1921,7 +1927,9 @@ index ee19458..0000000
 -parse_encoder_options([], State) ->
 -    State;
 -parse_encoder_options([{handler, Handler} | Rest], State) ->
--    parse_encoder_options(Rest, State#encoder{handler=Handler}).
+-    parse_encoder_options(Rest, State#encoder{handler=Handler});
+-parse_encoder_options([{utf8, Switch} | Rest], State) ->
+-    parse_encoder_options(Rest, State#encoder{utf8=Switch}).
 -
 -parse_decoder_options([], State) ->
 -    State;
@@ -1934,15 +1942,18 @@ index ee19458..0000000
 -    <<"false">>;
 -json_encode(null, _State) ->
 -    <<"null">>;
--json_encode(I, _State) when is_integer(I) ->
+-json_encode(I, _State) when is_integer(I) andalso I >= -2147483648 andalso I =< 2147483647 ->
+-    %% Anything outside of 32-bit integers should be encoded as a float
 -    integer_to_list(I);
+-json_encode(I, _State) when is_integer(I) ->
+-    mochinum:digits(float(I));
 -json_encode(F, _State) when is_float(F) ->
 -    mochinum:digits(F);
 -json_encode(S, State) when is_binary(S); is_atom(S) ->
 -    json_encode_string(S, State);
 -json_encode(Array, State) when is_list(Array) ->
 -    json_encode_array(Array, State);
--json_encode({Props}, State) when is_list(Props) ->
+-json_encode({struct, Props}, State) when is_list(Props) ->
 -    json_encode_proplist(Props, State);
 -json_encode(Bad, #encoder{handler=null}) ->
 -    exit({json_encode, {bad_term, Bad}});
@@ -1969,29 +1980,29 @@ index ee19458..0000000
 -    [$, | Acc1] = lists:foldl(F, "{", Props),
 -    lists:reverse([$\} | Acc1]).
 -
--json_encode_string(A, _State) when is_atom(A) ->
+-json_encode_string(A, State) when is_atom(A) ->
 -    L = atom_to_list(A),
 -    case json_string_is_safe(L) of
 -        true ->
 -            [?Q, L, ?Q];
 -        false ->
--            json_encode_string_unicode(xmerl_ucs:from_utf8(L), [?Q])
+-            json_encode_string_unicode(xmerl_ucs:from_utf8(L), State, [?Q])
 -    end;
--json_encode_string(B, _State) when is_binary(B) ->
+-json_encode_string(B, State) when is_binary(B) ->
 -    case json_bin_is_safe(B) of
 -        true ->
 -            [?Q, B, ?Q];
 -        false ->
--            json_encode_string_unicode(xmerl_ucs:from_utf8(B), [?Q])
+-            json_encode_string_unicode(xmerl_ucs:from_utf8(B), State, [?Q])
 -    end;
 -json_encode_string(I, _State) when is_integer(I) ->
 -    [?Q, integer_to_list(I), ?Q];
--json_encode_string(L, _State) when is_list(L) ->
+-json_encode_string(L, State) when is_list(L) ->
 -    case json_string_is_safe(L) of
 -        true ->
 -            [?Q, L, ?Q];
 -        false ->
--            json_encode_string_unicode(L, [?Q])
+-            json_encode_string_unicode(L, State, [?Q])
 -    end.
 -
 -json_string_is_safe([]) ->
@@ -2046,9 +2057,9 @@ index ee19458..0000000
 -            false
 -    end.
 -
--json_encode_string_unicode([], Acc) ->
+-json_encode_string_unicode([], _State, Acc) ->
 -    lists:reverse([$\" | Acc]);
--json_encode_string_unicode([C | Cs], Acc) ->
+-json_encode_string_unicode([C | Cs], State, Acc) ->
 -    Acc1 = case C of
 -               ?Q ->
 -                   [?Q, $\\ | Acc];
@@ -2074,14 +2085,18 @@ index ee19458..0000000
 -                   [$r, $\\ | Acc];
 -               $\t ->
 -                   [$t, $\\ | Acc];
--               C when C >= 0, C < $\s; C >= 16#7f, C =< 16#10FFFF ->
+-               C when C >= 0, C < $\s ->
+-                   [unihex(C) | Acc];
+-               C when C >= 16#7f, C =< 16#10FFFF, State#encoder.utf8 ->
+-                   [xmerl_ucs:to_utf8(C) | Acc];
+-               C when  C >= 16#7f, C =< 16#10FFFF, not State#encoder.utf8 ->
 -                   [unihex(C) | Acc];
 -               C when C < 16#7f ->
 -                   [C | Acc];
 -               _ ->
 -                   exit({json_encode, {bad_char, C}})
 -           end,
--    json_encode_string_unicode(Cs, Acc1).
+-    json_encode_string_unicode(Cs, State, Acc1).
 -
 -hexdigit(C) when C >= 0, C =< 9 ->
 -    C + $0;
@@ -2126,7 +2141,7 @@ index ee19458..0000000
 -decode_object(B, S=#decoder{state=key}, Acc) ->
 -    case tokenize(B, S) of
 -        {end_object, S1} ->
--            V = make_object({lists:reverse(Acc)}, S1),
+-            V = make_object({struct, lists:reverse(Acc)}, S1),
 -            {V, S1#decoder{state=null}};
 -        {{const, K}, S1} ->
 -            {colon, S2} = tokenize(B, S1),
@@ -2136,7 +2151,7 @@ index ee19458..0000000
 -decode_object(B, S=#decoder{state=comma}, Acc) ->
 -    case tokenize(B, S) of
 -        {end_object, S1} ->
--            V = make_object({lists:reverse(Acc)}, S1),
+-            V = make_object({struct, lists:reverse(Acc)}, S1),
 -            {V, S1#decoder{state=null}};
 -        {comma, S1} ->
 -            decode_object(B, S1#decoder{state=key}, Acc)
@@ -2345,9 +2360,9 @@ index ee19458..0000000
 -%% Create an object from a list of Key/Value pairs.
 -
 -obj_new() ->
--    {[]}.
+-    {struct, []}.
 -
--is_obj({Props}) ->
+-is_obj({struct, Props}) ->
 -    F = fun ({K, _}) when is_binary(K) ->
 -                true;
 -            (_) ->
@@ -2356,7 +2371,7 @@ index ee19458..0000000
 -    lists:all(F, Props).
 -
 -obj_from_list(Props) ->
--    Obj = {Props},
+-    Obj = {struct, Props},
 -    case is_obj(Obj) of
 -        true -> Obj;
 -        false -> exit({json_bad_object, Obj})
@@ -2367,7 +2382,7 @@ index ee19458..0000000
 -%% compare unequal as erlang terms, so we need to carefully recurse
 -%% through aggregates (tuples and objects).
 -
--equiv({Props1}, {Props2}) ->
+-equiv({struct, Props1}, {struct, Props2}) ->
 -    equiv_object(Props1, Props2);
 -equiv(L1, L2) when is_list(L1), is_list(L2) ->
 -    equiv_list(L1, L2);
@@ -2393,16 +2408,13 @@ index ee19458..0000000
 -equiv_list([], []) ->
 -    true;
 -equiv_list([V1 | L1], [V2 | L2]) ->
--    case equiv(V1, V2) of
--        true ->
--            equiv_list(L1, L2);
--        false ->
--            false
--    end.
+-    equiv(V1, V2) andalso equiv_list(L1, L2).
 -
 -test_all() ->
 -    [1199344435545.0, 1] = decode(<<"[1199344435545.0,1]">>),
 -    <<16#F0,16#9D,16#9C,16#95>> = decode([34,"\\ud835","\\udf15",34]),
+-    test_encoder_utf8(),
+-    test_input_validation(),
 -    test_one(e2j_test_vec(utf8), 1).
 -
 -test_one([], _N) ->
@@ -2457,6 +2469,42 @@ index ee19458..0000000
 -     {[-123, <<"foo">>, obj_from_list([{<<"bar">>, []}]), null],
 -      "[-123,\"foo\",{\"bar\":[]},null]"}
 -    ].
+-
+-%% test utf8 encoding
+-test_encoder_utf8() ->
+-    %% safe conversion case (default)
+-    [34,"\\u0001","\\u0442","\\u0435","\\u0441","\\u0442",34] =
+-        encode(<<1,"\321\202\320\265\321\201\321\202">>),
+-
+-    %% raw utf8 output (optional)
+-    Enc = mochijson2:encoder([{utf8, true}]),
+-    [34,"\\u0001",[209,130],[208,181],[209,129],[209,130],34] =
+-        Enc(<<1,"\321\202\320\265\321\201\321\202">>).
+-
+-test_input_validation() ->
+-    Good = [
+-        {16#00A3, <<?Q, 16#C2, 16#A3, ?Q>>}, % pound
+-        {16#20AC, <<?Q, 16#E2, 16#82, 16#AC, ?Q>>}, % euro
+-        {16#10196, <<?Q, 16#F0, 16#90, 16#86, 16#96, ?Q>>} % denarius
+-    ],
+-    lists:foreach(fun({CodePoint, UTF8}) ->
+-        Expect = list_to_binary(xmerl_ucs:to_utf8(CodePoint)),
+-        Expect = decode(UTF8)
+-    end, Good),
+-
+-    Bad = [
+-        % 2nd, 3rd, or 4th byte of a multi-byte sequence w/o leading byte
+-        <<?Q, 16#80, ?Q>>,
+-        % missing continuations, last byte in each should be 80-BF
+-        <<?Q, 16#C2, 16#7F, ?Q>>,
+-        <<?Q, 16#E0, 16#80,16#7F, ?Q>>,
+-        <<?Q, 16#F0, 16#80, 16#80, 16#7F, ?Q>>,
+-        % we don't support code points > 10FFFF per RFC 3629
+-        <<?Q, 16#F5, 16#80, 16#80, 16#80, ?Q>>
+-    ],
+-    lists:foreach(fun(X) ->
+-        ok = try decode(X) catch invalid_utf8 -> ok end
+-    end, Bad).
 diff --git a/src/mochiweb/mochinum.erl b/src/mochiweb/mochinum.erl
 deleted file mode 100644
 index 6a86604..0000000
@@ -2754,13 +2802,13 @@ index 6a86604..0000000
 -    ok.
 diff --git a/src/mochiweb/mochiweb.app.in b/src/mochiweb/mochiweb.app.in
 deleted file mode 100644
-index cd8dbb2..0000000
+index b0f9014..0000000
 --- a/src/mochiweb/mochiweb.app.in
 +++ /dev/null
 @@ -1,32 +0,0 @@
 -{application, mochiweb,
 - [{description, "MochiMedia Web Server"},
--  {vsn, "0.01"},
+-  {vsn, "113"},
 -  {modules, [
 -        mochihex,
 -        mochijson,
@@ -3535,10 +3583,10 @@ index f32d680..0000000
 -    end.
 diff --git a/src/mochiweb/mochiweb_headers.erl b/src/mochiweb/mochiweb_headers.erl
 deleted file mode 100644
-index 6fcec7c..0000000
+index d90fd67..0000000
 --- a/src/mochiweb/mochiweb_headers.erl
 +++ /dev/null
-@@ -1,186 +0,0 @@
+@@ -1,251 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2007 Mochi Media, Inc.
 -
@@ -3550,6 +3598,7 @@ index 6fcec7c..0000000
 --export([delete_any/2, get_primary_value/2]).
 --export([default/3, enter_from_list/2, default_from_list/2]).
 --export([to_list/1, make/1]).
+--export([from_binary/1]).
 --export([test/0]).
 -
 -%% @type headers().
@@ -3578,6 +3627,36 @@ index 6fcec7c..0000000
 -                                             "content-type", H4),
 -    H4 = ?MODULE:delete_any("nonexistent-header", H4),
 -    H3 = ?MODULE:delete_any("content-type", H4),
+-    HB = <<"Content-Length: 47\r\nContent-Type: text/plain\r\n\r\n">>,
+-    H_HB = ?MODULE:from_binary(HB),
+-    H_HB = ?MODULE:from_binary(binary_to_list(HB)),
+-    "47" = ?MODULE:get_value("Content-Length", H_HB),
+-    "text/plain" = ?MODULE:get_value("Content-Type", H_HB),
+-    L_H_HB = ?MODULE:to_list(H_HB),
+-    2 = length(L_H_HB),
+-    true = lists:member({'Content-Length', "47"}, L_H_HB),
+-    true = lists:member({'Content-Type', "text/plain"}, L_H_HB),
+-    HL = [ <<"Content-Length: 47\r\n">>, <<"Content-Type: text/plain\r\n">> ],
+-    HL2 = [ "Content-Length: 47\r\n", <<"Content-Type: text/plain\r\n">> ],
+-    HL3 = [ <<"Content-Length: 47\r\n">>, "Content-Type: text/plain\r\n" ],
+-    H_HL = ?MODULE:from_binary(HL),
+-    H_HL = ?MODULE:from_binary(HL2),
+-    H_HL = ?MODULE:from_binary(HL3),
+-    "47" = ?MODULE:get_value("Content-Length", H_HL),
+-    "text/plain" = ?MODULE:get_value("Content-Type", H_HL),
+-    L_H_HL = ?MODULE:to_list(H_HL),
+-    2 = length(L_H_HL),
+-    true = lists:member({'Content-Length', "47"}, L_H_HL),
+-    true = lists:member({'Content-Type', "text/plain"}, L_H_HL),
+-    [] = ?MODULE:to_list(?MODULE:from_binary(<<>>)),
+-    [] = ?MODULE:to_list(?MODULE:from_binary(<<"">>)),
+-    [] = ?MODULE:to_list(?MODULE:from_binary(<<"\r\n">>)),
+-    [] = ?MODULE:to_list(?MODULE:from_binary(<<"\r\n\r\n">>)),
+-    [] = ?MODULE:to_list(?MODULE:from_binary("")),
+-    [] = ?MODULE:to_list(?MODULE:from_binary([<<>>])),
+-    [] = ?MODULE:to_list(?MODULE:from_binary([<<"">>])),
+-    [] = ?MODULE:to_list(?MODULE:from_binary([<<"\r\n">>])),
+-    [] = ?MODULE:to_list(?MODULE:from_binary([<<"\r\n\r\n">>])),
 -    ok.
 -
 -%% @spec empty() -> headers()
@@ -3592,6 +3671,40 @@ index 6fcec7c..0000000
 -%% assume a tuple is already mochiweb_headers.
 -make(T) when is_tuple(T) ->
 -    T.
+-
+-%% @spec from_binary(RawHttpHeader()) -> headers() 
+-%% @type RawHttpHeader() -> string() | binary() | [ string() | binary() ]
+-%%
+-%% @doc Transforms a raw HTTP header into a mochiweb headers structure.
+-%%
+-%%      The given raw HTTP header can be one of the following:
+-%%
+-%%      1) A string or a binary representing a full HTTP header ending with 
+-%%         double CRLF.
+-%%         Examples:
+-%%         "Content-Length: 47\r\nContent-Type: text/plain\r\n\r\n"
+-%%         <<"Content-Length: 47\r\nContent-Type: text/plain\r\n\r\n">>
+-%%
+-%%      2) A list of binaries or strings where each element represents a raw 
+-%%         HTTP header line ending with a single CRLF.
+-%%         Examples:
+-%%         [ <<"Content-Length: 47\r\n">>, <<"Content-Type: text/plain\r\n">> ]
+-%%         [ "Content-Length: 47\r\n", "Content-Type: text/plain\r\n" ]
+-%%         [ "Content-Length: 47\r\n", <<"Content-Type: text/plain\r\n">> ]
+-%%
+-from_binary(RawHttpHeader) when is_binary(RawHttpHeader) ->
+-    from_binary(RawHttpHeader, []);
+-
+-from_binary(RawHttpHeaderList) ->
+-    from_binary(list_to_binary([RawHttpHeaderList, "\r\n"])).
+-
+-from_binary(RawHttpHeader, Acc) ->
+-    case erlang:decode_packet(httph, RawHttpHeader, []) of
+-        { ok, {http_header, _, H, _, V}, Rest } ->
+-            from_binary(Rest, [{H, V} | Acc]);
+-        _ ->
+-            make(Acc)
+-    end.
 -
 -%% @spec from_list([{key(), value()}]) -> headers()
 -%% @doc Construct a headers() from the given list.
@@ -3727,10 +3840,10 @@ index 6fcec7c..0000000
 -
 diff --git a/src/mochiweb/mochiweb_html.erl b/src/mochiweb/mochiweb_html.erl
 deleted file mode 100644
-index 0e030c1..0000000
+index 77100d5..0000000
 --- a/src/mochiweb/mochiweb_html.erl
 +++ /dev/null
-@@ -1,880 +0,0 @@
+@@ -1,893 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2007 Mochi Media, Inc.
 -
@@ -4038,6 +4151,18 @@ index 0e030c1..0000000
 -     {data, <<" A= B <= C ">>, false},
 -     {end_tag, <<"script">>}] =
 -        tokens(<<"<script type=\"text/javascript\"> A= B <= C </script>">>),
+-    [{start_tag, <<"script">>, [{<<"type">>, <<"text/javascript">>}], false},
+-     {data, <<" A= B <= C ">>, false},
+-     {end_tag, <<"script">>}] =
+-        tokens(<<"<script type =\"text/javascript\"> A= B <= C </script>">>),
+-    [{start_tag, <<"script">>, [{<<"type">>, <<"text/javascript">>}], false},
+-     {data, <<" A= B <= C ">>, false},
+-     {end_tag, <<"script">>}] =
+-        tokens(<<"<script type = \"text/javascript\"> A= B <= C </script>">>),
+-    [{start_tag, <<"script">>, [{<<"type">>, <<"text/javascript">>}], false},
+-     {data, <<" A= B <= C ">>, false},
+-     {end_tag, <<"script">>}] =
+-        tokens(<<"<script type= \"text/javascript\"> A= B <= C </script>">>),
 -    [{start_tag, <<"textarea">>, [], false},
 -     {data, <<"<html></body>">>, false},
 -     {end_tag, <<"textarea">>}] =
@@ -4405,7 +4530,8 @@ index 0e030c1..0000000
 -    O = S1#decoder.offset,
 -    case B of
 -        <<_:O/binary, "=", _/binary>> ->
--            tokenize_word_or_literal(B, ?INC_COL(S1));
+-            S2 = skip_whitespace(B, ?INC_COL(S1)),
+-            tokenize_word_or_literal(B, S2);
 -        _ ->
 -            {Attr, S1}
 -    end.
@@ -4613,10 +4739,10 @@ index 0e030c1..0000000
 -    end.
 diff --git a/src/mochiweb/mochiweb_http.erl b/src/mochiweb/mochiweb_http.erl
 deleted file mode 100644
-index 14a3657..0000000
+index f1821f4..0000000
 --- a/src/mochiweb/mochiweb_http.erl
 +++ /dev/null
-@@ -1,142 +0,0 @@
+@@ -1,152 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2007 Mochi Media, Inc.
 -
@@ -4626,6 +4752,7 @@ index 14a3657..0000000
 --author('bob@mochimedia.com').
 --export([start/0, start/1, stop/0, stop/1]).
 --export([loop/2, default_body/1]).
+--export([after_response/2, reentry/1]).
 -
 --define(IDLE_TIMEOUT, 30000).
 -
@@ -4729,6 +4856,11 @@ index 14a3657..0000000
 -            exit(normal)
 -    end.
 -
+-reentry(Body) ->
+-    fun (Req) ->
+-            ?MODULE:after_response(Body, Req)
+-    end.
+-
 -headers(Socket, Request, Headers, _Body, ?MAX_HEADERS) ->
 -    %% Too many headers sent, bad request.
 -    inet:setopts(Socket, [{packet, raw}]),
@@ -4744,14 +4876,7 @@ index 14a3657..0000000
 -            Req = mochiweb:new_request({Socket, Request,
 -                                        lists:reverse(Headers)}),
 -            Body(Req),
--            case Req:should_close() of
--                true ->
--                    gen_tcp:close(Socket),
--                    exit(normal);
--                false ->
--                    Req:cleanup(),
--                    ?MODULE:loop(Socket, Body)
--            end;
+-            ?MODULE:after_response(Body, Req);
 -        {ok, {http_header, _, Name, _, Value}} ->
 -            headers(Socket, Request, [{Name, Value} | Headers], Body,
 -                    1 + HeaderCount);
@@ -4759,12 +4884,23 @@ index 14a3657..0000000
 -            gen_tcp:close(Socket),
 -            exit(normal)
 -    end.
+-
+-after_response(Body, Req) ->
+-    Socket = Req:get(socket),
+-    case Req:should_close() of
+-        true ->
+-            gen_tcp:close(Socket),
+-            exit(normal);
+-        false ->
+-            Req:cleanup(),
+-            ?MODULE:loop(Socket, Body)
+-    end.
 diff --git a/src/mochiweb/mochiweb_multipart.erl b/src/mochiweb/mochiweb_multipart.erl
 deleted file mode 100644
-index 9eb4bad..0000000
+index 0368a9a..0000000
 --- a/src/mochiweb/mochiweb_multipart.erl
 +++ /dev/null
-@@ -1,429 +0,0 @@
+@@ -1,530 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2007 Mochi Media, Inc.
 -
@@ -4843,15 +4979,15 @@ index 9eb4bad..0000000
 -    Boundary = iolist_to_binary(
 -                 get_boundary(Req:get_header_value("content-type"))),
 -    Prefix = <<"\r\n--", Boundary/binary>>,
--    BS = size(Boundary),
+-    BS = byte_size(Boundary),
 -    Chunk = read_chunk(Req, Length),
--    Length1 = Length - size(Chunk),
+-    Length1 = Length - byte_size(Chunk),
 -    <<"--", Boundary:BS/binary, "\r\n", Rest/binary>> = Chunk,
--    feed_mp(headers, #mp{boundary=Prefix,
--                         length=Length1,
--                         buffer=Rest,
--                         callback=Callback,
--                         req=Req}).
+-    feed_mp(headers, flash_multipart_hack(#mp{boundary=Prefix,
+-                                              length=Length1,
+-                                              buffer=Rest,
+-                                              callback=Callback,
+-                                              req=Req})).
 -
 -parse_headers(<<>>) ->
 -    [];
@@ -4884,8 +5020,27 @@ index 9eb4bad..0000000
 -read_more(State=#mp{length=Length, buffer=Buffer, req=Req}) ->
 -    Data = read_chunk(Req, Length),
 -    Buffer1 = <<Buffer/binary, Data/binary>>,
--    State#mp{length=Length - size(Data),
--             buffer=Buffer1}.
+-    flash_multipart_hack(State#mp{length=Length - byte_size(Data),
+-                                  buffer=Buffer1}).
+-
+-flash_multipart_hack(State=#mp{length=0, buffer=Buffer, boundary=Prefix}) ->
+-    %% http://code.google.com/p/mochiweb/issues/detail?id=22
+-    %% Flash doesn't terminate multipart with \r\n properly so we fix it up here
+-    PrefixSize = size(Prefix),
+-    case size(Buffer) - (2 + PrefixSize) of
+-        Seek when Seek >= 0 ->
+-            case Buffer of
+-                <<_:Seek/binary, Prefix:PrefixSize/binary, "--">> ->
+-                    Buffer1 = <<Buffer/binary, "\r\n">>,
+-                    State#mp{buffer=Buffer1};
+-                _ ->
+-                    State
+-            end;
+-        _ ->
+-            State
+-    end;
+-flash_multipart_hack(State) ->
+-    State.
 -
 -feed_mp(headers, State=#mp{buffer=Buffer, callback=Callback}) ->
 -    {State1, P} = case find_in_binary(<<"\r\n\r\n">>, Buffer) of
@@ -4903,7 +5058,8 @@ index 9eb4bad..0000000
 -    feed_mp(body, State1#mp{buffer=Rest,
 -                            callback=NextCallback});
 -feed_mp(body, State=#mp{boundary=Prefix, buffer=Buffer, callback=Callback}) ->
--    case find_boundary(Prefix, Buffer) of
+-    Boundary = find_boundary(Prefix, Buffer),
+-    case Boundary of
 -        {end_boundary, Start, Skip} ->
 -            <<Data:Start/binary, _:Skip/binary, Rest/binary>> = Buffer,
 -            C1 = Callback({body, Data}),
@@ -5009,7 +5165,11 @@ index 9eb4bad..0000000
 -            ok;
 -        _ ->
 -            fun (Next) -> test_callback(Next, Rest) end
--    end.
+-    end;
+-test_callback({body, Got}, [{body, Expect} | Rest]) ->
+-    GotSize = size(Got),
+-    <<Got:GotSize/binary, Expect1/binary>> = Expect,
+-    fun (Next) -> test_callback(Next, [{body, Expect1} | Rest]) end.
 -
 -test_parse3() ->
 -    ContentType = "multipart/form-data; boundary=---------------------------7386909285754635891697677882",
@@ -5028,14 +5188,12 @@ index 9eb4bad..0000000
 -              eof],
 -    TestCallback = fun (Next) -> test_callback(Next, Expect) end,
 -    ServerFun = fun (Socket) ->
--                        case gen_tcp:send(Socket, BinContent) of
--                            ok ->
--                                exit(normal)
--                        end
+-                        ok = gen_tcp:send(Socket, BinContent),
+-                        exit(normal)
 -                end,
 -    ClientFun = fun (Socket) ->
 -                        Req = fake_request(Socket, ContentType,
--                                           size(BinContent)),
+-                                           byte_size(BinContent)),
 -                        Res = parse_multipart_request(Req, TestCallback),
 -                        {0, <<>>, ok} = Res,
 -                        ok
@@ -5061,14 +5219,12 @@ index 9eb4bad..0000000
 -              eof],
 -    TestCallback = fun (Next) -> test_callback(Next, Expect) end,
 -    ServerFun = fun (Socket) ->
--                        case gen_tcp:send(Socket, BinContent) of
--                            ok ->
--                                exit(normal)
--                        end
+-                        ok = gen_tcp:send(Socket, BinContent),
+-                        exit(normal)
 -                end,
 -    ClientFun = fun (Socket) ->
 -                        Req = fake_request(Socket, ContentType,
--                                           size(BinContent)),
+-                                           byte_size(BinContent)),
 -                        Res = parse_multipart_request(Req, TestCallback),
 -                        {0, <<>>, ok} = Res,
 -                        ok
@@ -5094,14 +5250,12 @@ index 9eb4bad..0000000
 -                 ""], "\r\n"),
 -    BinContent = iolist_to_binary(Content),
 -    ServerFun = fun (Socket) ->
--                        case gen_tcp:send(Socket, BinContent) of
--                            ok ->
--                                exit(normal)
--                        end
+-                        ok = gen_tcp:send(Socket, BinContent),
+-                        exit(normal)
 -                end,
 -    ClientFun = fun (Socket) ->
 -                        Req = fake_request(Socket, ContentType,
--                                           size(BinContent)),
+-                                           byte_size(BinContent)),
 -                        Res = parse_form(Req),
 -                        [{"submit-name", "Larry"},
 -                         {"files", {"file1.txt", {"text/plain",[]},
@@ -5143,14 +5297,12 @@ index 9eb4bad..0000000
 -              eof],
 -    TestCallback = fun (Next) -> test_callback(Next, Expect) end,
 -    ServerFun = fun (Socket) ->
--                        case gen_tcp:send(Socket, BinContent) of
--                            ok ->
--                                exit(normal)
--                        end
+-                        ok = gen_tcp:send(Socket, BinContent),
+-                        exit(normal)
 -                end,
 -    ClientFun = fun (Socket) ->
 -                        Req = fake_request(Socket, ContentType,
--                                           size(BinContent)),
+-                                           byte_size(BinContent)),
 -                        Res = parse_multipart_request(Req, TestCallback),
 -                        {0, <<>>, ok} = Res,
 -                        ok
@@ -5186,6 +5338,89 @@ index 9eb4bad..0000000
 -    {partial, 1, 3} = find_in_binary(<<"foobar">>, <<"afoo">>),
 -    ok.
 -
+-test_flash_parse() ->
+-    ContentType = "multipart/form-data; boundary=----------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5",
+-    "----------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5" = get_boundary(ContentType),
+-    BinContent = <<"------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"Filename\"\r\n\r\nhello.txt\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"success_action_status\"\r\n\r\n201\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"file\"; filename=\"hello.txt\"\r\nContent-Type: application/octet-stream\r\n\r\nhello\n\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"Upload\"\r\n\r\nSubmit Query\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5--">>,
+-    Expect = [{headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "Filename"}]}}]},
+-              {body, <<"hello.txt">>},
+-              body_end,
+-              {headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "success_action_status"}]}}]},
+-              {body, <<"201">>},
+-              body_end,
+-              {headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "file"}, {"filename", "hello.txt"}]}},
+-                {"content-type", {"application/octet-stream", []}}]},
+-              {body, <<"hello\n">>},
+-              body_end,
+-              {headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "Upload"}]}}]},
+-              {body, <<"Submit Query">>},
+-              body_end,
+-              eof],
+-    TestCallback = fun (Next) -> test_callback(Next, Expect) end,
+-    ServerFun = fun (Socket) ->
+-                        ok = gen_tcp:send(Socket, BinContent),
+-                        exit(normal)
+-                end,
+-    ClientFun = fun (Socket) ->
+-                        Req = fake_request(Socket, ContentType,
+-                                           byte_size(BinContent)),
+-                        Res = parse_multipart_request(Req, TestCallback),
+-                        {0, <<>>, ok} = Res,
+-                        ok
+-                end,
+-    ok = with_socket_server(ServerFun, ClientFun),
+-    ok.
+-
+-test_flash_parse2() ->
+-    ContentType = "multipart/form-data; boundary=----------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5",
+-    "----------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5" = get_boundary(ContentType),
+-    Chunk = iolist_to_binary(string:copies("%", 4096)),
+-    BinContent = <<"------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"Filename\"\r\n\r\nhello.txt\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"success_action_status\"\r\n\r\n201\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"file\"; filename=\"hello.txt\"\r\nContent-Type: application/octet-stream\r\n\r\n", Chunk/binary, "\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5\r\nContent-Disposition: form-data; name=\"Upload\"\r\n\r\nSubmit Query\r\n------------ei4GI3GI3Ij5Ef1ae0KM7Ij5ei4Ij5--">>,
+-    Expect = [{headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "Filename"}]}}]},
+-              {body, <<"hello.txt">>},
+-              body_end,
+-              {headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "success_action_status"}]}}]},
+-              {body, <<"201">>},
+-              body_end,
+-              {headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "file"}, {"filename", "hello.txt"}]}},
+-                {"content-type", {"application/octet-stream", []}}]},
+-              {body, Chunk},
+-              body_end,
+-              {headers,
+-               [{"content-disposition",
+-                 {"form-data", [{"name", "Upload"}]}}]},
+-              {body, <<"Submit Query">>},
+-              body_end,
+-              eof],
+-    TestCallback = fun (Next) -> test_callback(Next, Expect) end,
+-    ServerFun = fun (Socket) ->
+-                        ok = gen_tcp:send(Socket, BinContent),
+-                        exit(normal)
+-                end,
+-    ClientFun = fun (Socket) ->
+-                        Req = fake_request(Socket, ContentType,
+-                                           byte_size(BinContent)),
+-                        Res = parse_multipart_request(Req, TestCallback),
+-                        {0, <<>>, ok} = Res,
+-                        ok
+-                end,
+-    ok = with_socket_server(ServerFun, ClientFun),
+-    ok.
+-
 -test() ->
 -    test_find_in_binary(),
 -    test_find_boundary(),
@@ -5193,13 +5428,15 @@ index 9eb4bad..0000000
 -    test_parse2(),
 -    test_parse3(),
 -    test_parse_form(),
+-    test_flash_parse(),
+-    test_flash_parse2(),
 -    ok.
 diff --git a/src/mochiweb/mochiweb_request.erl b/src/mochiweb/mochiweb_request.erl
 deleted file mode 100644
-index 64c4f58..0000000
+index 5d7af26..0000000
 --- a/src/mochiweb/mochiweb_request.erl
 +++ /dev/null
-@@ -1,790 +0,0 @@
+@@ -1,867 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2007 Mochi Media, Inc.
 -
@@ -5222,6 +5459,7 @@ index 64c4f58..0000000
 --export([should_close/0, cleanup/0]).
 --export([parse_cookie/0, get_cookie_value/1]).
 --export([serve_file/2, serve_file/3]).
+--export([accepted_encodings/1]).
 --export([test/0]).
 -
 --define(SAVE_QS, mochiweb_request_qs).
@@ -5241,8 +5479,8 @@ index 64c4f58..0000000
 -%% @type response(). A mochiweb_response parameterized module instance.
 -%% @type ioheaders() = headers() | [{key(), value()}].
 -
--% 10 second default idle timeout
---define(IDLE_TIMEOUT, 10000).
+-% 5 minute default idle timeout
+--define(IDLE_TIMEOUT, 300000).
 -
 -% Maximum recv_body() length of 1MB
 --define(MAX_RECV_BODY, (1024*1024)).
@@ -5392,8 +5630,13 @@ index 64c4f58..0000000
 -    stream_body(MaxChunkSize, ChunkFun, FunState, undefined).
 -
 -stream_body(MaxChunkSize, ChunkFun, FunState, MaxBodyLength) ->
--
--    case get_header_value("expect") of
+-    Expect = case get_header_value("expect") of
+-                 undefined ->
+-                     undefined;
+-                 Value when is_list(Value) ->
+-                     string:to_lower(Value)
+-             end,
+-    case Expect of
 -        "100-continue" ->
 -            start_raw_response({100, gb_trees:empty()});
 -        _Else ->
@@ -5416,7 +5659,7 @@ index 64c4f58..0000000
 -            MaxBodyLength when is_integer(MaxBodyLength), MaxBodyLength < Length ->
 -                exit({body_too_large, content_length});
 -            _ ->
--                stream_unchunked_body(Length, MaxChunkSize, ChunkFun, FunState)
+-                stream_unchunked_body(Length, ChunkFun, FunState)
 -            end;
 -        Length ->
 -            exit({length_not_integer, Length})
@@ -5651,16 +5894,20 @@ index 64c4f58..0000000
 -            stream_chunked_body(MaxChunkSize, Fun, NewState)
 -    end.
 -
--stream_unchunked_body(0, _MaxChunkSize, Fun, FunState) ->
+-stream_unchunked_body(0, Fun, FunState) ->
 -    Fun({0, <<>>}, FunState);
--stream_unchunked_body(Length, MaxChunkSize, Fun, FunState) when Length > MaxChunkSize ->
--    Bin = recv(MaxChunkSize),
--    NewState = Fun({MaxChunkSize, Bin}, FunState),
--    stream_unchunked_body(Length - MaxChunkSize, MaxChunkSize, Fun, NewState);
--stream_unchunked_body(Length, MaxChunkSize, Fun, FunState) ->
--    Bin = recv(Length),
--    NewState = Fun({Length, Bin}, FunState),
--    stream_unchunked_body(0, MaxChunkSize, Fun, NewState).
+-stream_unchunked_body(Length, Fun, FunState) when Length > 0 ->
+-    Bin = recv(0),
+-    BinSize = byte_size(Bin),
+-    if BinSize > Length ->
+-        <<OurBody:Length/binary, Extra/binary>> = Bin,
+-        gen_tcp:unrecv(Socket, Extra),
+-        NewState = Fun({Length, OurBody}, FunState),
+-        stream_unchunked_body(0, Fun, NewState);
+-    true ->
+-        NewState = Fun({BinSize, Bin}, FunState),
+-        stream_unchunked_body(Length - BinSize, Fun, NewState)
+-    end.
 -
 -
 -%% @spec read_chunk_length() -> integer()
@@ -5726,39 +5973,68 @@ index 64c4f58..0000000
 -            not_found(ExtraHeaders);
 -        RelPath ->
 -            FullPath = filename:join([DocRoot, RelPath]),
--            File = case filelib:is_dir(FullPath) of
--                       true ->
--                           filename:join([FullPath, "index.html"]);
--                       false ->
--                           FullPath
--                   end,
--            case file:read_file_info(File) of
--                {ok, FileInfo} ->
--                    LastModified = httpd_util:rfc1123_date(FileInfo#file_info.mtime),
--                    case get_header_value("if-modified-since") of
--                        LastModified ->
--                            respond({304, ExtraHeaders, ""});
--                        _ ->
--                            case file:open(File, [raw, binary]) of
--                                {ok, IoDevice} ->
--                                    ContentType = mochiweb_util:guess_mime(File),
--                                    Res = ok({ContentType,
--                                              [{"last-modified", LastModified}
--                                               | ExtraHeaders],
--                                              {file, IoDevice}}),
--                                    file:close(IoDevice),
--                                    Res;
--                                _ ->
--                                    not_found(ExtraHeaders)
--                            end
--                    end;
--                {error, _} ->
--                    not_found(ExtraHeaders)
+-            case filelib:is_dir(FullPath) of
+-                true ->
+-                    maybe_redirect(RelPath, FullPath, ExtraHeaders);
+-                false ->
+-                    maybe_serve_file(FullPath, ExtraHeaders)
 -            end
 -    end.
 -
--
 -%% Internal API
+-
+-%% This has the same effect as the DirectoryIndex directive in httpd
+-directory_index(FullPath) ->
+-    filename:join([FullPath, "index.html"]).
+-
+-maybe_redirect([], FullPath, ExtraHeaders) ->
+-    maybe_serve_file(directory_index(FullPath), ExtraHeaders);
+-
+-maybe_redirect(RelPath, FullPath, ExtraHeaders) ->
+-    case string:right(RelPath, 1) of
+-        "/" ->
+-            maybe_serve_file(directory_index(FullPath), ExtraHeaders);
+-        _   ->
+-            Host = mochiweb_headers:get_value("host", Headers),
+-            Location = "http://" ++ Host  ++ "/" ++ RelPath ++ "/",
+-            LocationBin = list_to_binary(Location),
+-            MoreHeaders = [{"Location", Location},
+-                           {"Content-Type", "text/html"} | ExtraHeaders],
+-            Top = <<"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">"
+-            "<html><head>"
+-            "<title>301 Moved Permanently</title>"
+-            "</head><body>"
+-            "<h1>Moved Permanently</h1>"
+-            "<p>The document has moved <a href=\"">>,
+-            Bottom = <<">here</a>.</p></body></html>\n">>,
+-            Body = <<Top/binary, LocationBin/binary, Bottom/binary>>,
+-            respond({301, MoreHeaders, Body})
+-    end.
+-
+-maybe_serve_file(File, ExtraHeaders) ->
+-    case file:read_file_info(File) of
+-        {ok, FileInfo} ->
+-            LastModified = httpd_util:rfc1123_date(FileInfo#file_info.mtime),
+-            case get_header_value("if-modified-since") of
+-                LastModified ->
+-                    respond({304, ExtraHeaders, ""});
+-                _ ->
+-                    case file:open(File, [raw, binary]) of
+-                        {ok, IoDevice} ->
+-                            ContentType = mochiweb_util:guess_mime(File),
+-                            Res = ok({ContentType,
+-                                      [{"last-modified", LastModified}
+-                                       | ExtraHeaders],
+-                                      {file, IoDevice}}),
+-                            file:close(IoDevice),
+-                            Res;
+-                        _ ->
+-                            not_found(ExtraHeaders)
+-                    end
+-            end;
+-        {error, _} ->
+-            not_found(ExtraHeaders)
+-    end.
 -
 -server_headers() ->
 -    [{"Server", "MochiWeb/1.0 (" ++ ?QUIP ++ ")"},
@@ -5844,7 +6120,6 @@ index 64c4f58..0000000
 -                           end,
 -                           LocNums, Data),
 -    {Bodies, Size};
--
 -range_parts(Body0, Ranges) ->
 -    Body = iolist_to_binary(Body0),
 -    Size = size(Body),
@@ -5895,6 +6170,46 @@ index 64c4f58..0000000
 -            fail
 -    end.
 -
+-%% @spec accepted_encodings([encoding()]) -> [encoding()] | error()
+-%% @type encoding() -> string()
+-%% @type error() -> bad_accept_encoding_value
+-%%
+-%% @doc Returns a list of encodings accepted by a request. Encodings that are
+-%%      not supported by the server will not be included in the return list.
+-%%      This list is computed from the "Accept-Encoding" header and
+-%%      its elements are ordered, descendingly, according to their Q values.
+-%%
+-%%      Section 14.3 of the RFC 2616 (HTTP 1.1) describes the "Accept-Encoding"
+-%%      header and the process of determining which server supported encodings
+-%%      can be used for encoding the body for the request's response.
+-%%
+-%%      Examples
+-%%
+-%%      1) For a missing "Accept-Encoding" header:
+-%%         accepted_encodings(["gzip", "identity"]) -> ["identity"]
+-%%
+-%%      2) For an "Accept-Encoding" header with value "gzip, deflate":
+-%%         accepted_encodings(["gzip", "identity"]) -> ["gzip", "identity"]
+-%%
+-%%      3) For an "Accept-Encoding" header with value "gzip;q=0.5, deflate":
+-%%         accepted_encodings(["gzip", "deflate", "identity"]) ->
+-%%            ["deflate", "gzip", "identity"]
+-%%
+-accepted_encodings(SupportedEncodings) ->
+-    AcceptEncodingHeader = case get_header_value("Accept-Encoding") of
+-        undefined ->
+-            "";
+-        Value ->
+-            Value
+-    end,
+-    case mochiweb_util:parse_qvalues(AcceptEncodingHeader) of
+-        invalid_qvalue_string ->
+-            bad_accept_encoding_value;
+-        QList ->
+-            mochiweb_util:pick_accepted_encodings(
+-                QList, SupportedEncodings, "identity"
+-            )
+-    end.
 -
 -test() ->
 -    ok = test_range(),
@@ -5910,7 +6225,6 @@ index 64c4f58..0000000
 -    io:format("3"),
 -    [{none, 20}] = parse_range_request("bytes=-20"),
 -    io:format(".. ok ~n"),
--
 -
 -    %% invalid, single ranges
 -    io:format("Testing parse_range_request with invalid ranges~n"),
@@ -5939,7 +6253,7 @@ index 64c4f58..0000000
 -    io:format(".. ok~n"),
 -
 -    Body = <<"012345678901234567890123456789012345678901234567890123456789">>,
--    BodySize = size(Body), %% 60
+-    BodySize = byte_size(Body), %% 60
 -    BodySize = 60,
 -
 -    %% these values assume BodySize =:= 60
@@ -6054,10 +6368,10 @@ index 6285c4c..0000000
 -    end.
 diff --git a/src/mochiweb/mochiweb_skel.erl b/src/mochiweb/mochiweb_skel.erl
 deleted file mode 100644
-index 098951b..0000000
+index 36b48be..0000000
 --- a/src/mochiweb/mochiweb_skel.erl
 +++ /dev/null
-@@ -1,71 +0,0 @@
+@@ -1,73 +0,0 @@
 --module(mochiweb_skel).
 --export([skelcopy/2]).
 -
@@ -6089,7 +6403,8 @@ index 098951b..0000000
 -    "skel".
 -
 -skelcopy(Src, DestDir, Name, LDst) ->
--    {ok, Dest, _} = regexp:gsub(filename:basename(Src), skel(), Name),
+-    Dest = re:replace(filename:basename(Src), skel(), Name,
+-                      [global, {return, list}]),
 -    case file:read_file_info(Src) of
 -        {ok, #file_info{type=directory, mode=Mode}} ->
 -            Dir = DestDir ++ "/" ++ Dest,
@@ -6110,7 +6425,8 @@ index 098951b..0000000
 -        {ok, #file_info{type=regular, mode=Mode}} ->
 -            OutFile = filename:join(DestDir, Dest),
 -            {ok, B} = file:read_file(Src),
--            {ok, S, _} = regexp:gsub(binary_to_list(B), skel(), Name),
+-            S = re:replace(binary_to_list(B), skel(), Name,
+-                           [{return, list}, global]),
 -            ok = file:write_file(OutFile, list_to_binary(S)),
 -            ok = file:write_file_info(OutFile, #file_info{mode=Mode}),
 -            io:format("    ~s~n", [filename:basename(Src)]),
@@ -6131,7 +6447,7 @@ index 098951b..0000000
 -    end.
 diff --git a/src/mochiweb/mochiweb_socket_server.erl b/src/mochiweb/mochiweb_socket_server.erl
 deleted file mode 100644
-index a483c3d..0000000
+index 7aafe29..0000000
 --- a/src/mochiweb/mochiweb_socket_server.erl
 +++ /dev/null
 @@ -1,248 +0,0 @@
@@ -6159,7 +6475,7 @@ index a483c3d..0000000
 -         ip=any,
 -         listen=null,
 -         acceptor=null,
--         backlog=30}).
+-         backlog=128}).
 -
 -start(State=#mochiweb_socket_server{}) ->
 -    start_server(State);
@@ -6425,10 +6741,10 @@ index 5cb525b..0000000
 -    {ok, {{one_for_one, 10, 10}, Processes}}.
 diff --git a/src/mochiweb/mochiweb_util.erl b/src/mochiweb/mochiweb_util.erl
 deleted file mode 100644
-index 7bf18d1..0000000
+index d8fc89d..0000000
 --- a/src/mochiweb/mochiweb_util.erl
 +++ /dev/null
-@@ -1,579 +0,0 @@
+@@ -1,859 +0,0 @@
 -%% @author Bob Ippolito <bob@mochimedia.com>
 -%% @copyright 2007 Mochi Media, Inc.
 -
@@ -6443,6 +6759,7 @@ index 7bf18d1..0000000
 --export([shell_quote/1, cmd/1, cmd_string/1, cmd_port/2]).
 --export([record_to_proplist/2, record_to_proplist/3]).
 --export([safe_relative_path/1, partition/2]).
+--export([parse_qvalues/1, pick_accepted_encodings/3]).
 --export([test/0]).
 -
 --define(PERCENT, 37).  % $\%
@@ -6509,7 +6826,7 @@ index 7bf18d1..0000000
 -        [] ->
 -            "";
 -        _ ->
--            join(lists:reverse(Acc), "/")
+-            string:join(lists:reverse(Acc), "/")
 -    end;
 -safe_relative_path(P, Acc) ->
 -    case partition(P, "/") of
@@ -6854,9 +7171,7 @@ index 7bf18d1..0000000
 -%%      Fields should be obtained by calling record_info(fields, record_type)
 -%%      where record_type is the record type of Record
 -record_to_proplist(Record, Fields, TypeKey)
--  when is_tuple(Record),
--       is_list(Fields),
--       size(Record) - 1 =:= length(Fields) ->
+-  when tuple_size(Record) - 1 =:= length(Fields) ->
 -    lists:zip([TypeKey | Fields], tuple_to_list(Record)).
 -
 -
@@ -6867,6 +7182,136 @@ index 7bf18d1..0000000
 -    shell_quote(Rest, [C, $\\ | Acc]);
 -shell_quote([C | Rest], Acc) ->
 -    shell_quote(Rest, [C | Acc]).
+-
+-%% @spec parse_qvalues(string()) -> [qvalue()] | error()
+-%% @type qvalue() -> {element(), q()}
+-%% @type element() -> string()
+-%% @type q() -> 0.0 .. 1.0
+-%% @type error() -> invalid_qvalue_string
+-%%
+-%% @doc Parses a list (given as a string) of elements with Q values associated
+-%%      to them. Elements are separated by commas and each element is separated
+-%%      from its Q value by a semicolon. Q values are optional but when missing
+-%%      the value of an element is considered as 1.0. A Q value is always in the
+-%%      range [0.0, 1.0]. A Q value list is used for example as the value of the
+-%%      HTTP "Accept-Encoding" header.
+-%%
+-%%      Q values are described in section 2.9 of the RFC 2616 (HTTP 1.1).
+-%%
+-%%      Example:
+-%%
+-%%      parse_qvalues("gzip; q=0.5, deflate, identity;q=0.0") ->
+-%%          [{"gzip", 0.5}, {"deflate", 1.0}, {"identity", 0.0}]
+-%%
+-parse_qvalues(QValuesStr) ->
+-    try
+-        {ok, Re} = re:compile("^\\s*q\\s*=\\s*((?:0|1)(?:\\.\\d{1,3})?)\\s*$"),
+-        lists:map(
+-            fun(Pair) ->
+-                case string:tokens(Pair, ";") of
+-                    [Enc] ->
+-                        {string:strip(Enc), 1.0};
+-                    [Enc, QStr] ->
+-                        case re:run(QStr, Re, [{capture, [1], list}]) of
+-                            {match, [Q]} ->
+-                                QVal = case Q of
+-                                    "0" ->
+-                                        0.0;
+-                                    "1" ->
+-                                        1.0;
+-                                    Else ->
+-                                        list_to_float(Else)
+-                                end,
+-                                case QVal < 0.0 orelse QVal > 1.0 of
+-                                    false ->
+-                                        {string:strip(Enc), QVal}
+-                                end
+-                        end
+-                end
+-            end,
+-            string:tokens(string:to_lower(QValuesStr), ",")
+-        )
+-    catch
+-        _Type:_Error ->
+-            invalid_qvalue_string
+-    end.
+-
+-%% @spec pick_accepted_encodings(qvalues(), [encoding()], encoding()) ->
+-%%    [encoding()]
+-%% @type qvalues() -> [ {encoding(), q()} ]
+-%% @type encoding() -> string()
+-%% @type q() -> 0.0 .. 1.0
+-%%
+-%% @doc Determines which encodings specified in the given Q values list are
+-%%      valid according to a list of supported encodings and a default encoding.
+-%%
+-%%      The returned list of encodings is sorted, descendingly, according to the
+-%%      Q values of the given list. The last element of this list is the given
+-%%      default encoding unless this encoding is explicitily or implicitily
+-%%      marked with a Q value of 0.0 in the given Q values list.
+-%%      Note: encodings with the same Q value are kept in the same order as
+-%%            found in the input Q values list.
+-%%
+-%%      This encoding picking process is described in section 14.3 of the
+-%%      RFC 2616 (HTTP 1.1).
+-%%
+-%%      Example:
+-%%
+-%%      pick_accepted_encodings(
+-%%          [{"gzip", 0.5}, {"deflate", 1.0}],
+-%%          ["gzip", "identity"],
+-%%          "identity"
+-%%      ) ->
+-%%          ["gzip", "identity"]
+-%%
+-pick_accepted_encodings(AcceptedEncs, SupportedEncs, DefaultEnc) ->
+-    SortedQList = lists:reverse(
+-        lists:sort(fun({_, Q1}, {_, Q2}) -> Q1 < Q2 end, AcceptedEncs)
+-    ),
+-    {Accepted, Refused} = lists:foldr(
+-        fun({E, Q}, {A, R}) ->
+-            case Q > 0.0 of
+-                true ->
+-                    {[E | A], R};
+-                false ->
+-                    {A, [E | R]}
+-            end
+-        end,
+-        {[], []},
+-        SortedQList
+-    ),
+-    Refused1 = lists:foldr(
+-        fun(Enc, Acc) ->
+-            case Enc of
+-                "*" ->
+-                    lists:subtract(SupportedEncs, Accepted) ++ Acc;
+-                _ ->
+-                    [Enc | Acc]
+-            end
+-        end,
+-        [],
+-        Refused
+-    ),
+-    Accepted1 = lists:foldr(
+-        fun(Enc, Acc) ->
+-            case Enc of
+-                "*" ->
+-                    lists:subtract(SupportedEncs, Accepted ++ Refused1) ++ Acc;
+-                _ ->
+-                    [Enc | Acc]
+-            end
+-        end,
+-        [],
+-        Accepted
+-    ),
+-    Accepted2 = case lists:member(DefaultEnc, Accepted1) of
+-        true ->
+-            Accepted1;
+-        false ->
+-            Accepted1 ++ [DefaultEnc]
+-    end,
+-    [E || E <- Accepted2, lists:member(E, SupportedEncs),
+-        not lists:member(E, Refused1)].
 -
 -test() ->
 -    test_join(),
@@ -6886,6 +7331,8 @@ index 7bf18d1..0000000
 -    test_cmd_string(),
 -    test_partition(),
 -    test_safe_relative_path(),
+-    test_parse_qvalues(),
+-    test_pick_accepted_encodings(),
 -    ok.
 -
 -test_shell_quote() ->
@@ -7008,12 +7455,161 @@ index 7bf18d1..0000000
 -    undefined = safe_relative_path("foo/../.."),
 -    undefined = safe_relative_path("foo//"),
 -    ok.
+-
+-test_parse_qvalues() ->
+-    [] = parse_qvalues(""),
+-    [{"identity", 0.0}] = parse_qvalues("identity;q=0"),
+-    [{"identity", 0.0}] = parse_qvalues("identity ;q=0"),
+-    [{"identity", 0.0}] = parse_qvalues(" identity; q =0 "),
+-    [{"identity", 0.0}] = parse_qvalues("identity ; q = 0"),
+-    [{"identity", 0.0}] = parse_qvalues("identity ; q= 0.0"),
+-    [{"gzip", 1.0}, {"deflate", 1.0}, {"identity", 0.0}] = parse_qvalues(
+-        "gzip,deflate,identity;q=0.0"
+-    ),
+-    [{"deflate", 1.0}, {"gzip", 1.0}, {"identity", 0.0}] = parse_qvalues(
+-        "deflate,gzip,identity;q=0.0"
+-    ),
+-    [{"gzip", 1.0}, {"deflate", 1.0}, {"gzip", 1.0}, {"identity", 0.0}] =
+-        parse_qvalues("gzip,deflate,gzip,identity;q=0"),
+-    [{"gzip", 1.0}, {"deflate", 1.0}, {"identity", 0.0}] = parse_qvalues(
+-        "gzip, deflate , identity; q=0.0"
+-    ),
+-    [{"gzip", 1.0}, {"deflate", 1.0}, {"identity", 0.0}] = parse_qvalues(
+-        "gzip; q=1, deflate;q=1.0, identity;q=0.0"
+-    ),
+-    [{"gzip", 0.5}, {"deflate", 1.0}, {"identity", 0.0}] = parse_qvalues(
+-        "gzip; q=0.5, deflate;q=1.0, identity;q=0"
+-    ),
+-    [{"gzip", 0.5}, {"deflate", 1.0}, {"identity", 0.0}] = parse_qvalues(
+-        "gzip; q=0.5, deflate , identity;q=0.0"
+-    ),
+-    [{"gzip", 0.5}, {"deflate", 0.8}, {"identity", 0.0}] = parse_qvalues(
+-        "gzip; q=0.5, deflate;q=0.8, identity;q=0.0"
+-    ),
+-    [{"gzip", 0.5}, {"deflate", 1.0}, {"identity", 1.0}] = parse_qvalues(
+-        "gzip; q=0.5,deflate,identity"
+-    ),
+-    [{"gzip", 0.5}, {"deflate", 1.0}, {"identity", 1.0}, {"identity", 1.0}] =
+-        parse_qvalues("gzip; q=0.5,deflate,identity, identity "),
+-    invalid_qvalue_string = parse_qvalues("gzip; q=1.1, deflate"),
+-    invalid_qvalue_string = parse_qvalues("gzip; q=0.5, deflate;q=2"),
+-    invalid_qvalue_string = parse_qvalues("gzip, deflate;q=AB"),
+-    invalid_qvalue_string = parse_qvalues("gzip; q=2.1, deflate"),
+-    ok.
+-
+-test_pick_accepted_encodings() ->
+-    ["identity"] = pick_accepted_encodings(
+-        [],
+-        ["gzip", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 1.0}],
+-        ["gzip", "identity"],
+-        "identity"
+-    ),
+-    ["identity"] = pick_accepted_encodings(
+-        [{"gzip", 0.0}],
+-        ["gzip", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 1.0}, {"deflate", 1.0}],
+-        ["gzip", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 0.5}, {"deflate", 1.0}],
+-        ["gzip", "identity"],
+-        "identity"
+-    ),
+-    ["identity"] = pick_accepted_encodings(
+-        [{"gzip", 0.0}, {"deflate", 0.0}],
+-        ["gzip", "identity"],
+-        "identity"
+-    ),
+-    ["gzip"] = pick_accepted_encodings(
+-        [{"gzip", 1.0}, {"deflate", 1.0}, {"identity", 0.0}],
+-        ["gzip", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "deflate", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 1.0}, {"deflate", 1.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "deflate"] = pick_accepted_encodings(
+-        [{"gzip", 1.0}, {"deflate", 1.0}, {"identity", 0.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["deflate", "gzip", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 0.2}, {"deflate", 1.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["deflate", "deflate", "gzip", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 0.2}, {"deflate", 1.0}, {"deflate", 1.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["deflate", "gzip", "gzip", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 0.2}, {"deflate", 1.0}, {"gzip", 1.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "deflate", "gzip", "identity"] = pick_accepted_encodings(
+-        [{"gzip", 0.2}, {"deflate", 0.9}, {"gzip", 1.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    [] = pick_accepted_encodings(
+-        [{"*", 0.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "deflate", "identity"] = pick_accepted_encodings(
+-        [{"*", 1.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "deflate", "identity"] = pick_accepted_encodings(
+-        [{"*", 0.6}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip"] = pick_accepted_encodings(
+-        [{"gzip", 1.0}, {"*", 0.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "deflate"] = pick_accepted_encodings(
+-        [{"gzip", 1.0}, {"deflate", 0.6}, {"*", 0.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["deflate", "gzip"] = pick_accepted_encodings(
+-        [{"gzip", 0.5}, {"deflate", 1.0}, {"*", 0.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "identity"] = pick_accepted_encodings(
+-        [{"deflate", 0.0}, {"*", 1.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ["gzip", "identity"] = pick_accepted_encodings(
+-        [{"*", 1.0}, {"deflate", 0.0}],
+-        ["gzip", "deflate", "identity"],
+-        "identity"
+-    ),
+-    ok.
 diff --git a/src/mochiweb/reloader.erl b/src/mochiweb/reloader.erl
 deleted file mode 100644
-index 2ff154b..0000000
+index 6835f8f..0000000
 --- a/src/mochiweb/reloader.erl
 +++ /dev/null
-@@ -1,124 +0,0 @@
+@@ -1,123 +0,0 @@
 -%% @copyright 2007 Mochi Media, Inc.
 -%% @author Matthew Dempsky <matthew@mochimedia.com>
 -%%
@@ -7094,8 +7690,7 @@ index 2ff154b..0000000
 -
 -doit(From, To) ->
 -    [case file:read_file_info(Filename) of
--         {ok, FileInfo} when FileInfo#file_info.mtime >= From,
--                             FileInfo#file_info.mtime < To ->
+-         {ok, #file_info{mtime = Mtime}} when Mtime >= From, Mtime < To ->
 -             reload(Module);
 -         {ok, _} ->
 -             unmodified;
@@ -7138,30 +7733,6 @@ index 2ff154b..0000000
 -
 -stamp() ->
 -    erlang:localtime().
-diff --git a/test/etap/030-doc-from-json.t b/test/etap/030-doc-from-json.t
-index dc3327a..c984c66 100755
---- a/test/etap/030-doc-from-json.t
-+++ b/test/etap/030-doc-from-json.t
-@@ -1,6 +1,6 @@
- #!/usr/bin/env escript
- %% -*- erlang -*-
--%%! -pa ./src/couchdb -pa ./src/mochiweb -sasl errlog_type false -noshell
-+%%! -pa ./src/couchdb -sasl errlog_type false -noshell
- 
- % Licensed under the Apache License, Version 2.0 (the "License"); you may not
- % use this file except in compliance with the License. You may obtain a copy of
-diff --git a/test/etap/031-doc-to-json.t b/test/etap/031-doc-to-json.t
-index 4e0c3f7..819c1fe 100755
---- a/test/etap/031-doc-to-json.t
-+++ b/test/etap/031-doc-to-json.t
-@@ -1,6 +1,6 @@
- #!/usr/bin/env escript
- %% -*- erlang -*-
--%%! -pa ./src/couchdb -pa ./src/mochiweb -sasl errlog_type false -noshell
-+%%! -pa ./src/couchdb -sasl errlog_type false -noshell
- 
- % Licensed under the Apache License, Version 2.0 (the "License"); you may not
- % use this file except in compliance with the License. You may obtain a copy of
 diff --git a/test/etap/test_util.erl.in b/test/etap/test_util.erl.in
 index c57d7a8..948958c 100644
 --- a/test/etap/test_util.erl.in
@@ -7175,31 +7746,6 @@ index c57d7a8..948958c 100644
      lists:foreach(fun(Name) ->
          code:add_pathz(filename:join([builddir(), "src", Name]))
      end, Paths).
-diff --git a/test/run_native_process.es b/test/run_native_process.es
-index 48092e4..4e15d2c 100755
---- a/test/run_native_process.es
-+++ b/test/run_native_process.es
-@@ -49,7 +49,6 @@ loop(Pid) ->
- 
- main([]) ->
-     code:add_pathz("../src/couchdb"),
--    code:add_pathz("../src/mochiweb"),
-     {ok, Pid} = couch_native_process:start_link(),
-     loop(Pid).
- 
-diff --git a/test/runner.sh b/test/runner.sh
-index e1936b7..a7d518b 100755
---- a/test/runner.sh
-+++ b/test/runner.sh
-@@ -14,7 +14,7 @@
- 
- erlc runner.erl
- 
--erl -noshell -pa ../src/couchdb -pa ../src/mochiweb -eval "runner:run()"
-+erl -noshell -pa ../src/couchdb -eval "runner:run()"
- 
- cat ../share/www/script/couch.js \
-     ../share/www/script/couch_test_runner.js \
 -- 
 1.6.6.1
 

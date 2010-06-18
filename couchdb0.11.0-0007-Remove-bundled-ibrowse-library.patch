@@ -1,29 +1,26 @@
-From 40ebb18e8addac7be0daae86918a2f0a4d62e45d Mon Sep 17 00:00:00 2001
+From 23b1d23b0e5e206d3024f76b495f9f861979aa82 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Tue, 8 Jun 2010 16:38:10 +0400
-Subject: [PATCH 8/9] Remove bundled ibrowse library
+Subject: [PATCH 7/8] Remove bundled ibrowse library
 
 ---
- configure                              |    3 -
- configure.ac                           |    1 -
- src/Makefile.am                        |    2 +-
- src/Makefile.in                        |    2 +-
- src/couchdb/couch_rep_changes_feed.erl |    2 +-
- src/couchdb/couch_rep_httpc.erl        |    2 +-
- src/couchdb/couch_rep_reader.erl       |    2 +-
- src/ibrowse/Makefile.am                |   49 --
- src/ibrowse/Makefile.in                |  475 ----------
- src/ibrowse/ibrowse.app.in             |   13 -
- src/ibrowse/ibrowse.erl                |  760 ----------------
- src/ibrowse/ibrowse.hrl                |   12 -
- src/ibrowse/ibrowse_app.erl            |   64 --
- src/ibrowse/ibrowse_http_client.erl    | 1476 --------------------------------
- src/ibrowse/ibrowse_lb.erl             |  216 -----
- src/ibrowse/ibrowse_lib.erl            |  399 ---------
- src/ibrowse/ibrowse_sup.erl            |   65 --
- src/ibrowse/ibrowse_test.erl           |  377 --------
- test/etap/test_util.erl.in             |    2 +-
- 19 files changed, 6 insertions(+), 3916 deletions(-)
+ configure                           |    3 -
+ configure.ac                        |    1 -
+ src/Makefile.am                     |    2 +-
+ src/Makefile.in                     |    2 +-
+ src/ibrowse/Makefile.am             |   49 --
+ src/ibrowse/Makefile.in             |  482 ------------
+ src/ibrowse/ibrowse.app.in          |   13 -
+ src/ibrowse/ibrowse.erl             |  760 ------------------
+ src/ibrowse/ibrowse.hrl             |   12 -
+ src/ibrowse/ibrowse_app.erl         |   64 --
+ src/ibrowse/ibrowse_http_client.erl | 1476 -----------------------------------
+ src/ibrowse/ibrowse_lb.erl          |  216 -----
+ src/ibrowse/ibrowse_lib.erl         |  399 ----------
+ src/ibrowse/ibrowse_sup.erl         |   65 --
+ src/ibrowse/ibrowse_test.erl        |  377 ---------
+ test/etap/test_util.erl.in          |    2 +-
+ 16 files changed, 3 insertions(+), 3920 deletions(-)
  delete mode 100644 src/ibrowse/Makefile.am
  delete mode 100644 src/ibrowse/Makefile.in
  delete mode 100644 src/ibrowse/ibrowse.app.in
@@ -37,10 +34,10 @@ Subject: [PATCH 8/9] Remove bundled ibrowse library
  delete mode 100644 src/ibrowse/ibrowse_test.erl
 
 diff --git a/configure b/configure
-index 2d728fe..889c135 100755
+index c2dc5e5..67883a1 100755
 --- a/configure
 +++ b/configure
-@@ -12137,8 +12137,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
+@@ -12256,8 +12256,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
  
  ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
  
@@ -48,27 +45,27 @@ index 2d728fe..889c135 100755
 -
  ac_config_files="$ac_config_files test/Makefile"
  
- ac_config_files="$ac_config_files test/etap/Makefile"
-@@ -13154,7 +13152,6 @@ do
+ ac_config_files="$ac_config_files test/bench/Makefile"
+@@ -13279,7 +13277,6 @@ do
      "src/couchdb/couch.app.tpl") CONFIG_FILES="$CONFIG_FILES src/couchdb/couch.app.tpl" ;;
      "src/couchdb/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/Makefile" ;;
      "src/couchdb/priv/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/priv/Makefile" ;;
 -    "src/ibrowse/Makefile") CONFIG_FILES="$CONFIG_FILES src/ibrowse/Makefile" ;;
      "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
+     "test/bench/Makefile") CONFIG_FILES="$CONFIG_FILES test/bench/Makefile" ;;
      "test/etap/Makefile") CONFIG_FILES="$CONFIG_FILES test/etap/Makefile" ;;
-     "test/etap/test_util.erl") CONFIG_FILES="$CONFIG_FILES test/etap/test_util.erl" ;;
 diff --git a/configure.ac b/configure.ac
-index a53df9b..b1c894a 100644
+index a3b2316..f927039 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -335,7 +335,6 @@ AC_CONFIG_FILES([src/Makefile])
+@@ -388,7 +388,6 @@ AC_CONFIG_FILES([src/Makefile])
  AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
 -AC_CONFIG_FILES([src/ibrowse/Makefile])
  AC_CONFIG_FILES([test/Makefile])
+ AC_CONFIG_FILES([test/bench/Makefile])
  AC_CONFIG_FILES([test/etap/Makefile])
- AC_CONFIG_FILES([test/etap/test_util.erl])
 diff --git a/src/Makefile.am b/src/Makefile.am
 index 5a6646f..753b177 100644
 --- a/src/Makefile.am
@@ -80,10 +77,10 @@ index 5a6646f..753b177 100644
 -SUBDIRS = couchdb ibrowse
 +SUBDIRS = couchdb
 diff --git a/src/Makefile.in b/src/Makefile.in
-index d1e6ba5..8219ebf 100644
+index 91874d4..d05e95d 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -239,7 +239,7 @@ version_minor = @version_minor@
+@@ -246,7 +246,7 @@ version_minor = @version_minor@
  version_release = @version_release@
  version_revision = @version_revision@
  version_stage = @version_stage@
@@ -92,45 +89,6 @@ index d1e6ba5..8219ebf 100644
  all: all-recursive
  
  .SUFFIXES:
-diff --git a/src/couchdb/couch_rep_changes_feed.erl b/src/couchdb/couch_rep_changes_feed.erl
-index 6aefd41..0f652ca 100644
---- a/src/couchdb/couch_rep_changes_feed.erl
-+++ b/src/couchdb/couch_rep_changes_feed.erl
-@@ -20,7 +20,7 @@
- -define(BUFFER_SIZE, 1000).
- 
- -include("couch_db.hrl").
---include("../ibrowse/ibrowse.hrl").
-+-include_lib("ibrowse/include/ibrowse.hrl").
- 
- -record (state, {
-     changes_from = nil,
-diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
-index 59c3986..63783dc 100644
---- a/src/couchdb/couch_rep_httpc.erl
-+++ b/src/couchdb/couch_rep_httpc.erl
-@@ -12,7 +12,7 @@
- 
- -module(couch_rep_httpc).
- -include("couch_db.hrl").
---include("../ibrowse/ibrowse.hrl").
-+-include_lib("ibrowse/include/ibrowse.hrl").
- 
- -export([db_exists/1, full_url/1, request/1, redirected_request/2,
-     spawn_worker_process/1, spawn_link_worker_process/1]).
-diff --git a/src/couchdb/couch_rep_reader.erl b/src/couchdb/couch_rep_reader.erl
-index 7f06150..4206ba4 100644
---- a/src/couchdb/couch_rep_reader.erl
-+++ b/src/couchdb/couch_rep_reader.erl
-@@ -25,7 +25,7 @@
- -define (MAX_PIPELINE_SIZE, 50).
- 
- -include("couch_db.hrl").
---include("../ibrowse/ibrowse.hrl").
-+-include_lib("ibrowse/include/ibrowse.hrl").
- 
- -record (state, {
-     parent,
 diff --git a/src/ibrowse/Makefile.am b/src/ibrowse/Makefile.am
 deleted file mode 100644
 index 510f36a..0000000
@@ -188,10 +146,10 @@ index 510f36a..0000000
 -	$(ERLC) $(ERLC_FLAGS) $<
 diff --git a/src/ibrowse/Makefile.in b/src/ibrowse/Makefile.in
 deleted file mode 100644
-index 0b42325..0000000
+index 5c8b8b9..0000000
 --- a/src/ibrowse/Makefile.in
 +++ /dev/null
-@@ -1,475 +0,0 @@
+@@ -1,482 +0,0 @@
 -# Makefile.in generated by automake 1.11 from Makefile.am.
 -# @configure_input@
 -
@@ -306,12 +264,16 @@ index 0b42325..0000000
 -ICU_LOCAL_BIN = @ICU_LOCAL_BIN@
 -ICU_LOCAL_CFLAGS = @ICU_LOCAL_CFLAGS@
 -ICU_LOCAL_LDFLAGS = @ICU_LOCAL_LDFLAGS@
+-INNO_COMPILER_EXECUTABLE = @INNO_COMPILER_EXECUTABLE@
 -INSTALL = @INSTALL@
 -INSTALL_DATA = @INSTALL_DATA@
 -INSTALL_PROGRAM = @INSTALL_PROGRAM@
 -INSTALL_SCRIPT = @INSTALL_SCRIPT@
 -INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 -JSLIB = @JSLIB@
+-JS_LIB_BASE = @JS_LIB_BASE@
+-JS_LIB_BINARY = @JS_LIB_BINARY@
+-JS_LIB_DIR = @JS_LIB_DIR@
 -LD = @LD@
 -LDFLAGS = @LDFLAGS@
 -LIBOBJS = @LIBOBJS@
@@ -393,7 +355,10 @@ index 0b42325..0000000
 -lt_ECHO = @lt_ECHO@
 -mandir = @mandir@
 -mkdir_p = @mkdir_p@
+-msvc_redist_dir = @msvc_redist_dir@
+-msvc_redist_name = @msvc_redist_name@
 -oldincludedir = @oldincludedir@
+-openssl_bin_dir = @openssl_bin_dir@
 -package_author_address = @package_author_address@
 -package_author_name = @package_author_name@
 -package_identifier = @package_identifier@

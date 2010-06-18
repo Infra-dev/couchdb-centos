@@ -1,25 +1,24 @@
-From a90dc29c0acf05144ec696d627e5152fc9863fd3 Mon Sep 17 00:00:00 2001
+From cbfa100bb7468bd433f45ec7ff46faa0b36b85d9 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:19:51 +0400
-Subject: [PATCH 3/9] Remove bundled erlang-oauth library
+Subject: [PATCH 3/8] Remove bundled erlang-oauth library
 
 ---
  configure                            |    3 -
  configure.ac                         |    1 -
  src/Makefile.am                      |    2 +-
  src/Makefile.in                      |    2 +-
- src/erlang-oauth/Makefile.am         |   50 ----
- src/erlang-oauth/Makefile.in         |  476 ----------------------------------
+ src/erlang-oauth/Makefile.am         |   49 ----
+ src/erlang-oauth/Makefile.in         |  482 ----------------------------------
  src/erlang-oauth/oauth.app.in        |   20 --
  src/erlang-oauth/oauth.erl           |  107 --------
  src/erlang-oauth/oauth_hmac_sha1.erl |   11 -
  src/erlang-oauth/oauth_http.erl      |   22 --
  src/erlang-oauth/oauth_plaintext.erl |   10 -
- src/erlang-oauth/oauth_rsa_sha1.erl  |   30 ---
  src/erlang-oauth/oauth_unix.erl      |   16 --
- src/erlang-oauth/oauth_uri.erl       |   88 -------
+ src/erlang-oauth/oauth_uri.erl       |   88 ------
  test/etap/test_util.erl.in           |    2 +-
- 15 files changed, 3 insertions(+), 837 deletions(-)
+ 14 files changed, 3 insertions(+), 812 deletions(-)
  delete mode 100644 src/erlang-oauth/Makefile.am
  delete mode 100644 src/erlang-oauth/Makefile.in
  delete mode 100644 src/erlang-oauth/oauth.app.in
@@ -27,15 +26,14 @@ Subject: [PATCH 3/9] Remove bundled erlang-oauth library
  delete mode 100644 src/erlang-oauth/oauth_hmac_sha1.erl
  delete mode 100644 src/erlang-oauth/oauth_http.erl
  delete mode 100644 src/erlang-oauth/oauth_plaintext.erl
- delete mode 100644 src/erlang-oauth/oauth_rsa_sha1.erl
  delete mode 100644 src/erlang-oauth/oauth_unix.erl
  delete mode 100644 src/erlang-oauth/oauth_uri.erl
 
 diff --git a/configure b/configure
-index 5309998..39dda91 100755
+index c5f079f..c366e37 100755
 --- a/configure
 +++ b/configure
-@@ -12137,8 +12137,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
+@@ -12256,8 +12256,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
  
  ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
  
@@ -44,7 +42,7 @@ index 5309998..39dda91 100755
  ac_config_files="$ac_config_files src/etap/Makefile"
  
  ac_config_files="$ac_config_files src/ibrowse/Makefile"
-@@ -13160,7 +13158,6 @@ do
+@@ -13285,7 +13283,6 @@ do
      "src/couchdb/couch.app.tpl") CONFIG_FILES="$CONFIG_FILES src/couchdb/couch.app.tpl" ;;
      "src/couchdb/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/Makefile" ;;
      "src/couchdb/priv/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/priv/Makefile" ;;
@@ -53,10 +51,10 @@ index 5309998..39dda91 100755
      "src/ibrowse/Makefile") CONFIG_FILES="$CONFIG_FILES src/ibrowse/Makefile" ;;
      "src/mochiweb/Makefile") CONFIG_FILES="$CONFIG_FILES src/mochiweb/Makefile" ;;
 diff --git a/configure.ac b/configure.ac
-index e39acc3..effb28b 100644
+index f2a9f7e..93c25e7 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -335,7 +335,6 @@ AC_CONFIG_FILES([src/Makefile])
+@@ -388,7 +388,6 @@ AC_CONFIG_FILES([src/Makefile])
  AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
@@ -75,10 +73,10 @@ index b9529f9..e577138 100644
 -SUBDIRS = couchdb erlang-oauth etap ibrowse mochiweb
 +SUBDIRS = couchdb etap ibrowse mochiweb
 diff --git a/src/Makefile.in b/src/Makefile.in
-index 54fdb7b..480da98 100644
+index 6f062de..98207b6 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -239,7 +239,7 @@ version_minor = @version_minor@
+@@ -246,7 +246,7 @@ version_minor = @version_minor@
  version_release = @version_release@
  version_revision = @version_revision@
  version_stage = @version_stage@
@@ -89,10 +87,10 @@ index 54fdb7b..480da98 100644
  .SUFFIXES:
 diff --git a/src/erlang-oauth/Makefile.am b/src/erlang-oauth/Makefile.am
 deleted file mode 100644
-index 95e0898..0000000
+index 1d12339..0000000
 --- a/src/erlang-oauth/Makefile.am
 +++ /dev/null
-@@ -1,50 +0,0 @@
+@@ -1,49 +0,0 @@
 -## Licensed under the Apache License, Version 2.0 (the "License"); you may not
 -## use this file except in compliance with the License.  You may obtain a copy
 -## of the License at
@@ -111,7 +109,7 @@ index 95e0898..0000000
 -# we add a ./configure option to enable it.
 -
 -oauth_file_collection = \
--    oauth.app.in \
+-	oauth.app.in \
 -    oauth.erl \
 -    oauth_hmac_sha1.erl \
 -    oauth_http.erl \
@@ -120,7 +118,7 @@ index 95e0898..0000000
 -    oauth_uri.erl
 -
 -oauthebin_make_generated_file_list = \
--    oauth.app \
+-	oauth.app \
 -    oauth.beam \
 -    oauth_hmac_sha1.beam \
 -    oauth_http.beam \
@@ -129,11 +127,10 @@ index 95e0898..0000000
 -    oauth_uri.beam
 -
 -oauthebin_DATA = \
--    $(oauthebin_make_generated_file_list)
+-	$(oauthebin_make_generated_file_list)
 -
 -EXTRA_DIST = \
--    $(oauth_file_collection) \
--    oauth_rsa_sha1.erl
+-	$(oauth_file_collection)
 -
 -CLEANFILES = \
 -    $(oauthebin_make_generated_file_list)
@@ -145,10 +142,10 @@ index 95e0898..0000000
 -	$(ERLC) $(ERLC_FLAGS) $<
 diff --git a/src/erlang-oauth/Makefile.in b/src/erlang-oauth/Makefile.in
 deleted file mode 100644
-index 748abe9..0000000
+index 3828279..0000000
 --- a/src/erlang-oauth/Makefile.in
 +++ /dev/null
-@@ -1,476 +0,0 @@
+@@ -1,482 +0,0 @@
 -# Makefile.in generated by automake 1.11 from Makefile.am.
 -# @configure_input@
 -
@@ -263,12 +260,16 @@ index 748abe9..0000000
 -ICU_LOCAL_BIN = @ICU_LOCAL_BIN@
 -ICU_LOCAL_CFLAGS = @ICU_LOCAL_CFLAGS@
 -ICU_LOCAL_LDFLAGS = @ICU_LOCAL_LDFLAGS@
+-INNO_COMPILER_EXECUTABLE = @INNO_COMPILER_EXECUTABLE@
 -INSTALL = @INSTALL@
 -INSTALL_DATA = @INSTALL_DATA@
 -INSTALL_PROGRAM = @INSTALL_PROGRAM@
 -INSTALL_SCRIPT = @INSTALL_SCRIPT@
 -INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 -JSLIB = @JSLIB@
+-JS_LIB_BASE = @JS_LIB_BASE@
+-JS_LIB_BINARY = @JS_LIB_BINARY@
+-JS_LIB_DIR = @JS_LIB_DIR@
 -LD = @LD@
 -LDFLAGS = @LDFLAGS@
 -LIBOBJS = @LIBOBJS@
@@ -350,7 +351,10 @@ index 748abe9..0000000
 -lt_ECHO = @lt_ECHO@
 -mandir = @mandir@
 -mkdir_p = @mkdir_p@
+-msvc_redist_dir = @msvc_redist_dir@
+-msvc_redist_name = @msvc_redist_name@
 -oldincludedir = @oldincludedir@
+-openssl_bin_dir = @openssl_bin_dir@
 -package_author_address = @package_author_address@
 -package_author_name = @package_author_name@
 -package_identifier = @package_identifier@
@@ -379,7 +383,7 @@ index 748abe9..0000000
 -# Removed oauth_rsa_sha1.erl until we require R12B5 or
 -# we add a ./configure option to enable it.
 -oauth_file_collection = \
--    oauth.app.in \
+-	oauth.app.in \
 -    oauth.erl \
 -    oauth_hmac_sha1.erl \
 -    oauth_http.erl \
@@ -388,7 +392,7 @@ index 748abe9..0000000
 -    oauth_uri.erl
 -
 -oauthebin_make_generated_file_list = \
--    oauth.app \
+-	oauth.app \
 -    oauth.beam \
 -    oauth_hmac_sha1.beam \
 -    oauth_http.beam \
@@ -397,11 +401,10 @@ index 748abe9..0000000
 -    oauth_uri.beam
 -
 -oauthebin_DATA = \
--    $(oauthebin_make_generated_file_list)
+-	$(oauthebin_make_generated_file_list)
 -
 -EXTRA_DIST = \
--    $(oauth_file_collection) \
--    oauth_rsa_sha1.erl
+-	$(oauth_file_collection)
 -
 -CLEANFILES = \
 -    $(oauthebin_make_generated_file_list)
@@ -825,42 +828,6 @@ index 41a1e9b..0000000
 -
 -verify(Signature, CS, TS) ->
 -  couch_util:verify(signature(CS, TS), Signature).
-diff --git a/src/erlang-oauth/oauth_rsa_sha1.erl b/src/erlang-oauth/oauth_rsa_sha1.erl
-deleted file mode 100644
-index 6f4828e..0000000
---- a/src/erlang-oauth/oauth_rsa_sha1.erl
-+++ /dev/null
-@@ -1,30 +0,0 @@
---module(oauth_rsa_sha1).
--
---export([signature/2, verify/3]).
--
---include_lib("public_key/include/public_key.hrl").
--
--
--signature(BaseString, PrivateKeyPath) ->
--  {ok, [Info]} = public_key:pem_to_der(PrivateKeyPath),
--  {ok, PrivateKey} = public_key:decode_private_key(Info),
--  base64:encode_to_string(public_key:sign(list_to_binary(BaseString), PrivateKey)).
--
--verify(Signature, BaseString, PublicKey) ->
--  public_key:verify_signature(to_binary(BaseString), sha, base64:decode(Signature), public_key(PublicKey)).
--
--to_binary(Term) when is_list(Term) ->
--  list_to_binary(Term);
--to_binary(Term) when is_binary(Term) ->
--  Term.
--
--public_key(Path) when is_list(Path) ->
--  {ok, [{cert, DerCert, not_encrypted}]} = public_key:pem_to_der(Path),
--  {ok, Cert} = public_key:pkix_decode_cert(DerCert, otp),
--  public_key(Cert);
--public_key(#'OTPCertificate'{tbsCertificate=Cert}) ->
--  public_key(Cert);
--public_key(#'OTPTBSCertificate'{subjectPublicKeyInfo=Info}) ->
--  public_key(Info);
--public_key(#'OTPSubjectPublicKeyInfo'{subjectPublicKey=Key}) ->
--  Key.
 diff --git a/src/erlang-oauth/oauth_unix.erl b/src/erlang-oauth/oauth_unix.erl
 deleted file mode 100644
 index 73ca314..0000000

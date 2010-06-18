@@ -1,0 +1,68 @@
+From 1d8ceb81618b65872f33c3cfa551df4499017df5 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Tue, 8 Jun 2010 17:30:49 +0400
+Subject: [PATCH 8/8] Workaround for system-wide ibrowse
+
+---
+ src/couchdb/couch_rep_changes_feed.erl |    2 +-
+ src/couchdb/couch_rep_httpc.erl        |    6 +++---
+ src/couchdb/couch_rep_reader.erl       |    2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/couchdb/couch_rep_changes_feed.erl b/src/couchdb/couch_rep_changes_feed.erl
+index 343b445..fc46925 100644
+--- a/src/couchdb/couch_rep_changes_feed.erl
++++ b/src/couchdb/couch_rep_changes_feed.erl
+@@ -20,7 +20,7 @@
+ -define(BUFFER_SIZE, 1000).
+ 
+ -include("couch_db.hrl").
+--include("../ibrowse/ibrowse.hrl").
++-include_lib("ibrowse/include/ibrowse.hrl").
+ 
+ -record (state, {
+     changes_from = nil,
+diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
+index 4944f55..6608238 100644
+--- a/src/couchdb/couch_rep_httpc.erl
++++ b/src/couchdb/couch_rep_httpc.erl
+@@ -12,7 +12,7 @@
+ 
+ -module(couch_rep_httpc).
+ -include("couch_db.hrl").
+--include("../ibrowse/ibrowse.hrl").
++-include_lib("ibrowse/include/ibrowse.hrl").
+ 
+ -export([db_exists/1, db_exists/2, full_url/1, request/1, redirected_request/2,
+     spawn_worker_process/1, spawn_link_worker_process/1]).
+@@ -188,12 +188,12 @@ redirected_request(Req, RedirectUrl) ->
+ 
+ spawn_worker_process(Req) ->
+     Url = ibrowse_lib:parse_url(Req#http_db.url),
+-    {ok, Pid} = ibrowse_http_client:start(Url),
++    {ok, Pid} = ibrowse_http_client:start({undefined, Url, {[{ssl_imp, new}], (Url#url.protocol == https)}}),
+     Pid.
+ 
+ spawn_link_worker_process(Req) ->
+     Url = ibrowse_lib:parse_url(Req#http_db.url),
+-    {ok, Pid} = ibrowse_http_client:start_link(Url),
++    {ok, Pid} = ibrowse_http_client:start_link({undefined, Url, {[{ssl_imp, new}], (Url#url.protocol == https)}}),
+     Pid.
+ 
+ maybe_decompress(Headers, Body) ->
+diff --git a/src/couchdb/couch_rep_reader.erl b/src/couchdb/couch_rep_reader.erl
+index 4f03008..42a7290 100644
+--- a/src/couchdb/couch_rep_reader.erl
++++ b/src/couchdb/couch_rep_reader.erl
+@@ -25,7 +25,7 @@
+ -define (MAX_PIPELINE_SIZE, 50).
+ 
+ -include("couch_db.hrl").
+--include("../ibrowse/ibrowse.hrl").
++-include_lib("ibrowse/include/ibrowse.hrl").
+ 
+ -record (state, {
+     parent,
+-- 
+1.6.6.1
+
