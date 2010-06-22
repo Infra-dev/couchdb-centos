@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        0.11.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -87,36 +87,16 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 
-## Install couchdb initscript
+# Install our custom couchdb initscript
 install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
-
-# Create /var/log/couchdb
-mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/couchdb
-
-# Create /var/run/couchdb
-mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/run/couchdb
-
-# Create /var/lib/couchdb
-mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/couchdb
-
-# Create /etc/couchdb/default.d
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/couchdb/default.d
-
-# Create /etc/couchdb/local.d
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/couchdb/local.d
-
-## Use /etc/sysconfig instead of /etc/default
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
-mv $RPM_BUILD_ROOT%{_sysconfdir}/default/couchdb \
-$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/couchdb
-rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/default
-
-# Remove unecessary files
+# ...and remove previously installed one
 rm $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/couchdb
-rm -rf  $RPM_BUILD_ROOT%{_datadir}/doc/couchdb
 
-# clean-up .la archives
-find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
+# Use /etc/sysconfig instead of /etc/default
+mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
+
+# Remove wrongly placed doc files
+rm -rf  $RPM_BUILD_ROOT%{_datadir}/doc/couchdb
 
 # fix respawn timeout to match default value
 sed -i s,^COUCHDB_RESPAWN_TIMEOUT=5,COUCHDB_RESPAWN_TIMEOUT=0,g $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/couchdb
@@ -160,15 +140,21 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/couchdb
 %config(noreplace) %{_sysconfdir}/logrotate.d/couchdb
 %{_initrddir}/couchdb
-%{_bindir}/*
+%{_bindir}/couchdb
+%{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}
 %{_datadir}/couchdb
-%{_mandir}/man1/*
+%{_mandir}/man1/couchdb.1.*
+%{_mandir}/man1/couchjs.1.*
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/couchdb
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/run/couchdb
 %dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
 
+
 %changelog
+* Tue Jun 22 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.0-2
+- Massive spec cleanup
+
 * Tue Jun 18 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.0-1
 - Ver. 0.11.0 (a feature-freeze release candidate)
 
