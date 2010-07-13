@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        0.11.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -20,6 +20,7 @@ Patch5:		couchdb0.11.0-0005-Remove-bundled-mochiweb-library.patch
 Patch6:		couchdb0.11.0-0006-Remove-pid-file-after-stop.patch
 Patch7:		couchdb0.11.0-0007-Remove-bundled-ibrowse-library.patch
 Patch8:		couchdb0.11.0-0008-Workaround-for-system-wide-ibrowse.patch
+Patch9:		couchdb0.11.0-0009-fix-issue-COUCHDB-805.-tested-on-R13B-04-and-R14A.-a.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	curl-devel
@@ -73,6 +74,7 @@ JavaScript acting as the default view definition language.
 %patch6 -p1 -b .remove_pid_file
 %patch7 -p1 -b .remove_bundled_ibrowse
 %patch8 -p1 -b .workaround_for_ssl
+%patch9 -p1 -b .R14A
 # Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
@@ -152,6 +154,9 @@ fi
 
 
 %changelog
+* Sun Jul 11 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.0-3
+- Compatibility with Erlang R14A (see patch9)
+
 * Tue Jun 22 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.0-2
 - Massive spec cleanup
 

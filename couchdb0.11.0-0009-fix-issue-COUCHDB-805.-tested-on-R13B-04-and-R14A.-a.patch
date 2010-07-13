@@ -1,0 +1,26 @@
+From a6a7c1c849ee8493aac0c30f9b8f687989d45c35 Mon Sep 17 00:00:00 2001
+From: Benoit Chesneau <benoitc@apache.org>
+Date: Sat, 19 Jun 2010 12:24:41 +0000
+Subject: [PATCH 9/9] fix issue COUCHDB-805. tested on R13B-04 and R14A. also public_key is available since R12B5.
+
+git-svn-id: https://svn.apache.org/repos/asf/couchdb/trunk@956220 13f79535-47bb-0310-9956-ffa450edef68
+---
+ src/couchdb/couch_app.erl |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/couchdb/couch_app.erl b/src/couchdb/couch_app.erl
+index 1b64434..c16412a 100644
+--- a/src/couchdb/couch_app.erl
++++ b/src/couchdb/couch_app.erl
+@@ -20,7 +20,7 @@
+ 
+ start(_Type, DefaultIniFiles) ->
+     IniFiles = get_ini_files(DefaultIniFiles),
+-    case start_apps([crypto, sasl, inets, oauth, ssl, ibrowse, mochiweb]) of
++    case start_apps([crypto, public_key, sasl, inets, oauth, ssl, ibrowse, mochiweb]) of
+     ok ->
+         couch_server_sup:start_link(IniFiles);
+     {error, Reason} ->
+-- 
+1.7.1.1
+

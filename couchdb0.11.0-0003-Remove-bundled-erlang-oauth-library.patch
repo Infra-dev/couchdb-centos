@@ -1,7 +1,7 @@
-From cbfa100bb7468bd433f45ec7ff46faa0b36b85d9 Mon Sep 17 00:00:00 2001
+From bee4d1cad2fa778302d89619d3ac147afb54ba31 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:19:51 +0400
-Subject: [PATCH 3/8] Remove bundled erlang-oauth library
+Subject: [PATCH 3/9] Remove bundled erlang-oauth library
 
 ---
  configure                            |    3 -
@@ -958,5 +958,5 @@ index 4c42edb..79b0417 100644
          code:add_pathz(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.6.6.1
+1.7.1.1
 

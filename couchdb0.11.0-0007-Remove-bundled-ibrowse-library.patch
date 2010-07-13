@@ -1,7 +1,7 @@
-From 23b1d23b0e5e206d3024f76b495f9f861979aa82 Mon Sep 17 00:00:00 2001
+From 8dccc2325740f24f6756fbda8df943aa6e29c2e6 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Tue, 8 Jun 2010 16:38:10 +0400
-Subject: [PATCH 7/8] Remove bundled ibrowse library
+Subject: [PATCH 7/9] Remove bundled ibrowse library
 
 ---
  configure                           |    3 -
@@ -4082,5 +4082,5 @@ index 948958c..2650fbb 100644
          code:add_pathz(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.6.6.1
+1.7.1.1
 
