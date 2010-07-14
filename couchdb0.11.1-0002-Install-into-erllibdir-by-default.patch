@@ -1,4 +1,4 @@
-From 8ce17bd19f2a8565efc4a656af0aaeba89b89d6b Mon Sep 17 00:00:00 2001
+From 028e72d7b46b69eb8d9b95aaf4e90e4175bbb588 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:18:29 +0400
 Subject: [PATCH 2/9] Install into erllibdir by default
@@ -8,10 +8,10 @@ Subject: [PATCH 2/9] Install into erllibdir by default
  1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/configure b/configure
-index 7bdf280..c5f079f 100755
+index 42a7489..4eca719 100755
 --- a/configure
 +++ b/configure
-@@ -12188,7 +12188,7 @@ localdatadir=${datadir}/${package_identifier}
+@@ -12193,7 +12193,7 @@ localdatadir=${datadir}/${package_identifier}
  
  localdocdir=${datadir}/doc/${package_identifier}
  
@@ -20,7 +20,7 @@ index 7bdf280..c5f079f 100755
  
  localstatelibdir=${localstatedir}/lib/${package_identifier}
  
-@@ -12204,7 +12204,7 @@ if test x${IS_WINDOWS} = xTRUE; then
+@@ -12209,7 +12209,7 @@ if test x${IS_WINDOWS} = xTRUE; then
      localerlanglibdir=${libdir}
  
  else

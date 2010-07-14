@@ -1,7 +1,7 @@
-From ac5d2eab946b3ab4ca7f487f621f3f4fda70b30a Mon Sep 17 00:00:00 2001
+From a23fd694426eb38865dd262d775cabb905c85a2f Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Tue, 8 Jun 2010 17:30:49 +0400
-Subject: [PATCH 8/9] Workaround for system-wide ibrowse
+Subject: [PATCH 7/9] Workaround for system-wide ibrowse
 
 ---
  src/couchdb/couch_rep_changes_feed.erl |    2 +-
@@ -51,7 +51,7 @@ index 4944f55..6608238 100644
  
  maybe_decompress(Headers, Body) ->
 diff --git a/src/couchdb/couch_rep_reader.erl b/src/couchdb/couch_rep_reader.erl
-index 4f03008..42a7290 100644
+index 949739b..3225f56 100644
 --- a/src/couchdb/couch_rep_reader.erl
 +++ b/src/couchdb/couch_rep_reader.erl
 @@ -25,7 +25,7 @@

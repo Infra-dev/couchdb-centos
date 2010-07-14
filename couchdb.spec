@@ -3,8 +3,8 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        0.11.0
-Release:        3%{?dist}
+Version:        0.11.1
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -12,15 +12,15 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
-Patch1:		couchdb0.11.0-0001-Force-init-script-installation.patch
-Patch2:		couchdb0.11.0-0002-Install-into-erllibdir-by-default.patch
-Patch3:		couchdb0.11.0-0003-Remove-bundled-erlang-oauth-library.patch
-Patch4:		couchdb0.11.0-0004-Remove-bundled-erlang-etap-library.patch
-Patch5:		couchdb0.11.0-0005-Remove-bundled-mochiweb-library.patch
-Patch6:		couchdb0.11.0-0006-Remove-pid-file-after-stop.patch
-Patch7:		couchdb0.11.0-0007-Remove-bundled-ibrowse-library.patch
-Patch8:		couchdb0.11.0-0008-Workaround-for-system-wide-ibrowse.patch
-Patch9:		couchdb0.11.0-0009-fix-issue-COUCHDB-805.-tested-on-R13B-04-and-R14A.-a.patch
+Patch1:		couchdb0.11.1-0001-Force-init-script-installation.patch
+Patch2:		couchdb0.11.1-0002-Install-into-erllibdir-by-default.patch
+Patch3:		couchdb0.11.1-0003-Remove-bundled-erlang-oauth-library.patch
+Patch4:		couchdb0.11.1-0004-Remove-bundled-erlang-etap-library.patch
+Patch5:		couchdb0.11.1-0005-Remove-bundled-mochiweb-library.patch
+Patch6:		couchdb0.11.1-0006-Remove-bundled-ibrowse-library.patch
+Patch7:		couchdb0.11.1-0007-Workaround-for-system-wide-ibrowse.patch
+Patch8:		couchdb0.11.1-0008-Remove-pid-file-after-stop.patch
+Patch9:		couchdb0.11.1-0009-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	curl-devel
@@ -71,10 +71,10 @@ JavaScript acting as the default view definition language.
 %patch3 -p1 -b .remove_bundled_oauth
 %patch4 -p1 -b .remove_bundled_etap
 %patch5 -p1 -b .remove_bundled_mochiweb
-%patch6 -p1 -b .remove_pid_file
-%patch7 -p1 -b .remove_bundled_ibrowse
-%patch8 -p1 -b .workaround_for_ssl
-%patch9 -p1 -b .R14A
+%patch6 -p1 -b .remove_bundled_ibrowse
+%patch7 -p1 -b .workaround_for_ssl
+%patch8 -p1 -b .remove_pid_file
+%patch9 -p1 -b .fix_crash
 # Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
@@ -154,6 +154,10 @@ fi
 
 
 %changelog
+* Wed Jul 14 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.1-1
+- Ver. 0.11.1
+- Removed patch for compatibility with Erlang/OTP R14A (merged upstream)
+
 * Sun Jul 11 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.0-3
 - Compatibility with Erlang R14A (see patch9)
 

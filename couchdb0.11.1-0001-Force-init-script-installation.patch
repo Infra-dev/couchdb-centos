@@ -1,4 +1,4 @@
-From 0c98ac31fd550a2c8e24ea99cbc892d163f64026 Mon Sep 17 00:00:00 2001
+From 3965421f5754d6b73bf2f04e135e5b732af354fb Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:17:20 +0400
 Subject: [PATCH 1/9] Force init script installation
@@ -8,10 +8,10 @@ Subject: [PATCH 1/9] Force init script installation
  1 files changed, 3 insertions(+), 13 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 679c6ca..f2a9f7e 100644
+index 0c08952..08a1c1c 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -295,19 +295,9 @@ launchd_enabled=false
+@@ -294,19 +294,9 @@ launchd_enabled=false
  
  if test "$use_init" = "yes"; then
     AC_MSG_CHECKING(location of init directory)
