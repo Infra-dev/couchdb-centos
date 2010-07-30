@@ -1,4 +1,4 @@
-From 24cd0159c5221340fe511ca146ce62ceb62f7a1c Mon Sep 17 00:00:00 2001
+From f028c14174d3bfb5e1a54a8ab5b28653a084364c Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Wed, 14 Jul 2010 18:00:03 +0400
 Subject: [PATCH 4/9] Remove bundled erlang-etap library
@@ -34,7 +34,7 @@ Subject: [PATCH 4/9] Remove bundled erlang-etap library
  delete mode 100644 src/etap/etap_web.erl
 
 diff --git a/configure b/configure
-index 316b8c3..68c8db9 100755
+index b3040cf..26e0459 100755
 --- a/configure
 +++ b/configure
 @@ -12261,8 +12261,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"

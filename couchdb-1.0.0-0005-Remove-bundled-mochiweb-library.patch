@@ -1,4 +1,4 @@
-From d50c76c16a6e1a2fa55cfdbaa4fc4211d3d8e495 Mon Sep 17 00:00:00 2001
+From 8314b0e28845e12118e08a86b1a54581f3fcefea Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Wed, 14 Jul 2010 18:01:45 +0400
 Subject: [PATCH 5/9] Remove bundled mochiweb library
@@ -64,7 +64,7 @@ Subject: [PATCH 5/9] Remove bundled mochiweb library
  delete mode 100644 src/mochiweb/reloader.erl
 
 diff --git a/configure b/configure
-index 68c8db9..b71f364 100755
+index 26e0459..6a9c731 100755
 --- a/configure
 +++ b/configure
 @@ -12263,8 +12263,6 @@ ac_config_files="$ac_config_files src/couchdb/priv/Makefile"

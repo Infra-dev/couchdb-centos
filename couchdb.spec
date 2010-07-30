@@ -3,7 +3,7 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        0.11.1
+Version:        1.0.0
 Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
@@ -12,15 +12,15 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
-Patch1:		couchdb0.11.1-0001-Force-init-script-installation.patch
-Patch2:		couchdb0.11.1-0002-Install-into-erllibdir-by-default.patch
-Patch3:		couchdb0.11.1-0003-Remove-bundled-erlang-oauth-library.patch
-Patch4:		couchdb0.11.1-0004-Remove-bundled-erlang-etap-library.patch
-Patch5:		couchdb0.11.1-0005-Remove-bundled-mochiweb-library.patch
-Patch6:		couchdb0.11.1-0006-Remove-bundled-ibrowse-library.patch
-Patch7:		couchdb0.11.1-0007-Workaround-for-system-wide-ibrowse.patch
-Patch8:		couchdb0.11.1-0008-Remove-pid-file-after-stop.patch
-Patch9:		couchdb0.11.1-0009-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
+Patch1:		couchdb-1.0.0-0001-Force-init-script-installation.patch
+Patch2:		couchdb-1.0.0-0002-Install-into-erllibdir-by-default.patch
+Patch3:		couchdb-1.0.0-0003-Remove-bundled-erlang-oauth-library.patch
+Patch4:		couchdb-1.0.0-0004-Remove-bundled-erlang-etap-library.patch
+Patch5:		couchdb-1.0.0-0005-Remove-bundled-mochiweb-library.patch
+Patch6:		couchdb-1.0.0-0006-Remove-bundled-ibrowse-library.patch
+Patch7:		couchdb-1.0.0-0007-Workaround-for-system-wide-ibrowse.patch
+Patch8:		couchdb-1.0.0-0008-Remove-pid-file-after-stop.patch
+Patch9:		couchdb-1.0.0-0009-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	curl-devel
@@ -154,6 +154,9 @@ fi
 
 
 %changelog
+* Thu Jul 15 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.0-1
+- Ver. 1.0.0
+
 * Wed Jul 14 2010 Peter Lemenkov <lemenkov@gmail.com> 0.11.1-1
 - Ver. 0.11.1
 - Removed patch for compatibility with Erlang/OTP R14A (merged upstream)

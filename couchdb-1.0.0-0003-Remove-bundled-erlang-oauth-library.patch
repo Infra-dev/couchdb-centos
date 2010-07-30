@@ -1,4 +1,4 @@
-From f04d36e140eaecf2695a541a1b3f7f9fe761df21 Mon Sep 17 00:00:00 2001
+From def82e3226932c188c29b29d8cd792a33ba5599e Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Wed, 14 Jul 2010 17:57:54 +0400
 Subject: [PATCH 3/9] Remove bundled erlang-oauth library
@@ -30,7 +30,7 @@ Subject: [PATCH 3/9] Remove bundled erlang-oauth library
  delete mode 100644 src/erlang-oauth/oauth_uri.erl
 
 diff --git a/configure b/configure
-index 4eca719..316b8c3 100755
+index 28caf74..b3040cf 100755
 --- a/configure
 +++ b/configure
 @@ -12261,8 +12261,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"

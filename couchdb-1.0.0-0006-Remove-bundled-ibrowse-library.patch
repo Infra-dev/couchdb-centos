@@ -1,4 +1,4 @@
-From 71f19d084c5656ed2267dcacb7b4904c92103398 Mon Sep 17 00:00:00 2001
+From 2b7c6d5c4a3ee803ec39a6f6a1cffbbca4b4b95a Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Wed, 14 Jul 2010 18:03:33 +0400
 Subject: [PATCH 6/9] Remove bundled ibrowse library
@@ -34,7 +34,7 @@ Subject: [PATCH 6/9] Remove bundled ibrowse library
  delete mode 100644 src/ibrowse/ibrowse_test.erl
 
 diff --git a/configure b/configure
-index b71f364..94303b9 100755
+index 6a9c731..c369391 100755
 --- a/configure
 +++ b/configure
 @@ -12261,8 +12261,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"

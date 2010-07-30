@@ -1,4 +1,4 @@
-From 028e72d7b46b69eb8d9b95aaf4e90e4175bbb588 Mon Sep 17 00:00:00 2001
+From 22a6d6b33d32141bd4e64fd602010c31fa11e4ed Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:18:29 +0400
 Subject: [PATCH 2/9] Install into erllibdir by default
@@ -8,7 +8,7 @@ Subject: [PATCH 2/9] Install into erllibdir by default
  1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/configure b/configure
-index 42a7489..4eca719 100755
+index ce82d90..28caf74 100755
 --- a/configure
 +++ b/configure
 @@ -12193,7 +12193,7 @@ localdatadir=${datadir}/${package_identifier}

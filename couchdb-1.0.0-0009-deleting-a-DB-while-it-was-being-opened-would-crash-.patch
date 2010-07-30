@@ -1,9 +1,7 @@
-From b063843a8e0bb4eef4674e3d9396dc76323a4ddc Mon Sep 17 00:00:00 2001
+From 4a51eaedeacc36127444db2dac1a37901cd34691 Mon Sep 17 00:00:00 2001
 From: Adam Kocoloski <kocolosk@apache.org>
 Date: Sun, 11 Jul 2010 01:00:50 +0000
 Subject: [PATCH 9/9] deleting a DB while it was being opened would crash couch_server
-
-(Updated for 0.11.1)
 
 git-svn-id: https://svn.apache.org/repos/asf/couchdb/trunk@962964 13f79535-47bb-0310-9956-ffa450edef68
 ---
@@ -11,16 +9,16 @@ git-svn-id: https://svn.apache.org/repos/asf/couchdb/trunk@962964 13f79535-47bb-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/src/couchdb/couch_server.erl b/src/couchdb/couch_server.erl
-index d339405..2bf115f 100644
+index 43fd904..88bd610 100644
 --- a/src/couchdb/couch_server.erl
 +++ b/src/couchdb/couch_server.erl
-@@ -308,7 +308,7 @@ handle_call({delete, DbName, _Options}, _From, Server) ->
+@@ -326,7 +326,7 @@ handle_call({delete, DbName, _Options}, _From, Server) ->
              couch_util:shutdown_sync(Pid),
              true = ets:delete(couch_dbs_by_name, DbName),
              true = ets:delete(couch_dbs_by_pid, Pid),
 -            [gen_server:send_result(F, not_found) || F <- Froms],
 +            [gen_server:reply(F, not_found) || F <- Froms],
-             Server#server{dbs_open=Server#server.dbs_open - 1};
+             true;
          [{_, {opened, Pid, LruTime}}] ->
              couch_util:shutdown_sync(Pid),
 -- 
