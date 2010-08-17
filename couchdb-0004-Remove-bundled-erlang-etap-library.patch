@@ -1,4 +1,4 @@
-From f028c14174d3bfb5e1a54a8ab5b28653a084364c Mon Sep 17 00:00:00 2001
+From 81177309895f5b3dd096a936231eabd42c8d15e5 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Wed, 14 Jul 2010 18:00:03 +0400
 Subject: [PATCH 4/9] Remove bundled erlang-etap library
@@ -34,10 +34,10 @@ Subject: [PATCH 4/9] Remove bundled erlang-etap library
  delete mode 100644 src/etap/etap_web.erl
 
 diff --git a/configure b/configure
-index b3040cf..26e0459 100755
+index 5a205d2..a8d077e 100755
 --- a/configure
 +++ b/configure
-@@ -12261,8 +12261,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
+@@ -12263,8 +12263,6 @@ ac_config_files="$ac_config_files src/couchdb/Makefile"
  
  ac_config_files="$ac_config_files src/couchdb/priv/Makefile"
  
@@ -46,7 +46,7 @@ index b3040cf..26e0459 100755
  ac_config_files="$ac_config_files src/ibrowse/Makefile"
  
  ac_config_files="$ac_config_files src/mochiweb/Makefile"
-@@ -13288,7 +13286,6 @@ do
+@@ -13291,7 +13289,6 @@ do
      "src/couchdb/couch.app.tpl") CONFIG_FILES="$CONFIG_FILES src/couchdb/couch.app.tpl" ;;
      "src/couchdb/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/Makefile" ;;
      "src/couchdb/priv/Makefile") CONFIG_FILES="$CONFIG_FILES src/couchdb/priv/Makefile" ;;
@@ -55,10 +55,10 @@ index b3040cf..26e0459 100755
      "src/mochiweb/Makefile") CONFIG_FILES="$CONFIG_FILES src/mochiweb/Makefile" ;;
      "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
 diff --git a/configure.ac b/configure.ac
-index 84a38d3..e9375be 100644
+index 8b31f54..7e25bc2 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -387,7 +387,6 @@ AC_CONFIG_FILES([src/Makefile])
+@@ -388,7 +388,6 @@ AC_CONFIG_FILES([src/Makefile])
  AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
@@ -1908,5 +1908,5 @@ index 79b0417..c57d7a8 100644
          code:add_pathz(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.7.1.1
+1.7.2.1
 

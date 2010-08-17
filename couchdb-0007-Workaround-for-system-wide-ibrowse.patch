@@ -1,4 +1,4 @@
-From 96e4e5057365e642fa983c7bac4eec0177b386f9 Mon Sep 17 00:00:00 2001
+From 7051f964acf2fd831b2ad67617f0d67125284460 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Tue, 8 Jun 2010 17:30:49 +0400
 Subject: [PATCH 7/9] Workaround for system-wide ibrowse
@@ -10,7 +10,7 @@ Subject: [PATCH 7/9] Workaround for system-wide ibrowse
  3 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/src/couchdb/couch_rep_changes_feed.erl b/src/couchdb/couch_rep_changes_feed.erl
-index b1d3960..be7bd4c 100644
+index 4c7dc35..6669691 100644
 --- a/src/couchdb/couch_rep_changes_feed.erl
 +++ b/src/couchdb/couch_rep_changes_feed.erl
 @@ -20,7 +20,7 @@
@@ -23,7 +23,7 @@ index b1d3960..be7bd4c 100644
  -record (state, {
      changes_from = nil,
 diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
-index 53e318d..3ac62ed 100644
+index 768d88a..b5a7ed8 100644
 --- a/src/couchdb/couch_rep_httpc.erl
 +++ b/src/couchdb/couch_rep_httpc.erl
 @@ -12,7 +12,7 @@
@@ -35,7 +35,7 @@ index 53e318d..3ac62ed 100644
  
  -export([db_exists/1, db_exists/2, full_url/1, request/1, redirected_request/2,
      spawn_worker_process/1, spawn_link_worker_process/1]).
-@@ -188,12 +188,12 @@ redirected_request(Req, RedirectUrl) ->
+@@ -199,12 +199,12 @@ redirected_request(Req, RedirectUrl) ->
  
  spawn_worker_process(Req) ->
      Url = ibrowse_lib:parse_url(Req#http_db.url),
@@ -64,5 +64,5 @@ index 3edc1f3..8722f3f 100644
  -record (state, {
      parent,
 -- 
-1.7.1.1
+1.7.2.1
 

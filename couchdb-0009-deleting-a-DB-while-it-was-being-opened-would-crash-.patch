@@ -1,4 +1,4 @@
-From 4a51eaedeacc36127444db2dac1a37901cd34691 Mon Sep 17 00:00:00 2001
+From fb6a51831c51a21cb76be78921a24e99d3b55347 Mon Sep 17 00:00:00 2001
 From: Adam Kocoloski <kocolosk@apache.org>
 Date: Sun, 11 Jul 2010 01:00:50 +0000
 Subject: [PATCH 9/9] deleting a DB while it was being opened would crash couch_server
@@ -22,5 +22,5 @@ index 43fd904..88bd610 100644
          [{_, {opened, Pid, LruTime}}] ->
              couch_util:shutdown_sync(Pid),
 -- 
-1.7.1.1
+1.7.2.1
 
