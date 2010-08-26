@@ -1,7 +1,7 @@
-From ea69134fb0a3efd6db259e32f4a08b1d28f8e6fd Mon Sep 17 00:00:00 2001
+From 179b20af1a2dff0f8976e4e0071c4b31c04bcfb8 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Fri, 6 Aug 2010 16:05:02 +0400
-Subject: [PATCH 6/9] Remove bundled ibrowse library
+Subject: [PATCH 06/11] Remove bundled ibrowse library
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---

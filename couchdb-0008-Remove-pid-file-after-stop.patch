@@ -1,7 +1,7 @@
-From 6362962685a23e9442bac2dd5f27ef6ffda626d4 Mon Sep 17 00:00:00 2001
+From 16ee55f5fa6d1e8f85de6fd17d4195e176bfca0c Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Mon, 7 Jun 2010 15:08:42 +0400
-Subject: [PATCH 8/9] Remove pid-file after stop
+Subject: [PATCH 08/11] Remove pid-file after stop
 
 ---
  bin/couchdb.tpl.in |    4 +---

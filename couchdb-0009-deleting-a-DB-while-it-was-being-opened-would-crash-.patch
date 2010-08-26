@@ -1,7 +1,7 @@
-From fb6a51831c51a21cb76be78921a24e99d3b55347 Mon Sep 17 00:00:00 2001
+From b1ed77ec73f756b820e7c8269cb126ffa46a1bbc Mon Sep 17 00:00:00 2001
 From: Adam Kocoloski <kocolosk@apache.org>
 Date: Sun, 11 Jul 2010 01:00:50 +0000
-Subject: [PATCH 9/9] deleting a DB while it was being opened would crash couch_server
+Subject: [PATCH 09/11] deleting a DB while it was being opened would crash couch_server
 
 git-svn-id: https://svn.apache.org/repos/asf/couchdb/trunk@962964 13f79535-47bb-0310-9956-ffa450edef68
 ---

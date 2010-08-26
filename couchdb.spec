@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -21,6 +21,8 @@ Patch6:		couchdb-0006-Remove-bundled-ibrowse-library.patch
 Patch7:		couchdb-0007-Workaround-for-system-wide-ibrowse.patch
 Patch8:		couchdb-0008-Remove-pid-file-after-stop.patch
 Patch9:		couchdb-0009-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
+Patch10:	couchdb-0010-Do-not-install-gzipped-docs.patch
+Patch11:	couchdb-0011-Fix-respawn-timeout-to-match-default-value.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	curl-devel
@@ -34,7 +36,6 @@ BuildRequires:	js-devel
 BuildRequires:	libicu-devel
 # For /usr/bin/prove
 BuildRequires:	perl(Test::Harness)
-
 
 Requires:	erlang-crypto
 Requires:	erlang-erts
@@ -75,6 +76,8 @@ JavaScript acting as the default view definition language.
 %patch7 -p1 -b .workaround_for_ssl
 %patch8 -p1 -b .remove_pid_file
 %patch9 -p1 -b .fix_crash
+%patch10 -p1 -b .gzipped_docs
+%patch11 -p1 -b .fix_respawn
 # Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
@@ -96,12 +99,6 @@ rm $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/couchdb
 
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
-
-# Remove wrongly placed doc files
-rm -rf  $RPM_BUILD_ROOT%{_datadir}/doc/couchdb
-
-# fix respawn timeout to match default value
-sed -i s,^COUCHDB_RESPAWN_TIMEOUT=5,COUCHDB_RESPAWN_TIMEOUT=0,g $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/couchdb
 
 
 %check
@@ -154,6 +151,9 @@ fi
 
 
 %changelog
+* Thu Aug 26 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.1-2
+- Cleaned up spec-file a bit
+
 * Fri Aug  6 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.1-1
 - Ver. 1.0.1
 

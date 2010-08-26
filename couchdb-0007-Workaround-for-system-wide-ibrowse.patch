@@ -1,7 +1,7 @@
-From 7051f964acf2fd831b2ad67617f0d67125284460 Mon Sep 17 00:00:00 2001
+From 279688f94b56ddd85a6311c426780c6eda787edf Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Tue, 8 Jun 2010 17:30:49 +0400
-Subject: [PATCH 7/9] Workaround for system-wide ibrowse
+Subject: [PATCH 07/11] Workaround for system-wide ibrowse
 
 ---
  src/couchdb/couch_rep_changes_feed.erl |    2 +-
