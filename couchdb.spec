@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -26,7 +26,7 @@ Patch11:	couchdb-0011-Fix-respawn-timeout-to-match-default-value.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	curl-devel
-BuildRequires:	erlang
+BuildRequires:	erlang-erts
 BuildRequires:	erlang-etap
 BuildRequires:	erlang-ibrowse
 BuildRequires:	erlang-mochiweb
@@ -151,6 +151,9 @@ fi
 
 
 %changelog
+* Mon Oct 11 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.1-3
+- Narrowed list of BuildRequires
+
 * Thu Aug 26 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.1-2
 - Cleaned up spec-file a bit
 
