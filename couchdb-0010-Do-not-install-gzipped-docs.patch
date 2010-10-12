@@ -1,7 +1,7 @@
-From 4d79cfe314d2b08a46cf25460402e8d7db788576 Mon Sep 17 00:00:00 2001
+From 25e110362bcadbd8f2100fc33f6041d702622cc2 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 26 Aug 2010 13:07:33 +0400
-Subject: [PATCH 10/11] Do not install gzipped docs
+Subject: [PATCH 10/13] Do not install gzipped docs
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
@@ -216,5 +216,5 @@ index 0e9f10a..bc76e26 100644
  check: dev
  	$(top_builddir)/test/etap/run
 -- 
-1.7.2.1
+1.7.2.3
 

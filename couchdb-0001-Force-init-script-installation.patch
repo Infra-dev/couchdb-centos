@@ -1,7 +1,7 @@
-From 3e55695afb015dbc4e478739a1c467bf7ad859b0 Mon Sep 17 00:00:00 2001
+From 0928d966e2f378efc7dc393d2664276c71f6c5a4 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:17:20 +0400
-Subject: [PATCH 01/11] Force init script installation
+Subject: [PATCH 01/13] Force init script installation
 
 ---
  configure.ac |   16 +++-------------
@@ -35,5 +35,5 @@ index c609a08..cd8c807 100644
  
  if test "$use_launchd" = "yes"; then
 -- 
-1.7.2.1
+1.7.2.3
 

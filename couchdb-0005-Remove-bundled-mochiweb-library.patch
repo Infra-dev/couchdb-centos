@@ -1,7 +1,7 @@
-From bad54224de05d8ba1f2ec2b270b1b61b9d9eab7e Mon Sep 17 00:00:00 2001
+From fd2a4e300e7c56608402cd851a73d5824be02fdb Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Wed, 14 Jul 2010 18:01:45 +0400
-Subject: [PATCH 05/11] Remove bundled mochiweb library
+Subject: [PATCH 05/13] Remove bundled mochiweb library
 
 ---
  configure                               |    3 -
@@ -7746,5 +7746,5 @@ index c57d7a8..948958c 100644
          code:add_pathz(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.7.2.1
+1.7.2.3
 

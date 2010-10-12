@@ -1,7 +1,7 @@
-From 6c9b556d411d14e9dadd550b6b8ff9088cf5bfbf Mon Sep 17 00:00:00 2001
+From 138d0cc7848e305bbd0ad92aa352a9ca5d978164 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Wed, 14 Jul 2010 18:00:03 +0400
-Subject: [PATCH 04/11] Remove bundled erlang-etap library
+Subject: [PATCH 04/13] Remove bundled erlang-etap library
 
 ---
  configure                     |    3 -
@@ -1908,5 +1908,5 @@ index 79b0417..c57d7a8 100644
          code:add_pathz(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.7.2.1
+1.7.2.3
 

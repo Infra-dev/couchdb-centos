@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -23,7 +23,10 @@ Patch8:		couchdb-0008-Remove-pid-file-after-stop.patch
 Patch9:		couchdb-0009-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
 Patch10:	couchdb-0010-Do-not-install-gzipped-docs.patch
 Patch11:	couchdb-0011-Fix-respawn-timeout-to-match-default-value.patch
+Patch12:	couchdb-0012-Relax-curl-dependency-to-7.15-for-RHEL5.patch
+Patch13:	couchdb-0013-No-erlang-min-2-and-erlang-max-2-in-R12B.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
 
 BuildRequires:	curl-devel
 BuildRequires:	erlang-erts
@@ -78,6 +81,11 @@ JavaScript acting as the default view definition language.
 %patch9 -p1 -b .fix_crash
 %patch10 -p1 -b .gzipped_docs
 %patch11 -p1 -b .fix_respawn
+%if 0%{?el5}
+# Erlang/OTP R12B5
+%patch12 -p1 -b .curl_7_15
+%patch13 -p1 -b .min_max
+%endif
 # Restore original timestamps to avoid reconfiguring
 touch -r configure.ac.initenabled configure.ac
 touch -r configure.fix_lib_path configure
@@ -151,6 +159,9 @@ fi
 
 
 %changelog
+* Tue Oct 12 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.1-4
+- Added patches for compatibility with R12B5
+
 * Mon Oct 11 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.1-3
 - Narrowed list of BuildRequires
 

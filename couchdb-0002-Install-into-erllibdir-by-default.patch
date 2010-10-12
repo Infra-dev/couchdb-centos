@@ -1,7 +1,7 @@
-From 9fbd5b93c786bfd0454679147c253ad432fad46f Mon Sep 17 00:00:00 2001
+From 2024b34484f62475cf320aca1386f7142466329d Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 27 May 2010 15:18:29 +0400
-Subject: [PATCH 02/11] Install into erllibdir by default
+Subject: [PATCH 02/13] Install into erllibdir by default
 
 ---
  configure |    4 ++--
@@ -30,5 +30,5 @@ index 8d47467..239eff7 100755
      localerlanglibdir=${locallibdir}/erlang/lib
  
 -- 
-1.7.2.1
+1.7.2.3
 

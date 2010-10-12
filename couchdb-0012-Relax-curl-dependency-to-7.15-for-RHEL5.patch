@@ -1,0 +1,100 @@
+From a3d55325758f58cff0c56574f084fe8cac29c089 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Sat, 21 Aug 2010 12:49:21 +0400
+Subject: [PATCH 12/13] Relax curl dependency to 7.15 (for RHEL5)
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+---
+ configure                        |    8 ++++----
+ configure.ac                     |    2 +-
+ src/couchdb/priv/couch_js/http.c |   14 --------------
+ 3 files changed, 5 insertions(+), 19 deletions(-)
+
+diff --git a/configure b/configure
+index 3fbc92b..9859f0c 100755
+--- a/configure
++++ b/configure
+@@ -11835,9 +11835,9 @@ fi
+     echo "*** Or see http://curl.haxx.se/"
+   else
+         CURL_VERSION=`$CURL_CONFIG --version | cut -d" " -f2`
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for curl >= 7.18.0" >&5
+-$as_echo_n "checking for curl >= 7.18.0... " >&6; }
+-        VERSION_CHECK=`expr $CURL_VERSION \>\= 7.18.0`
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for curl >= 7.15.0" >&5
++$as_echo_n "checking for curl >= 7.15.0... " >&6; }
++        VERSION_CHECK=`expr $CURL_VERSION \>\= 7.15.0`
+         if test "$VERSION_CHECK" = "1" ; then
+             { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+@@ -11859,7 +11859,7 @@ $as_echo "$CURL_LIBS" >&6; }
+             CURL_LIBS=""
+             ## If we have a custom action on failure, don't print errors, but
+             ## do set a variable so people can do so.
+-            echo "can't find curl >= 7.18.0"
++            echo "can't find curl >= 7.15.0"
+         fi
+ 
+ 
+diff --git a/configure.ac b/configure.ac
+index 905f6d1..0fa689e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -214,7 +214,7 @@ AC_ARG_WITH([win32-curl], [AC_HELP_STRING([--with-win32-curl=PATH],
+     CURL_LIBS="$withval/lib/libcurl"
+     CURL_LDFLAGS="-l$CURL_LIBS -lWs2_32 -lkernel32 -luser32 -ladvapi32 -lWldap32"
+ ], [
+-    AC_CHECK_CURL([7.18.0])
++    AC_CHECK_CURL([7.15.0])
+     CURL_LDFLAGS=-lcurl
+ ])
+ 
+diff --git a/src/couchdb/priv/couch_js/http.c b/src/couchdb/priv/couch_js/http.c
+index 6c2a8a8..a672b66 100644
+--- a/src/couchdb/priv/couch_js/http.c
++++ b/src/couchdb/priv/couch_js/http.c
+@@ -377,7 +377,6 @@ CURL*       HTTP_HANDLE = NULL;
+ char        ERRBUF[CURL_ERROR_SIZE];
+ 
+ static size_t send_body(void *ptr, size_t size, size_t nmem, void *data);
+-static int seek_body(void *ptr, curl_off_t offset, int origin);
+ static size_t recv_body(void *ptr, size_t size, size_t nmem, void *data);
+ static size_t recv_header(void *ptr, size_t size, size_t nmem, void *data);
+ 
+@@ -404,8 +403,6 @@ go(JSContext* cx, JSObject* obj, HTTPData* http, char* body, size_t bodylen)
+     {
+         HTTP_HANDLE = curl_easy_init();
+         curl_easy_setopt(HTTP_HANDLE, CURLOPT_READFUNCTION, send_body);
+-        curl_easy_setopt(HTTP_HANDLE, CURLOPT_SEEKFUNCTION,
+-                                        (curl_seek_callback) seek_body);
+         curl_easy_setopt(HTTP_HANDLE, CURLOPT_HEADERFUNCTION, recv_header);
+         curl_easy_setopt(HTTP_HANDLE, CURLOPT_WRITEFUNCTION, recv_body);
+         curl_easy_setopt(HTTP_HANDLE, CURLOPT_NOPROGRESS, 1);
+@@ -458,7 +455,6 @@ go(JSContext* cx, JSObject* obj, HTTPData* http, char* body, size_t bodylen)
+     curl_easy_setopt(HTTP_HANDLE, CURLOPT_URL, http->url);
+     curl_easy_setopt(HTTP_HANDLE, CURLOPT_HTTPHEADER, http->req_headers);
+     curl_easy_setopt(HTTP_HANDLE, CURLOPT_READDATA, &state);
+-    curl_easy_setopt(HTTP_HANDLE, CURLOPT_SEEKDATA, &state);
+     curl_easy_setopt(HTTP_HANDLE, CURLOPT_WRITEHEADER, &state);
+     curl_easy_setopt(HTTP_HANDLE, CURLOPT_WRITEDATA, &state);
+ 
+@@ -555,16 +551,6 @@ send_body(void *ptr, size_t size, size_t nmem, void *data)
+     return towrite;
+ }
+ 
+-static int
+-seek_body(void* ptr, curl_off_t offset, int origin)
+-{
+-    CurlState* state = (CurlState*) ptr;
+-    if(origin != SEEK_SET) return -1;
+-
+-    state->sent = (size_t) offset;
+-    return (int) state->sent;
+-}
+-
+ static size_t
+ recv_header(void *ptr, size_t size, size_t nmem, void *data)
+ {
+-- 
+1.7.2.3
+
