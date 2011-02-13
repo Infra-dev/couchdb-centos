@@ -1,16 +1,16 @@
-From d09bcecb010af30c2bc034b15982f72e6ae93c45 Mon Sep 17 00:00:00 2001
+From 8741c02edcd6251a01774471d51325ac7bf055f5 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
-Date: Tue, 8 Jun 2010 17:30:49 +0400
-Subject: [PATCH 07/13] Workaround for system-wide ibrowse
+Date: Sun, 13 Feb 2011 14:52:57 +0300
+Subject: [PATCH 09/13] Fixes for system-wide ibrowse
 
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
  src/couchdb/couch_rep_changes_feed.erl |    2 +-
- src/couchdb/couch_rep_httpc.erl        |    6 +++---
- src/couchdb/couch_rep_reader.erl       |    2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ src/couchdb/couch_rep_httpc.erl        |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/couchdb/couch_rep_changes_feed.erl b/src/couchdb/couch_rep_changes_feed.erl
-index 4c7dc35..6669691 100644
+index 4d1afcb..032f62a 100644
 --- a/src/couchdb/couch_rep_changes_feed.erl
 +++ b/src/couchdb/couch_rep_changes_feed.erl
 @@ -20,7 +20,7 @@
@@ -23,7 +23,7 @@ index 4c7dc35..6669691 100644
  -record (state, {
      changes_from = nil,
 diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
-index 768d88a..b5a7ed8 100644
+index e535c0d..e13b00c 100644
 --- a/src/couchdb/couch_rep_httpc.erl
 +++ b/src/couchdb/couch_rep_httpc.erl
 @@ -12,7 +12,7 @@
@@ -34,8 +34,8 @@ index 768d88a..b5a7ed8 100644
 +-include_lib("ibrowse/include/ibrowse.hrl").
  
  -export([db_exists/1, db_exists/2, full_url/1, request/1, redirected_request/2,
-     spawn_worker_process/1, spawn_link_worker_process/1]).
-@@ -199,12 +199,12 @@ redirected_request(Req, RedirectUrl) ->
+     redirect_url/2, spawn_worker_process/1, spawn_link_worker_process/1]).
+@@ -218,7 +218,7 @@ redirected_request(Req, RedirectUrl) ->
  
  spawn_worker_process(Req) ->
      Url = ibrowse_lib:parse_url(Req#http_db.url),
@@ -44,25 +44,6 @@ index 768d88a..b5a7ed8 100644
      Pid.
  
  spawn_link_worker_process(Req) ->
-     Url = ibrowse_lib:parse_url(Req#http_db.url),
--    {ok, Pid} = ibrowse_http_client:start_link(Url),
-+    {ok, Pid} = ibrowse_http_client:start_link({undefined, Url, {[{ssl_imp, new}], (Url#url.protocol == https)}}),
-     Pid.
- 
- maybe_decompress(Headers, Body) ->
-diff --git a/src/couchdb/couch_rep_reader.erl b/src/couchdb/couch_rep_reader.erl
-index 3edc1f3..8722f3f 100644
---- a/src/couchdb/couch_rep_reader.erl
-+++ b/src/couchdb/couch_rep_reader.erl
-@@ -25,7 +25,7 @@
- -define (MAX_PIPELINE_SIZE, 50).
- 
- -include("couch_db.hrl").
---include("../ibrowse/ibrowse.hrl").
-+-include_lib("ibrowse/include/ibrowse.hrl").
- 
- -record (state, {
-     parent,
 -- 
-1.7.2.3
+1.7.4
 

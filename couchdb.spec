@@ -3,8 +3,8 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        1.0.1
-Release:        5%{?dist}
+Version:        1.0.2
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -12,22 +12,25 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
-Patch1:		couchdb-0001-Force-init-script-installation.patch
-Patch2:		couchdb-0002-Install-into-erllibdir-by-default.patch
-Patch3:		couchdb-0003-Remove-bundled-erlang-oauth-library.patch
-Patch4:		couchdb-0004-Remove-bundled-erlang-etap-library.patch
-Patch5:		couchdb-0005-Remove-bundled-mochiweb-library.patch
-Patch6:		couchdb-0006-Remove-bundled-ibrowse-library.patch
-Patch7:		couchdb-0007-Workaround-for-system-wide-ibrowse.patch
-Patch8:		couchdb-0008-Remove-pid-file-after-stop.patch
-Patch9:		couchdb-0009-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
-Patch10:	couchdb-0010-Do-not-install-gzipped-docs.patch
-Patch11:	couchdb-0011-Fix-respawn-timeout-to-match-default-value.patch
-Patch12:	couchdb-0012-Relax-curl-dependency-to-7.15-for-RHEL5.patch
-Patch13:	couchdb-0013-No-erlang-min-2-and-erlang-max-2-in-R12B.patch
+Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
+Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
+Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
+Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
+Patch5:		couchdb-0005-Remove-bundled-erlang-oauth-library.patch
+Patch6:		couchdb-0006-Remove-bundled-etap-library.patch
+Patch7:		couchdb-0007-Remove-bundled-ibrowse-library.patch
+Patch8:		couchdb-0008-Remove-bundled-mochiweb-library.patch
+Patch9:		couchdb-0009-Fixes-for-system-wide-ibrowse.patch
+Patch10:	couchdb-0010-Remove-pid-file-after-stop.patch
+Patch11:	couchdb-0011-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
+Patch12:	couchdb-0012-Change-respawn-timeout-to-0.patch
+Patch13:	couchdb-0013-Relax-curl-dependency-to-7.15-for-RHEL5.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 
+BuildRequires:  autoconf
+BuildRequires:  automake
+BuildRequires:  libtool
 BuildRequires:	curl-devel
 BuildRequires:	erlang-erts
 BuildRequires:	erlang-etap
@@ -42,7 +45,7 @@ BuildRequires:	perl(Test::Harness)
 
 Requires:	erlang-crypto
 Requires:	erlang-erts
-Requires:	erlang-ibrowse
+Requires:	erlang-ibrowse >= 2.1.0
 Requires:	erlang-inets
 Requires:	erlang-kernel
 Requires:	erlang-mochiweb
@@ -70,28 +73,25 @@ JavaScript acting as the default view definition language.
 
 %prep
 %setup -q -n apache-%{name}-%{version}
-%patch1 -p1 -b .initenabled
-%patch2 -p1 -b .fix_lib_path
-%patch3 -p1 -b .remove_bundled_oauth
-%patch4 -p1 -b .remove_bundled_etap
-%patch5 -p1 -b .remove_bundled_mochiweb
-%patch6 -p1 -b .remove_bundled_ibrowse
-%patch7 -p1 -b .workaround_for_ssl
-%patch8 -p1 -b .remove_pid_file
-%patch9 -p1 -b .fix_crash
-%patch10 -p1 -b .gzipped_docs
-%patch11 -p1 -b .fix_respawn
+%patch1 -p1 -b .dont_gzip
+%patch2 -p1 -b .use_versioned_docdir
+%patch3 -p1 -b .more_init_dirs
+%patch4 -p1 -b .install_into_erldir
+%patch5 -p1 -b .remove_bundled_oauth
+%patch6 -p1 -b .remove_bundled_etap
+%patch7 -p1 -b .remove_bundled_ibrowse
+%patch8 -p1 -b .remove_bundled_mochiweb
+%patch9 -p1 -b .workaround_for_system_wide_ibrowse
+%patch10 -p1 -b .remove_pid_file
+%patch11 -p1 -b .fix_crash
+%patch12 -p1 -b .fix_respawn
 %if 0%{?el5}
 # Erlang/OTP R12B5
-%patch12 -p1 -b .curl_7_15
-%patch13 -p1 -b .min_max
+%patch13 -p1 -b .curl_7_15
 %endif
-# Restore original timestamps to avoid reconfiguring
-touch -r configure.ac.initenabled configure.ac
-touch -r configure.fix_lib_path configure
-
 
 %build
+autoreconf -ivf
 %configure
 make %{?_smp_mflags}
 
@@ -102,8 +102,6 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 # Install our custom couchdb initscript
 install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
-# ...and remove previously installed one
-rm $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/couchdb
 
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
@@ -159,8 +157,9 @@ fi
 
 
 %changelog
-* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.1-5
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+* Thu Nov 25 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.2-1
+- Ver. 1.0.2
+- Patches were rebased
 
 * Tue Oct 12 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.1-4
 - Added patches for compatibility with R12B5

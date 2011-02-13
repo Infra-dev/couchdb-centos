@@ -1,0 +1,476 @@
+From e143c2fa083e07cf4c2f2997da10a025e8a26b45 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Sun, 13 Feb 2011 14:45:18 +0300
+Subject: [PATCH 05/13] Remove bundled erlang-oauth library
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+---
+ configure.ac                         |    1 -
+ src/Makefile.am                      |    2 +-
+ src/erlang-oauth/Makefile.am         |   50 ----------------
+ src/erlang-oauth/oauth.app.in        |   20 ------
+ src/erlang-oauth/oauth.erl           |  107 ----------------------------------
+ src/erlang-oauth/oauth_hmac_sha1.erl |   11 ----
+ src/erlang-oauth/oauth_http.erl      |   22 -------
+ src/erlang-oauth/oauth_plaintext.erl |   10 ---
+ src/erlang-oauth/oauth_rsa_sha1.erl  |   30 ----------
+ src/erlang-oauth/oauth_unix.erl      |   16 -----
+ src/erlang-oauth/oauth_uri.erl       |   88 ----------------------------
+ test/etap/test_util.erl.in           |    2 +-
+ 12 files changed, 2 insertions(+), 357 deletions(-)
+ delete mode 100644 src/erlang-oauth/Makefile.am
+ delete mode 100644 src/erlang-oauth/oauth.app.in
+ delete mode 100644 src/erlang-oauth/oauth.erl
+ delete mode 100644 src/erlang-oauth/oauth_hmac_sha1.erl
+ delete mode 100644 src/erlang-oauth/oauth_http.erl
+ delete mode 100644 src/erlang-oauth/oauth_plaintext.erl
+ delete mode 100644 src/erlang-oauth/oauth_rsa_sha1.erl
+ delete mode 100644 src/erlang-oauth/oauth_unix.erl
+ delete mode 100644 src/erlang-oauth/oauth_uri.erl
+
+diff --git a/configure.ac b/configure.ac
+index 248bff7..d506257 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -404,7 +404,6 @@ AC_CONFIG_FILES([src/Makefile])
+ AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
+ AC_CONFIG_FILES([src/couchdb/Makefile])
+ AC_CONFIG_FILES([src/couchdb/priv/Makefile])
+-AC_CONFIG_FILES([src/erlang-oauth/Makefile])
+ AC_CONFIG_FILES([src/etap/Makefile])
+ AC_CONFIG_FILES([src/ibrowse/Makefile])
+ AC_CONFIG_FILES([src/mochiweb/Makefile])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index b9529f9..e577138 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -10,4 +10,4 @@
+ ## License for the specific language governing permissions and limitations under
+ ## the License.
+ 
+-SUBDIRS = couchdb erlang-oauth etap ibrowse mochiweb
++SUBDIRS = couchdb etap ibrowse mochiweb
+diff --git a/src/erlang-oauth/Makefile.am b/src/erlang-oauth/Makefile.am
+deleted file mode 100644
+index 48b7648..0000000
+--- a/src/erlang-oauth/Makefile.am
++++ /dev/null
+@@ -1,50 +0,0 @@
+-## Licensed under the Apache License, Version 2.0 (the "License"); you may not
+-## use this file except in compliance with the License.  You may obtain a copy
+-## of the License at
+-##
+-##   http://www.apache.org/licenses/LICENSE-2.0
+-##
+-## Unless required by applicable law or agreed to in writing, software
+-## distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+-## WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+-## License for the specific language governing permissions and limitations under
+-## the License.
+-
+-oauthebindir = $(localerlanglibdir)/erlang-oauth/ebin
+-
+-oauth_file_collection = \
+-	oauth.app.in \
+-    oauth.erl \
+-    oauth_hmac_sha1.erl \
+-    oauth_http.erl \
+-    oauth_plaintext.erl \
+-    oauth_rsa_sha1.erl \
+-    oauth_unix.erl \
+-    oauth_uri.erl
+-
+-# Removed oauth_rsa_sha1.beam until we require R12B5 or
+-# we add a ./configure option to enable it.
+-
+-oauthebin_make_generated_file_list = \
+-	oauth.app \
+-    oauth.beam \
+-    oauth_hmac_sha1.beam \
+-    oauth_http.beam \
+-    oauth_plaintext.beam \
+-    oauth_unix.beam \
+-    oauth_uri.beam
+-
+-oauthebin_DATA = \
+-	$(oauthebin_make_generated_file_list)
+-
+-EXTRA_DIST = \
+-	$(oauth_file_collection)
+-
+-CLEANFILES = \
+-    $(oauthebin_make_generated_file_list)
+-
+-%.app: %.app.in
+-	cp $< $@
+-
+-%.beam: %.erl
+-	$(ERLC) $(ERLC_FLAGS) $<
+diff --git a/src/erlang-oauth/oauth.app.in b/src/erlang-oauth/oauth.app.in
+deleted file mode 100644
+index 6357b9b..0000000
+--- a/src/erlang-oauth/oauth.app.in
++++ /dev/null
+@@ -1,20 +0,0 @@
+-{application, oauth, [
+-  {description, "Erlang OAuth implementation"},
+-  {vsn, "dev"},
+-  {modules, [
+-    oauth,
+-    oauth_hmac_sha1,
+-    oauth_http,
+-    oauth_plaintext,
+-    oauth_rsa_sha1,
+-    oauth_unix,
+-    oauth_uri
+-  ]},
+-  {registered, []},
+-  {applications, [
+-    kernel,
+-    stdlib,
+-    crypto,
+-    inets
+-  ]}
+-]}.
+diff --git a/src/erlang-oauth/oauth.erl b/src/erlang-oauth/oauth.erl
+deleted file mode 100644
+index 866655c..0000000
+--- a/src/erlang-oauth/oauth.erl
++++ /dev/null
+@@ -1,107 +0,0 @@
+--module(oauth).
+-
+--export(
+-  [ get/5
+-  , header/1
+-  , post/5
+-  , signature/5
+-  , signature_base_string/3
+-  , signed_params/6
+-  , token/1
+-  , token_secret/1
+-  , uri/2
+-  , verify/6
+-  ]).
+-
+-
+-get(URL, ExtraParams, Consumer, Token, TokenSecret) ->
+-  SignedParams = signed_params("GET", URL, ExtraParams, Consumer, Token, TokenSecret),
+-  oauth_http:get(uri(URL, SignedParams)).
+-
+-post(URL, ExtraParams, Consumer, Token, TokenSecret) ->
+-  SignedParams = signed_params("POST", URL, ExtraParams, Consumer, Token, TokenSecret),
+-  oauth_http:post(URL, oauth_uri:params_to_string(SignedParams)).
+-
+-uri(Base, []) ->
+-  Base;
+-uri(Base, Params) ->
+-  lists:concat([Base, "?", oauth_uri:params_to_string(Params)]).
+-
+-header(Params) ->
+-  {"Authorization", "OAuth " ++ oauth_uri:params_to_header_string(Params)}.
+-
+-token(Params) ->
+-  proplists:get_value("oauth_token", Params).
+-
+-token_secret(Params) ->
+-  proplists:get_value("oauth_token_secret", Params).
+-
+-verify(Signature, HttpMethod, URL, Params, Consumer, TokenSecret) ->
+-  case signature_method(Consumer) of
+-    plaintext ->
+-      oauth_plaintext:verify(Signature, consumer_secret(Consumer), TokenSecret);
+-    hmac_sha1 ->
+-      BaseString = signature_base_string(HttpMethod, URL, Params),
+-      oauth_hmac_sha1:verify(Signature, BaseString, consumer_secret(Consumer), TokenSecret);
+-    rsa_sha1 ->
+-      BaseString = signature_base_string(HttpMethod, URL, Params),
+-      oauth_rsa_sha1:verify(Signature, BaseString, consumer_secret(Consumer))
+-  end.
+-
+-signed_params(HttpMethod, URL, ExtraParams, Consumer, Token, TokenSecret) ->
+-  Params = token_param(Token, params(Consumer, ExtraParams)),
+-  [{"oauth_signature", signature(HttpMethod, URL, Params, Consumer, TokenSecret)}|Params].
+-
+-signature(HttpMethod, URL, Params, Consumer, TokenSecret) ->
+-  case signature_method(Consumer) of
+-    plaintext ->
+-      oauth_plaintext:signature(consumer_secret(Consumer), TokenSecret);
+-    hmac_sha1 ->
+-      BaseString = signature_base_string(HttpMethod, URL, Params),
+-      oauth_hmac_sha1:signature(BaseString, consumer_secret(Consumer), TokenSecret);
+-    rsa_sha1 ->
+-      BaseString = signature_base_string(HttpMethod, URL, Params),
+-      oauth_rsa_sha1:signature(BaseString, consumer_secret(Consumer))
+-  end.
+-
+-signature_base_string(HttpMethod, URL, Params) ->
+-  NormalizedURL = oauth_uri:normalize(URL),
+-  NormalizedParams = oauth_uri:params_to_string(lists:sort(Params)),
+-  oauth_uri:calate("&", [HttpMethod, NormalizedURL, NormalizedParams]).
+-
+-token_param("", Params) ->
+-  Params;
+-token_param(Token, Params) ->
+-  [{"oauth_token", Token}|Params].
+-
+-params(Consumer, Params) ->
+-  Nonce = base64:encode_to_string(crypto:rand_bytes(32)), % cf. ruby-oauth
+-  params(Consumer, oauth_unix:timestamp(), Nonce, Params).
+-
+-params(Consumer, Timestamp, Nonce, Params) ->
+-  [ {"oauth_version", "1.0"}
+-  , {"oauth_nonce", Nonce}
+-  , {"oauth_timestamp", integer_to_list(Timestamp)}
+-  , {"oauth_signature_method", signature_method_string(Consumer)}
+-  , {"oauth_consumer_key", consumer_key(Consumer)}
+-  | Params
+-  ].
+-
+-signature_method_string(Consumer) ->
+-  case signature_method(Consumer) of
+-    plaintext ->
+-      "PLAINTEXT";
+-    hmac_sha1 ->
+-      "HMAC-SHA1";
+-    rsa_sha1 ->
+-      "RSA-SHA1"
+-  end.
+-
+-signature_method(_Consumer={_, _, Method}) ->
+-  Method.
+-
+-consumer_secret(_Consumer={_, Secret, _}) ->
+-  Secret.
+-
+-consumer_key(_Consumer={Key, _, _}) ->
+-  Key.
+diff --git a/src/erlang-oauth/oauth_hmac_sha1.erl b/src/erlang-oauth/oauth_hmac_sha1.erl
+deleted file mode 100644
+index 79d59f3..0000000
+--- a/src/erlang-oauth/oauth_hmac_sha1.erl
++++ /dev/null
+@@ -1,11 +0,0 @@
+--module(oauth_hmac_sha1).
+-
+--export([signature/3, verify/4]).
+-
+-
+-signature(BaseString, CS, TS) ->
+-  Key = oauth_uri:calate("&", [CS, TS]),
+-  base64:encode_to_string(crypto:sha_mac(Key, BaseString)).
+-
+-verify(Signature, BaseString, CS, TS) ->
+-  couch_util:verify(signature(BaseString, CS, TS), Signature).
+diff --git a/src/erlang-oauth/oauth_http.erl b/src/erlang-oauth/oauth_http.erl
+deleted file mode 100644
+index bf5a4ba..0000000
+--- a/src/erlang-oauth/oauth_http.erl
++++ /dev/null
+@@ -1,22 +0,0 @@
+--module(oauth_http).
+-
+--export([get/1, post/2, response_params/1, response_body/1, response_code/1]).
+-
+-
+-get(URL) ->
+-  request(get, {URL, []}).
+-
+-post(URL, Data) ->
+-  request(post, {URL, [], "application/x-www-form-urlencoded", Data}).
+-
+-request(Method, Request) ->
+-  http:request(Method, Request, [{autoredirect, false}], []).
+-
+-response_params(Response) ->
+-  oauth_uri:params_from_string(response_body(Response)).
+-
+-response_body({{_, _, _}, _, Body}) ->
+-  Body.
+-
+-response_code({{_, Code, _}, _, _}) ->
+-  Code.
+diff --git a/src/erlang-oauth/oauth_plaintext.erl b/src/erlang-oauth/oauth_plaintext.erl
+deleted file mode 100644
+index 41a1e9b..0000000
+--- a/src/erlang-oauth/oauth_plaintext.erl
++++ /dev/null
+@@ -1,10 +0,0 @@
+--module(oauth_plaintext).
+-
+--export([signature/2, verify/3]).
+-
+-
+-signature(CS, TS) ->
+-  oauth_uri:calate("&", [CS, TS]).
+-
+-verify(Signature, CS, TS) ->
+-  couch_util:verify(signature(CS, TS), Signature).
+diff --git a/src/erlang-oauth/oauth_rsa_sha1.erl b/src/erlang-oauth/oauth_rsa_sha1.erl
+deleted file mode 100644
+index 6f4828e..0000000
+--- a/src/erlang-oauth/oauth_rsa_sha1.erl
++++ /dev/null
+@@ -1,30 +0,0 @@
+--module(oauth_rsa_sha1).
+-
+--export([signature/2, verify/3]).
+-
+--include_lib("public_key/include/public_key.hrl").
+-
+-
+-signature(BaseString, PrivateKeyPath) ->
+-  {ok, [Info]} = public_key:pem_to_der(PrivateKeyPath),
+-  {ok, PrivateKey} = public_key:decode_private_key(Info),
+-  base64:encode_to_string(public_key:sign(list_to_binary(BaseString), PrivateKey)).
+-
+-verify(Signature, BaseString, PublicKey) ->
+-  public_key:verify_signature(to_binary(BaseString), sha, base64:decode(Signature), public_key(PublicKey)).
+-
+-to_binary(Term) when is_list(Term) ->
+-  list_to_binary(Term);
+-to_binary(Term) when is_binary(Term) ->
+-  Term.
+-
+-public_key(Path) when is_list(Path) ->
+-  {ok, [{cert, DerCert, not_encrypted}]} = public_key:pem_to_der(Path),
+-  {ok, Cert} = public_key:pkix_decode_cert(DerCert, otp),
+-  public_key(Cert);
+-public_key(#'OTPCertificate'{tbsCertificate=Cert}) ->
+-  public_key(Cert);
+-public_key(#'OTPTBSCertificate'{subjectPublicKeyInfo=Info}) ->
+-  public_key(Info);
+-public_key(#'OTPSubjectPublicKeyInfo'{subjectPublicKey=Key}) ->
+-  Key.
+diff --git a/src/erlang-oauth/oauth_unix.erl b/src/erlang-oauth/oauth_unix.erl
+deleted file mode 100644
+index 73ca314..0000000
+--- a/src/erlang-oauth/oauth_unix.erl
++++ /dev/null
+@@ -1,16 +0,0 @@
+--module(oauth_unix).
+-
+--export([timestamp/0]).
+-
+-
+-timestamp() ->
+-  timestamp(calendar:universal_time()).
+-
+-timestamp(DateTime) ->
+-  seconds(DateTime) - epoch().
+-
+-epoch() ->
+-  seconds({{1970,1,1},{00,00,00}}).
+-
+-seconds(DateTime) ->
+-  calendar:datetime_to_gregorian_seconds(DateTime).
+diff --git a/src/erlang-oauth/oauth_uri.erl b/src/erlang-oauth/oauth_uri.erl
+deleted file mode 100644
+index fb27ae7..0000000
+--- a/src/erlang-oauth/oauth_uri.erl
++++ /dev/null
+@@ -1,88 +0,0 @@
+--module(oauth_uri).
+-
+--export([normalize/1, calate/2, encode/1]).
+--export([params_from_string/1, params_to_string/1,
+-  params_from_header_string/1, params_to_header_string/1]).
+-
+--import(lists, [concat/1]).
+-
+--define(is_uppercase_alpha(C), C >= $A, C =< $Z).
+--define(is_lowercase_alpha(C), C >= $a, C =< $z).
+--define(is_alpha(C), ?is_uppercase_alpha(C); ?is_lowercase_alpha(C)).
+--define(is_digit(C), C >= $0, C =< $9).
+--define(is_alphanumeric(C), ?is_alpha(C); ?is_digit(C)).
+--define(is_unreserved(C), ?is_alphanumeric(C); C =:= $-; C =:= $_; C =:= $.; C =:= $~).
+--define(is_hex(C), ?is_digit(C); C >= $A, C =< $F).
+-
+-
+-normalize(URI) ->
+-  case http_uri:parse(URI) of
+-    {Scheme, UserInfo, Host, Port, Path, _Query} ->
+-      normalize(Scheme, UserInfo, string:to_lower(Host), Port, [Path]);
+-    Else ->
+-      Else
+-  end.
+-
+-normalize(http, UserInfo, Host, 80, Acc) ->
+-  normalize(http, UserInfo, [Host|Acc]);
+-normalize(https, UserInfo, Host, 443, Acc) ->
+-  normalize(https, UserInfo, [Host|Acc]);
+-normalize(Scheme, UserInfo, Host, Port, Acc) ->
+-  normalize(Scheme, UserInfo, [Host, ":", Port|Acc]).
+-
+-normalize(Scheme, [], Acc) ->
+-  concat([Scheme, "://"|Acc]);
+-normalize(Scheme, UserInfo, Acc) ->
+-  concat([Scheme, "://", UserInfo, "@"|Acc]).
+-
+-params_to_header_string(Params) ->
+-  intercalate(", ", [concat([encode(K), "=\"", encode(V), "\""]) || {K, V} <- Params]).
+-
+-params_from_header_string(String) ->
+-  [param_from_header_string(Param) || Param <- re:split(String, ",\\s*", [{return, list}]), Param =/= ""].
+-
+-param_from_header_string(Param) ->
+-  [Key, QuotedValue] = string:tokens(Param, "="),
+-  Value = string:substr(QuotedValue, 2, length(QuotedValue) - 2),
+-  {decode(Key), decode(Value)}.
+-
+-params_from_string(Params) ->
+-  [param_from_string(Param) || Param <- string:tokens(Params, "&")].
+-
+-param_from_string(Param) ->
+-  list_to_tuple([decode(Value) || Value <- string:tokens(Param, "=")]).
+-
+-params_to_string(Params) ->
+-  intercalate("&", [calate("=", [K, V]) || {K, V} <- Params]).
+-
+-calate(Sep, Xs) ->
+-  intercalate(Sep, [encode(X) || X <- Xs]).
+-
+-intercalate(Sep, Xs) ->
+-  concat(intersperse(Sep, Xs)).
+-
+-intersperse(_, []) -> [];
+-intersperse(_, [X]) -> [X];
+-intersperse(Sep, [X|Xs]) ->
+-  [X, Sep|intersperse(Sep, Xs)].
+-
+-decode(Chars) ->
+-  decode(Chars, []).
+-
+-decode([], Decoded) ->
+-  lists:reverse(Decoded);
+-decode([$%,A,B|Etc], Decoded) when ?is_hex(A), ?is_hex(B) ->
+-  decode(Etc, [erlang:list_to_integer([A,B], 16)|Decoded]);
+-decode([C|Etc], Decoded) when ?is_unreserved(C) ->
+-  decode(Etc, [C|Decoded]).
+-
+-encode(Chars) ->
+-  encode(Chars, []).
+-
+-encode([], Encoded) ->
+-  lists:flatten(lists:reverse(Encoded));
+-encode([C|Etc], Encoded) when ?is_unreserved(C) ->
+-  encode(Etc, [C|Encoded]);
+-encode([C|Etc], Encoded) ->
+-  Value = io_lib:format("%~2.1.0s", [erlang:integer_to_list(C, 16)]),
+-  encode(Etc, [Value|Encoded]).
+diff --git a/test/etap/test_util.erl.in b/test/etap/test_util.erl.in
+index 4c42edb..79b0417 100644
+--- a/test/etap/test_util.erl.in
++++ b/test/etap/test_util.erl.in
+@@ -22,7 +22,7 @@ builddir() ->
+     "@abs_top_builddir@".
+ 
+ init_code_path() ->
+-    Paths = ["etap", "couchdb", "erlang-oauth", "ibrowse", "mochiweb"],
++    Paths = ["etap", "couchdb", "ibrowse", "mochiweb"],
+     lists:foreach(fun(Name) ->
+         code:add_pathz(filename:join([builddir(), "src", Name]))
+     end, Paths).
+-- 
+1.7.4
+
