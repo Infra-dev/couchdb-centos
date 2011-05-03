@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -25,6 +25,7 @@ Patch10:	couchdb-0010-Remove-pid-file-after-stop.patch
 Patch11:	couchdb-0011-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
 Patch12:	couchdb-0012-Change-respawn-timeout-to-0.patch
 Patch13:	couchdb-0013-Relax-curl-dependency-to-7.15-for-RHEL5.patch
+Patch14:	couchdb-0014-Port-to-Spidermonkey-1.8.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 
@@ -89,6 +90,7 @@ JavaScript acting as the default view definition language.
 # Erlang/OTP R12B5
 %patch13 -p1 -b .curl_7_15
 %endif
+%patch14 -p1 -b .to_new_js
 
 %build
 autoreconf -ivf
@@ -157,6 +159,9 @@ fi
 
 
 %changelog
+* Tue May  3 2011 Jan Horak <jhorak@redhat.com> - 1.0.2-2
+- Added patch for Spidermonkey 1.8.5
+
 * Thu Nov 25 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.2-1
 - Ver. 1.0.2
 - Patches were rebased
