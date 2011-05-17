@@ -1,0 +1,54 @@
+From f45cb16471acd4a57c491e31dda9dad1d1d87bdc Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Sun, 15 May 2011 18:47:41 +0400
+Subject: [PATCH 05/11] Don't use bundled etap, erlang-oauth, ibrowse and
+ mochiweb
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+---
+ configure.ac               |    4 ----
+ src/Makefile.am            |    2 +-
+ test/etap/test_util.erl.in |    2 +-
+ 3 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 248bff7..9c10cf7 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -404,10 +404,6 @@ AC_CONFIG_FILES([src/Makefile])
+ AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
+ AC_CONFIG_FILES([src/couchdb/Makefile])
+ AC_CONFIG_FILES([src/couchdb/priv/Makefile])
+-AC_CONFIG_FILES([src/erlang-oauth/Makefile])
+-AC_CONFIG_FILES([src/etap/Makefile])
+-AC_CONFIG_FILES([src/ibrowse/Makefile])
+-AC_CONFIG_FILES([src/mochiweb/Makefile])
+ AC_CONFIG_FILES([test/Makefile])
+ AC_CONFIG_FILES([test/bench/Makefile])
+ AC_CONFIG_FILES([test/etap/Makefile])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index b9529f9..753b177 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -10,4 +10,4 @@
+ ## License for the specific language governing permissions and limitations under
+ ## the License.
+ 
+-SUBDIRS = couchdb erlang-oauth etap ibrowse mochiweb
++SUBDIRS = couchdb
+diff --git a/test/etap/test_util.erl.in b/test/etap/test_util.erl.in
+index 460b029..b013d50 100644
+--- a/test/etap/test_util.erl.in
++++ b/test/etap/test_util.erl.in
+@@ -22,7 +22,7 @@ builddir() ->
+     "@abs_top_builddir@".
+ 
+ init_code_path() ->
+-    Paths = ["etap", "couchdb", "erlang-oauth", "ibrowse", "mochiweb"],
++    Paths = ["couchdb"],
+     lists:foreach(fun(Name) ->
+         code:add_patha(filename:join([builddir(), "src", Name]))
+     end, Paths).
+-- 
+1.7.5.1
+

@@ -1,7 +1,19 @@
-diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c.to_new_js apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c
---- apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c.to_new_js	2010-06-15 18:27:22.000000000 +0200
-+++ apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c	2011-05-03 16:09:18.347552983 +0200
-@@ -49,12 +49,25 @@ go(JSContext* cx, JSObject* obj, HTTPDat
+From 2b4acbcc36df1ef2271e4e6cc82c958757a8bc5c Mon Sep 17 00:00:00 2001
+From: Jan Horak <jhorak@redhat.com>
+Date: Thu, 5 May 2011 16:24:08 +0200
+Subject: [PATCH 11/11] Added Spidermonkey 1.8.5 patch
+
+---
+ src/couchdb/priv/couch_js/http.c |   66 ++++++++++++--------
+ src/couchdb/priv/couch_js/main.c |  125 +++++++++++++++++---------------------
+ src/couchdb/priv/couch_js/utf8.c |    4 +-
+ 3 files changed, 97 insertions(+), 98 deletions(-)
+
+diff --git a/src/couchdb/priv/couch_js/http.c b/src/couchdb/priv/couch_js/http.c
+index a672b66..8bd3cb6 100644
+--- a/src/couchdb/priv/couch_js/http.c
++++ b/src/couchdb/priv/couch_js/http.c
+@@ -49,12 +49,25 @@ go(JSContext* cx, JSObject* obj, HTTPData* http, char* body, size_t blen);
  static JSString*
  str_from_binary(JSContext* cx, char* data, size_t length);
  
@@ -13,6 +25,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c.to_new_js apache-
  {
      HTTPData* http = NULL;
      JSBool ret = JS_FALSE;
+-
 +    jsval* argv = JS_ARGV(cx, vp);
 +    JSObject *obj = NULL;
 +    //if (JS_IsConstructing(cx, vp)) {
@@ -23,12 +36,12 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c.to_new_js apache-
 +    //   obj = JS_THIS_OBJECT(cx, vp);
 +    //}
 +    //printf("con %x\n", obj);
- 
++
 +    JSBool *con = JS_IsConstructing(cx, vp);
      http = (HTTPData*) malloc(sizeof(HTTPData));
      if(!http)
      {
-@@ -67,6 +80,7 @@ constructor(JSContext* cx, JSObject* obj
+@@ -67,6 +80,7 @@ constructor(JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval)
      http->req_headers = NULL;
      http->last_status = -1;
  
@@ -99,7 +112,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c.to_new_js apache-
      
      if(!http)
      {
-@@ -268,7 +290,7 @@ sendreq(JSContext* cx, JSObject* obj, ui
+@@ -268,7 +290,7 @@ sendreq(JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval)
          }
      }
  
@@ -117,7 +130,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c.to_new_js apache-
  {
      HTTPData* http = (HTTPData*) JS_GetPrivate(cx, obj);
      
-@@ -286,16 +308,8 @@ status(JSContext* cx, JSObject* obj, jsv
+@@ -286,16 +308,8 @@ status(JSContext* cx, JSObject* obj, jsval idval, jsval* vp)
          return JS_FALSE;
      }
      
@@ -160,9 +173,10 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/http.c.to_new_js apache-
  };
  
  JSObject*
-diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c
---- apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js	2009-11-27 23:43:59.000000000 +0100
-+++ apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c	2011-05-03 16:15:56.825571272 +0200
+diff --git a/src/couchdb/priv/couch_js/main.c b/src/couchdb/priv/couch_js/main.c
+index 376aa15..243e971 100644
+--- a/src/couchdb/priv/couch_js/main.c
++++ b/src/couchdb/priv/couch_js/main.c
 @@ -15,7 +15,6 @@
  #include <string.h>
  #include <jsapi.h>
@@ -195,7 +209,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
  {
      JSString *str;
      JSObject *sandbox;
-@@ -45,11 +58,12 @@ evalcx(JSContext *cx, JSObject *obj, uin
+@@ -45,11 +58,12 @@ evalcx(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
      jsval v;
  
      sandbox = NULL;
@@ -209,7 +223,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
      subcx = JS_NewContext(JS_GetRuntime(cx), 8L * 1024L);
      if(!subcx)
      {
-@@ -57,24 +71,30 @@ evalcx(JSContext *cx, JSObject *obj, uin
+@@ -57,24 +71,30 @@ evalcx(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
          return JS_FALSE;
      }
  
@@ -269,7 +283,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
          if(!bytes) return JS_FALSE;
  
          fprintf(stdout, "%s%s", i ? " " : "", bytes);
-@@ -113,9 +132,9 @@ print(JSContext *cx, JSObject *obj, uint
+@@ -113,9 +132,9 @@ print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
  }
  
  static JSBool
@@ -313,14 +327,13 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
 -            return NULL;
 -        }
 -        bytes = tmp;
--    }
--
--    *buflen = used;
 +    readlen = getline(&bytes, &byteslen, fp);
 +    if (readlen <= 0) {
 +       *buflen = 0;
 +       return bytes;
-+    }
+     }
+-
+-    *buflen = used;
 +    if (bytes[readlen-1] == '\n')
 +       bytes[readlen-1] = '\0';
 +    *buflen = readlen;
@@ -333,7 +346,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
      jschar *chars;
      JSString *str;
      char* bytes;
-@@ -173,7 +174,7 @@ readline(JSContext *cx, JSObject *obj, u
+@@ -173,7 +174,7 @@ readline(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
      /* Treat the empty string specially */
      if(byteslen == 0)
      {
@@ -342,7 +355,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
          JS_free(cx, bytes);
          return JS_TRUE;
      }
-@@ -191,28 +192,27 @@ readline(JSContext *cx, JSObject *obj, u
+@@ -191,28 +192,27 @@ readline(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
      JS_free(cx, bytes);
  
      if(!str) return JS_FALSE;
@@ -376,7 +389,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
      jsval result;
  
      if(!filename || strcmp(filename, "-") == 0)
-@@ -234,7 +234,6 @@ execute_script(JSContext *cx, JSObject *
+@@ -234,7 +234,6 @@ execute_script(JSContext *cx, JSObject *obj, const char *filename) {
      if(script)
      {
          JS_ExecuteScript(cx, obj, script, &result);
@@ -384,7 +397,7 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
      }
  }
  
-@@ -248,27 +247,13 @@ printerror(JSContext *cx, const char *me
+@@ -248,27 +247,13 @@ printerror(JSContext *cx, const char *mesg, JSErrorReport *report)
  }
  
  static JSFunctionSpec global_functions[] = {
@@ -428,10 +441,11 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/main.c.to_new_js apache-
      if (!global) return 1;
      if (!JS_InitStandardClasses(cx, global)) return 1;
      
-diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/utf8.c.to_new_js apache-couchdb-1.0.2/src/couchdb/priv/couch_js/utf8.c
---- apache-couchdb-1.0.2/src/couchdb/priv/couch_js/utf8.c.to_new_js	2009-11-27 07:41:39.000000000 +0100
-+++ apache-couchdb-1.0.2/src/couchdb/priv/couch_js/utf8.c	2011-05-03 16:14:16.946819926 +0200
-@@ -129,7 +129,7 @@ enc_string(JSContext* cx, jsval arg, siz
+diff --git a/src/couchdb/priv/couch_js/utf8.c b/src/couchdb/priv/couch_js/utf8.c
+index 699a6fe..9ccc256 100644
+--- a/src/couchdb/priv/couch_js/utf8.c
++++ b/src/couchdb/priv/couch_js/utf8.c
+@@ -129,7 +129,7 @@ enc_string(JSContext* cx, jsval arg, size_t* buflen)
      str = JS_ValueToString(cx, arg);
      if(!str) goto error;
  
@@ -447,3 +461,6 @@ diff -up apache-couchdb-1.0.2/src/couchdb/priv/couch_js/utf8.c.to_new_js apache-
 -}
 \ No newline at end of file
 +}
+-- 
+1.7.5.1
+

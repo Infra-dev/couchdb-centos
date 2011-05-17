@@ -1,7 +1,7 @@
-From ca6d9bd34d5231ad285caa5e3ae175cc10d0d36d Mon Sep 17 00:00:00 2001
+From 489b0334a7f9d8df2a313faba6c31ea70c989de6 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Mon, 7 Jun 2010 15:08:42 +0400
-Subject: [PATCH 10/13] Remove pid-file after stop
+Subject: [PATCH 06/11] Remove pid-file after stop
 
 ---
  bin/couchdb.tpl.in |    4 +---
@@ -24,5 +24,5 @@ index 94d4743..af5cb01 100644
              if kill -1 $PID 2> /dev/null; then
                  if test "$1" = "false"; then
 -- 
-1.7.4
+1.7.5.1
 
