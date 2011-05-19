@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.2
-Release:        2%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -16,16 +16,15 @@ Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
 Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
 Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
-Patch5:		couchdb-0005-Remove-bundled-erlang-oauth-library.patch
-Patch6:		couchdb-0006-Remove-bundled-etap-library.patch
-Patch7:		couchdb-0007-Remove-bundled-ibrowse-library.patch
-Patch8:		couchdb-0008-Remove-bundled-mochiweb-library.patch
-Patch9:		couchdb-0009-Fixes-for-system-wide-ibrowse.patch
-Patch10:	couchdb-0010-Remove-pid-file-after-stop.patch
-Patch11:	couchdb-0011-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
-Patch12:	couchdb-0012-Change-respawn-timeout-to-0.patch
-Patch13:	couchdb-0013-Relax-curl-dependency-to-7.15-for-RHEL5.patch
-Patch14:	couchdb-0014-Port-to-Spidermonkey-1.8.patch
+Patch5:		couchdb-0005-Don-t-use-bundled-etap-erlang-oauth-ibrowse-and-moch.patch
+Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
+Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
+Patch8:		couchdb-0008-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
+Patch9:		couchdb-0009-Change-respawn-timeout-to-0.patch
+Patch10:	couchdb-0010-Relax-curl-dependency-to-7.15-for-RHEL5.patch
+Patch11:	couchdb-0011-Added-Spidermonkey-1.8.5-patch.patch
+Patch12:	couchdb-0012-Replicator-fix-error-when-restarting-replications-in.patch
+
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 
@@ -78,19 +77,25 @@ JavaScript acting as the default view definition language.
 %patch2 -p1 -b .use_versioned_docdir
 %patch3 -p1 -b .more_init_dirs
 %patch4 -p1 -b .install_into_erldir
-%patch5 -p1 -b .remove_bundled_oauth
-%patch6 -p1 -b .remove_bundled_etap
-%patch7 -p1 -b .remove_bundled_ibrowse
-%patch8 -p1 -b .remove_bundled_mochiweb
-%patch9 -p1 -b .workaround_for_system_wide_ibrowse
-%patch10 -p1 -b .remove_pid_file
-%patch11 -p1 -b .fix_crash
-%patch12 -p1 -b .fix_respawn
+%patch5 -p1 -b .remove_bundled_libs
+%patch6 -p1 -b .workaround_for_system_wide_ibrowse
+%patch7 -p1 -b .remove_pid_file
+%patch8 -p1 -b .fix_crash
+%patch9 -p1 -b .fix_respawn
 %if 0%{?el5}
 # Erlang/OTP R12B5
-%patch13 -p1 -b .curl_7_15
+%patch10 -p1 -b .curl_7_15
 %endif
-%patch14 -p1 -b .to_new_js
+%if 0%{?fc15}%{?fc16}
+%patch11 -p1 -b .to_new_js
+%endif
+%patch12 -p1 -b .fix_R14B02
+
+# Remove bundled libraries
+rm -rf src/erlang-oauth
+rm -rf src/etap
+rm -rf src/ibrowse
+rm -rf src/mochiweb
 
 %build
 autoreconf -ivf
@@ -159,8 +164,14 @@ fi
 
 
 %changelog
-* Tue May  3 2011 Jan Horak <jhorak@redhat.com> - 1.0.2-2
-- Added patch for Spidermonkey 1.8.5
+* Thu May 19 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-4
+- Fixed issue with R14B02
+
+* Thu May  5 2011 Jan Horak <jhorak@redhat.com> - 1.0.2-3
+- Added Spidermonkey 1.8.5 patch
+
+* Mon Mar 07 2011 Caolán McNamara <caolanm@redhat.com> 1.0.2-2
+- rebuild for icu 4.6
 
 * Thu Nov 25 2010 Peter Lemenkov <lemenkov@gmail.com> 1.0.2-1
 - Ver. 1.0.2
