@@ -1,7 +1,7 @@
 From 3f37157da19e8ae2fecc52a3b39be959e17aa713 Mon Sep 17 00:00:00 2001
 From: Filipe David Borba Manana <fdmanana@apache.org>
 Date: Mon, 28 Mar 2011 11:08:58 +0000
-Subject: [PATCH 12/12] Replicator: fix error when restarting replications in
+Subject: [PATCH 12/13] Replicator: fix error when restarting replications in
  OTP R14B02
 
 This is a workaround for a change introduced in OTP R14B02 to the supervisor

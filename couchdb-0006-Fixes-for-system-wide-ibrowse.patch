@@ -1,7 +1,7 @@
 From a09f1bc003bfb3279ed5b5ac39eb799213b346bb Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:52:57 +0300
-Subject: [PATCH 06/12] Fixes for system-wide ibrowse
+Subject: [PATCH 06/13] Fixes for system-wide ibrowse
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---

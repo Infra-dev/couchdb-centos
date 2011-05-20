@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.2
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -24,6 +24,7 @@ Patch9:		couchdb-0009-Change-respawn-timeout-to-0.patch
 Patch10:	couchdb-0010-Relax-curl-dependency-to-7.15-for-RHEL5.patch
 Patch11:	couchdb-0011-Added-Spidermonkey-1.8.5-patch.patch
 Patch12:	couchdb-0012-Replicator-fix-error-when-restarting-replications-in.patch
+Patch13:	couchdb-0013-Fix-for-ibrowse-2.2.0.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -83,13 +84,16 @@ JavaScript acting as the default view definition language.
 %patch8 -p1 -b .fix_crash
 %patch9 -p1 -b .fix_respawn
 %if 0%{?el5}
-# Erlang/OTP R12B5
+# Old CURL library
 %patch10 -p1 -b .curl_7_15
 %endif
 %if 0%{?fc15}%{?fc16}
 %patch11 -p1 -b .to_new_js
 %endif
 %patch12 -p1 -b .fix_R14B02
+%if 0%{?fc15}%{?fc16}
+%patch13 -p1 -b .ibrowse_2_2_0
+%endif
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
@@ -164,6 +168,9 @@ fi
 
 
 %changelog
+* Fri May 20 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-5
+- Fixed issue with ibrowse-2.2.0
+
 * Thu May 19 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-4
 - Fixed issue with R14B02
 

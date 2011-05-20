@@ -1,7 +1,7 @@
 From 1ebb83df98c94e509666e80b14908696fc0113cc Mon Sep 17 00:00:00 2001
 From: Jan Horak <jhorak@redhat.com>
 Date: Thu, 5 May 2011 16:24:08 +0200
-Subject: [PATCH 11/12] Added Spidermonkey 1.8.5 patch
+Subject: [PATCH 11/13] Added Spidermonkey 1.8.5 patch
 
 ---
  src/couchdb/priv/couch_js/http.c |   66 ++++++++++++--------

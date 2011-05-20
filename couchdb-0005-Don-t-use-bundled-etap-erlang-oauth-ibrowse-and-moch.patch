@@ -1,7 +1,7 @@
 From 7113cf9456398a0f86280f07ed6b6056df4fdc36 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
-Subject: [PATCH 05/12] Don't use bundled etap, erlang-oauth, ibrowse and
+Subject: [PATCH 05/13] Don't use bundled etap, erlang-oauth, ibrowse and
  mochiweb
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>

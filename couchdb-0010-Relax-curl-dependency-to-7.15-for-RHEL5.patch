@@ -1,7 +1,7 @@
 From fcd8231239e4ca2da118e2c100fd39bc123b2e60 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:59:16 +0300
-Subject: [PATCH 10/12] Relax curl dependency to 7.15 (for RHEL5)
+Subject: [PATCH 10/13] Relax curl dependency to 7.15 (for RHEL5)
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
