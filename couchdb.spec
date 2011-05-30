@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.2
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -25,6 +25,7 @@ Patch10:	couchdb-0010-Relax-curl-dependency-to-7.15-for-RHEL5.patch
 Patch11:	couchdb-0011-Added-Spidermonkey-1.8.5-patch.patch
 Patch12:	couchdb-0012-Replicator-fix-error-when-restarting-replications-in.patch
 Patch13:	couchdb-0013-Fix-for-ibrowse-2.2.0.patch
+Patch14:	couchdb-0014-Fix-for-js-1.8.5.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -93,6 +94,9 @@ JavaScript acting as the default view definition language.
 %patch12 -p1 -b .fix_R14B02
 %if 0%{?fc15}%{?fc16}
 %patch13 -p1 -b .ibrowse_2_2_0
+%endif
+%if 0%{?fc15}%{?fc16}
+%patch14 -p1 -b .to_new_js_again
 %endif
 
 # Remove bundled libraries
@@ -168,6 +172,9 @@ fi
 
 
 %changelog
+* Mon May 30 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-6
+- Patched patch for new js-1.8.5
+
 * Fri May 20 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-5
 - Fixed issue with ibrowse-2.2.0
 

@@ -1,0 +1,92 @@
+From 7e6bc002508b34d21a025865f65a27c8f5969c43 Mon Sep 17 00:00:00 2001
+From: Martin Stransky <stransky@redhat.com>
+Date: Mon, 30 May 2011 21:12:59 +0400
+Subject: [PATCH 14/14] Fix for js-1.8.5
+
+---
+ src/couchdb/priv/couch_js/main.c |   29 +++++++++++++++++------------
+ 1 files changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/src/couchdb/priv/couch_js/main.c b/src/couchdb/priv/couch_js/main.c
+index 243e971..bcd8096 100644
+--- a/src/couchdb/priv/couch_js/main.c
++++ b/src/couchdb/priv/couch_js/main.c
+@@ -10,11 +10,13 @@
+ // License for the specific language governing permissions and limitations under
+ // the License.
+ 
++#include <assert.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <jsapi.h>
+ #include "config.h"
++
+ #include "utf8.h"
+ #include "http.h"
+ 
+@@ -46,6 +48,9 @@ static JSClass global_class = {
+     JSCLASS_NO_OPTIONAL_MEMBERS
+ };
+ 
++static void
++printerror(JSContext *cx, const char *mesg, JSErrorReport *report);
++
+ static JSBool
+ evalcx(JSContext *cx, uintN argc, jsval *vp)
+ {
+@@ -63,7 +68,6 @@ evalcx(JSContext *cx, uintN argc, jsval *vp)
+         return JS_FALSE;
+     }
+ 
+-
+     subcx = JS_NewContext(JS_GetRuntime(cx), 8L * 1024L);
+     if(!subcx)
+     {
+@@ -71,20 +75,17 @@ evalcx(JSContext *cx, uintN argc, jsval *vp)
+         return JS_FALSE;
+     }
+ 
+-    JSObject *global = JS_NewCompartmentAndGlobalObject(cx, &global_class, NULL);
+-    if (!global) return 1;
+-    JS_SetGlobalObject(subcx, global);
+-
+     SETUP_REQUEST(subcx);
+ 
+-    src = JS_GetStringCharsZ(cx, str);
+-    srclen = JS_GetStringLength(str);
+-
+     if(!sandbox)
+     {
+-        sandbox = JS_NewObject(subcx, NULL, NULL, NULL);
+-        if(!sandbox || !JS_InitStandardClasses(subcx, global)) goto done;
++        sandbox = JS_NewCompartmentAndGlobalObject(subcx, &global_class, NULL);
++        if(!sandbox || !JS_InitStandardClasses(subcx, sandbox)) goto done;
+     }
++    JS_SetGlobalObject(subcx, sandbox);
++
++    src = JS_GetStringCharsZ(subcx, str);
++    srclen = JS_GetStringLength(str);
+ 
+     if(srclen == 0)
+     {
+@@ -92,9 +93,13 @@ evalcx(JSContext *cx, uintN argc, jsval *vp)
+     }
+     else
+     {
+-        jsval rval; 
+-        JS_EvaluateUCScript(subcx, sandbox, src, srclen, NULL, 0, &rval);
+-        JS_SET_RVAL(cx, vp, rval);
++        JSObject *script = JS_CompileUCScript(subcx, sandbox, src, srclen, NULL, 0);
++        jsval rval;
++        if(script)
++        {
++            JS_ExecuteScript(subcx, sandbox, script, &rval);
++            JS_SET_RVAL(cx, vp, rval);
++        }
+     }
+     
+     ret = JS_TRUE;
+-- 
+1.7.5.2
+
