@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.2
-Release:        3%{?dist}
+Release:        7%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -16,16 +16,17 @@ Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
 Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
 Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
-Patch5:		couchdb-0005-Remove-bundled-erlang-oauth-library.patch
-Patch6:		couchdb-0006-Remove-bundled-etap-library.patch
-Patch7:		couchdb-0007-Remove-bundled-ibrowse-library.patch
-Patch8:		couchdb-0008-Remove-bundled-mochiweb-library.patch
-Patch9:		couchdb-0009-Fixes-for-system-wide-ibrowse.patch
-Patch10:	couchdb-0010-Remove-pid-file-after-stop.patch
-Patch11:	couchdb-0011-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
-Patch12:	couchdb-0012-Change-respawn-timeout-to-0.patch
-Patch13:	couchdb-0013-Relax-curl-dependency-to-7.15-for-RHEL5.patch
-Patch14:	couchdb-0014-Port-to-Spidermonkey-1.8.patch
+Patch5:		couchdb-0005-Don-t-use-bundled-etap-erlang-oauth-ibrowse-and-moch.patch
+Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
+Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
+Patch8:		couchdb-0008-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
+Patch9:		couchdb-0009-Change-respawn-timeout-to-0.patch
+Patch10:	couchdb-0010-Relax-curl-dependency-to-7.15-for-RHEL5.patch
+Patch11:	couchdb-0011-Added-Spidermonkey-1.8.5-patch.patch
+Patch12:	couchdb-0012-Replicator-fix-error-when-restarting-replications-in.patch
+Patch13:	couchdb-0013-Fix-for-ibrowse-2.2.0.patch
+Patch14:	couchdb-0014-Fix-for-js-1.8.5.patch
+
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 
@@ -35,7 +36,7 @@ BuildRequires:  libtool
 BuildRequires:	curl-devel
 BuildRequires:	erlang-erts
 BuildRequires:	erlang-etap
-BuildRequires:	erlang-ibrowse
+BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
 BuildRequires:	erlang-oauth
 BuildRequires:	help2man
@@ -46,7 +47,7 @@ BuildRequires:	perl(Test::Harness)
 
 Requires:	erlang-crypto
 Requires:	erlang-erts
-Requires:	erlang-ibrowse >= 2.1.0
+Requires:	erlang-ibrowse >= 2.2.0
 Requires:	erlang-inets
 Requires:	erlang-kernel
 Requires:	erlang-mochiweb
@@ -78,19 +79,29 @@ JavaScript acting as the default view definition language.
 %patch2 -p1 -b .use_versioned_docdir
 %patch3 -p1 -b .more_init_dirs
 %patch4 -p1 -b .install_into_erldir
-%patch5 -p1 -b .remove_bundled_oauth
-%patch6 -p1 -b .remove_bundled_etap
-%patch7 -p1 -b .remove_bundled_ibrowse
-%patch8 -p1 -b .remove_bundled_mochiweb
-%patch9 -p1 -b .workaround_for_system_wide_ibrowse
-%patch10 -p1 -b .remove_pid_file
-%patch11 -p1 -b .fix_crash
-%patch12 -p1 -b .fix_respawn
+%patch5 -p1 -b .remove_bundled_libs
+%patch6 -p1 -b .workaround_for_system_wide_ibrowse
+%patch7 -p1 -b .remove_pid_file
+%patch8 -p1 -b .fix_crash
+%patch9 -p1 -b .fix_respawn
 %if 0%{?el5}
-# Erlang/OTP R12B5
-%patch13 -p1 -b .curl_7_15
+# Old CURL library
+%patch10 -p1 -b .curl_7_15
+%endif
+%patch12 -p1 -b .fix_R14B02
+%patch13 -p1 -b .ibrowse_2_2_0
+# JS 1.8.5
+%if 0%{?fc15}%{?fc16}
+%patch11 -p1 -b .to_new_js
+%patch14 -p1 -b .to_new_js_again
 %endif
 %patch14 -p1 -b .to_new_js
+
+# Remove bundled libraries
+rm -rf src/erlang-oauth
+rm -rf src/etap
+rm -rf src/ibrowse
+rm -rf src/mochiweb
 
 %build
 autoreconf -ivf
@@ -107,6 +118,12 @@ install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
 
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
+
+# create /etc/tmpfiles.d entry
+%if 0%{?fc15}%{?fc16}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
+echo "d /var/run/couchdb 0755 %{couchdb_user} root" > $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+%endif
 
 
 %check
@@ -139,26 +156,42 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README THANKS
-%dir %{_sysconfdir}/couchdb
-%dir %{_sysconfdir}/couchdb/local.d
-%dir %{_sysconfdir}/couchdb/default.d
-%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/default.ini
-%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/local.ini
-%config(noreplace) %{_sysconfdir}/sysconfig/couchdb
-%config(noreplace) %{_sysconfdir}/logrotate.d/couchdb
-%{_initrddir}/couchdb
-%{_bindir}/couchdb
+%dir %{_sysconfdir}/%{name}
+%dir %{_sysconfdir}/%{name}/local.d
+%dir %{_sysconfdir}/%{name}/default.d
+%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/default.ini
+%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/local.ini
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%if 0%{?fc15}%{?fc16}
+%{_sysconfdir}/tmpfiles.d/%{name}.conf
+%endif
+%{_initrddir}/%{name}
+%{_bindir}/%{name}
 %{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}
-%{_datadir}/couchdb
-%{_mandir}/man1/couchdb.1.*
+%{_datadir}/%{name}
+%{_mandir}/man1/%{name}.1.*
 %{_mandir}/man1/couchjs.1.*
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/couchdb
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/run/couchdb
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
+%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/%{name}
+%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/run/%{name}
+%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/%{name}
 
 
 %changelog
+* Sat Jun 18 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-7
+- Requires ibrowse >= 2.2.0 for building
+- Fixes for /var/run mounted as tmpfs (see rhbz #656565, #712681)
+
+* Mon May 30 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-6
+- Patched patch for new js-1.8.5
+
+* Fri May 20 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-5
+- Fixed issue with ibrowse-2.2.0
+
+* Thu May 19 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-4
+- Fixed issue with R14B02
+
 * Thu May  5 2011 Jan Horak <jhorak@redhat.com> - 1.0.2-3
 - Added Spidermonkey 1.8.5 patch
 

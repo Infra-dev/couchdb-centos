@@ -1,13 +1,13 @@
-From 8741c02edcd6251a01774471d51325ac7bf055f5 Mon Sep 17 00:00:00 2001
+From a09f1bc003bfb3279ed5b5ac39eb799213b346bb Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:52:57 +0300
-Subject: [PATCH 09/13] Fixes for system-wide ibrowse
+Subject: [PATCH 06/13] Fixes for system-wide ibrowse
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
  src/couchdb/couch_rep_changes_feed.erl |    2 +-
- src/couchdb/couch_rep_httpc.erl        |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ src/couchdb/couch_rep_httpc.erl        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/couchdb/couch_rep_changes_feed.erl b/src/couchdb/couch_rep_changes_feed.erl
 index 4d1afcb..032f62a 100644
@@ -23,7 +23,7 @@ index 4d1afcb..032f62a 100644
  -record (state, {
      changes_from = nil,
 diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
-index e535c0d..e13b00c 100644
+index e535c0d..2e567e7 100644
 --- a/src/couchdb/couch_rep_httpc.erl
 +++ b/src/couchdb/couch_rep_httpc.erl
 @@ -12,7 +12,7 @@
@@ -35,15 +35,6 @@ index e535c0d..e13b00c 100644
  
  -export([db_exists/1, db_exists/2, full_url/1, request/1, redirected_request/2,
      redirect_url/2, spawn_worker_process/1, spawn_link_worker_process/1]).
-@@ -218,7 +218,7 @@ redirected_request(Req, RedirectUrl) ->
- 
- spawn_worker_process(Req) ->
-     Url = ibrowse_lib:parse_url(Req#http_db.url),
--    {ok, Pid} = ibrowse_http_client:start(Url),
-+    {ok, Pid} = ibrowse_http_client:start({undefined, Url, {[{ssl_imp, new}], (Url#url.protocol == https)}}),
-     Pid.
- 
- spawn_link_worker_process(Req) ->
 -- 
-1.7.4
+1.7.5.1
 
