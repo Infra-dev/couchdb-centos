@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.2
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -36,7 +36,7 @@ BuildRequires:  libtool
 BuildRequires:	curl-devel
 BuildRequires:	erlang-erts
 BuildRequires:	erlang-etap
-BuildRequires:	erlang-ibrowse
+BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
 BuildRequires:	erlang-oauth
 BuildRequires:	help2man
@@ -47,7 +47,7 @@ BuildRequires:	perl(Test::Harness)
 
 Requires:	erlang-crypto
 Requires:	erlang-erts
-Requires:	erlang-ibrowse >= 2.1.0
+Requires:	erlang-ibrowse >= 2.2.0
 Requires:	erlang-inets
 Requires:	erlang-kernel
 Requires:	erlang-mochiweb
@@ -88,14 +88,11 @@ JavaScript acting as the default view definition language.
 # Old CURL library
 %patch10 -p1 -b .curl_7_15
 %endif
+%patch12 -p1 -b .fix_R14B02
+%patch13 -p1 -b .ibrowse_2_2_0
+# JS 1.8.5
 %if 0%{?fc15}%{?fc16}
 %patch11 -p1 -b .to_new_js
-%endif
-%patch12 -p1 -b .fix_R14B02
-%if 0%{?fc15}%{?fc16}
-%patch13 -p1 -b .ibrowse_2_2_0
-%endif
-%if 0%{?fc15}%{?fc16}
 %patch14 -p1 -b .to_new_js_again
 %endif
 
@@ -120,6 +117,12 @@ install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
 
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
+
+# create /etc/tmpfiles.d entry
+%if 0%{?fc15}%{?fc16}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
+echo "d /var/run/couchdb 0755 %{couchdb_user} root" > $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+%endif
 
 
 %check
@@ -152,26 +155,33 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README THANKS
-%dir %{_sysconfdir}/couchdb
-%dir %{_sysconfdir}/couchdb/local.d
-%dir %{_sysconfdir}/couchdb/default.d
-%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/default.ini
-%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/couchdb/local.ini
-%config(noreplace) %{_sysconfdir}/sysconfig/couchdb
-%config(noreplace) %{_sysconfdir}/logrotate.d/couchdb
-%{_initrddir}/couchdb
-%{_bindir}/couchdb
+%dir %{_sysconfdir}/%{name}
+%dir %{_sysconfdir}/%{name}/local.d
+%dir %{_sysconfdir}/%{name}/default.d
+%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/default.ini
+%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/local.ini
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%if 0%{?fc15}%{?fc16}
+%{_sysconfdir}/tmpfiles.d/%{name}.conf
+%endif
+%{_initrddir}/%{name}
+%{_bindir}/%{name}
 %{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}
-%{_datadir}/couchdb
-%{_mandir}/man1/couchdb.1.*
+%{_datadir}/%{name}
+%{_mandir}/man1/%{name}.1.*
 %{_mandir}/man1/couchjs.1.*
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/couchdb
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/run/couchdb
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/couchdb
+%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/%{name}
+%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/run/%{name}
+%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/%{name}
 
 
 %changelog
+* Sat Jun 18 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-7
+- Requires ibrowse >= 2.2.0 for building
+- Fixes for /var/run mounted as tmpfs (see rhbz #656565, #712681)
+
 * Mon May 30 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-6
 - Patched patch for new js-1.8.5
 
