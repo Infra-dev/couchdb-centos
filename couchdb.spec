@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.2
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -26,6 +26,8 @@ Patch11:	couchdb-0011-Added-Spidermonkey-1.8.5-patch.patch
 Patch12:	couchdb-0012-Replicator-fix-error-when-restarting-replications-in.patch
 Patch13:	couchdb-0013-Fix-for-ibrowse-2.2.0.patch
 Patch14:	couchdb-0014-Fix-for-js-1.8.5.patch
+
+Patch99:	couchdb-9999-Autoreconf.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -95,7 +97,6 @@ JavaScript acting as the default view definition language.
 %patch11 -p1 -b .to_new_js
 %patch14 -p1 -b .to_new_js_again
 %endif
-%patch14 -p1 -b .to_new_js
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
@@ -103,8 +104,17 @@ rm -rf src/etap
 rm -rf src/ibrowse
 rm -rf src/mochiweb
 
+%if 0%{?el5}
+# ugly hack to overcome limitations of outdated autotools in EL-5
+%patch99 -p1 -b .autoreconf
+%endif
+
 %build
+%if 0%{?el5}
+echo "no need to reconfigure on EL-5, see patch 99"
+%else
 autoreconf -ivf
+%endif
 %configure
 make %{?_smp_mflags}
 
@@ -179,6 +189,9 @@ fi
 
 
 %changelog
+* Tue Jul 12 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-8
+- Build for EL-5 (see patch99 - quite ugly, I know)
+
 * Sat Jun 18 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-7
 - Requires ibrowse >= 2.2.0 for building
 - Fixes for /var/run mounted as tmpfs (see rhbz #656565, #712681)
