@@ -3,8 +3,8 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        1.0.2
-Release:        8%{?dist}
+Version:        1.0.3
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -22,11 +22,9 @@ Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
 Patch8:		couchdb-0008-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
 Patch9:		couchdb-0009-Change-respawn-timeout-to-0.patch
 Patch10:	couchdb-0010-Relax-curl-dependency-to-7.15-for-RHEL5.patch
-Patch11:	couchdb-0011-Added-Spidermonkey-1.8.5-patch.patch
+Patch11:	couchdb-0011-Spidermonkey-1.8.5-patch.patch
 Patch12:	couchdb-0012-Replicator-fix-error-when-restarting-replications-in.patch
-Patch13:	couchdb-0013-Fix-for-ibrowse-2.2.0.patch
-Patch14:	couchdb-0014-Fix-for-js-1.8.5.patch
-
+Patch13:	couchdb-0013-Use-pkg-config.patch
 Patch99:	couchdb-9999-Autoreconf.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -90,13 +88,12 @@ JavaScript acting as the default view definition language.
 # Old CURL library
 %patch10 -p1 -b .curl_7_15
 %endif
-%patch12 -p1 -b .fix_R14B02
-%patch13 -p1 -b .ibrowse_2_2_0
-# JS 1.8.5
 %if 0%{?fc15}%{?fc16}
+# JS 1.8.5
 %patch11 -p1 -b .to_new_js
-%patch14 -p1 -b .to_new_js_again
 %endif
+%patch12 -p1 -b .fix_R14B02
+#%patch13 -p1 -b .pkgconfig
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
@@ -189,6 +186,9 @@ fi
 
 
 %changelog
+* Thu Jul 21 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.3-1
+- Ver. 1.0.3
+
 * Tue Jul 12 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.2-8
 - Build for EL-5 (see patch99 - quite ugly, I know)
 

@@ -1,4 +1,4 @@
-From 3f37157da19e8ae2fecc52a3b39be959e17aa713 Mon Sep 17 00:00:00 2001
+From 032a4e3b167a1dab3d932d9d6713e63709f5ec28 Mon Sep 17 00:00:00 2001
 From: Filipe David Borba Manana <fdmanana@apache.org>
 Date: Mon, 28 Mar 2011 11:08:58 +0000
 Subject: [PATCH 12/13] Replicator: fix error when restarting replications in
@@ -15,10 +15,10 @@ git-svn-id: https://svn.apache.org/repos/asf/couchdb/trunk@1086185 13f79535-47bb
  1 files changed, 7 insertions(+), 0 deletions(-)
 
 diff --git a/src/couchdb/couch_rep.erl b/src/couchdb/couch_rep.erl
-index c804b49..d94d042 100644
+index c681425..1b8a23a 100644
 --- a/src/couchdb/couch_rep.erl
 +++ b/src/couchdb/couch_rep.erl
-@@ -317,6 +317,13 @@ start_replication_server(Replicator) ->
+@@ -324,6 +324,13 @@ start_replication_server(Replicator) ->
                  supervisor:start_child(couch_rep_sup, Replicator),
              ?LOG_DEBUG("replication ~p already running at ~p", [RepId, Pid]),
              Pid;
@@ -33,5 +33,5 @@ index c804b49..d94d042 100644
              throw({db_not_found, <<"could not open ", DbUrl/binary>>});
          {error, {unauthorized, DbUrl}} ->
 -- 
-1.7.5.1
+1.7.6
 

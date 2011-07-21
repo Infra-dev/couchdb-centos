@@ -1,4 +1,4 @@
-From 4bd09efc05b341514d854a5382ef7f967cf1e404 Mon Sep 17 00:00:00 2001
+From e6e44926388094d11d4190de4061e02e7c7642d6 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 26 Aug 2010 13:22:56 +0400
 Subject: [PATCH 09/13] Change respawn timeout to 0.
@@ -20,5 +20,5 @@ index c2a3f2a..f589c0a 100644
 +COUCHDB_RESPAWN_TIMEOUT=0
  COUCHDB_OPTIONS=
 -- 
-1.7.5.1
+1.7.6
 

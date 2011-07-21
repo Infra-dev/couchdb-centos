@@ -1,4 +1,4 @@
-From 7113cf9456398a0f86280f07ed6b6056df4fdc36 Mon Sep 17 00:00:00 2001
+From b139293116bc7d9104f89f9e2de7da1c0b121676 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
 Subject: [PATCH 05/13] Don't use bundled etap, erlang-oauth, ibrowse and
@@ -37,7 +37,7 @@ index b9529f9..753b177 100644
 -SUBDIRS = couchdb erlang-oauth etap ibrowse mochiweb
 +SUBDIRS = couchdb
 diff --git a/test/etap/test_util.erl.in b/test/etap/test_util.erl.in
-index 4c42edb..2650fbb 100644
+index 460b029..b013d50 100644
 --- a/test/etap/test_util.erl.in
 +++ b/test/etap/test_util.erl.in
 @@ -22,7 +22,7 @@ builddir() ->
@@ -47,8 +47,8 @@ index 4c42edb..2650fbb 100644
 -    Paths = ["etap", "couchdb", "erlang-oauth", "ibrowse", "mochiweb"],
 +    Paths = ["couchdb"],
      lists:foreach(fun(Name) ->
-         code:add_pathz(filename:join([builddir(), "src", Name]))
+         code:add_patha(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.7.5.1
+1.7.6
 

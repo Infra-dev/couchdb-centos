@@ -1,4 +1,4 @@
-From 0f86f6e868dbdcbf832f28639bdc4c23e3304799 Mon Sep 17 00:00:00 2001
+From 732f47725cb66c1396944d28d541cf42052d3eb6 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 13:52:38 +0300
 Subject: [PATCH 01/13] Do not gzip doc-files and do not install installation
@@ -85,5 +85,5 @@ index 6530287..dc4b8ce 100644
  	$(top_builddir)/test/etap/run
  
 -- 
-1.7.5.1
+1.7.6
 
