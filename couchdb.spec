@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.0.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -186,6 +186,9 @@ fi
 
 
 %changelog
+* Mon Sep 19 2011 Peter Lemenkov <lemenkov@gmail.com> - 1.0.3-3
+- Rebuilt with new libicu
+
 * Mon Aug 15 2011 Kalev Lember <kalevlember@gmail.com> - 1.0.3-2
 - Rebuilt for rpm bug #728707
 
