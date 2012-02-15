@@ -4,17 +4,17 @@
 
 Name:           couchdb
 Version:        1.0.3
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
-Source1:        %{name}.init
+Source1:        %{name}.service
 Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
-Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
+#Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
 Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
 Patch5:		couchdb-0005-Don-t-use-bundled-etap-erlang-oauth-ibrowse-and-moch.patch
 Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
@@ -57,8 +57,12 @@ Requires:	erlang-stdlib
 Requires:	erlang-tools
 
 #Initscripts
-Requires(post): chkconfig
-Requires(preun): chkconfig initscripts
+#Requires(post): chkconfig
+#Requires(preun): chkconfig initscripts
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
+
 
 # Users and groups
 Requires(pre): shadow-utils
@@ -77,7 +81,7 @@ JavaScript acting as the default view definition language.
 %setup -q -n apache-%{name}-%{version}
 %patch1 -p1 -b .dont_gzip
 %patch2 -p1 -b .use_versioned_docdir
-%patch3 -p1 -b .more_init_dirs
+#%patch3 -p1 -b .more_init_dirs
 %patch4 -p1 -b .install_into_erldir
 %patch5 -p1 -b .remove_bundled_libs
 %patch6 -p1 -b .workaround_for_system_wide_ibrowse
@@ -121,7 +125,8 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Install our custom couchdb initscript
-install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
+install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_unitdir}/%{name}.service
+rm -rf $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/
 
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
@@ -150,14 +155,43 @@ exit 0
 
 
 %post
-/sbin/chkconfig --add couchdb
+#/sbin/chkconfig --add couchdb
+if [ $1 -eq 1 ] ; then 
+    # Initial installation 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
 
 
 %preun
-if [ $1 = 0 ] ; then
-    /sbin/service couchdb stop >/dev/null 2>&1
-    /sbin/chkconfig --del couchdb
+#if [ $1 = 0 ] ; then
+#    /sbin/service couchdb stop >/dev/null 2>&1
+#    /sbin/chkconfig --del couchdb
+#fi
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable couchdb.service > /dev/null 2>&1 || :
+    /bin/systemctl stop couchdb.service > /dev/null 2>&1 || :
 fi
+
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart couchdb.service >/dev/null 2>&1 || :
+fi
+
+
+%triggerun -- couchdb < 1.0.3-5
+# Save the current service runlevel info
+# User must manually run systemd-sysv-convert --apply httpd
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save couchdb >/dev/null 2>&1 ||:
+
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del couchdb >/dev/null 2>&1 || :
+/bin/systemctl try-restart couchdb.service >/dev/null 2>&1 || :
+
 
 
 %files
@@ -173,7 +207,7 @@ fi
 %if 0%{?fc15}%{?fc16}
 %{_sysconfdir}/tmpfiles.d/%{name}.conf
 %endif
-%{_initrddir}/%{name}
+%{_unitdir}/%{name}.service
 %{_bindir}/%{name}
 %{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}
@@ -186,6 +220,9 @@ fi
 
 
 %changelog
+* Wed Feb 15 2012 Jon Ciesla <limburgher@gmail.com> - 1.0.3-5
+- Migrate to systemd, BZ 771434.
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.3-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 

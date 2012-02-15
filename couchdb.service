@@ -1,0 +1,12 @@
+[Unit]
+Description=CouchDB Server
+After=network.target
+
+[Service]
+User=couchdb
+Type=forking
+PIDFile=/run/couchdb/couchdb.pid
+ExecStart=/usr/bin/couchdb -r 0 -e /dev/null -o /dev/null -b
+
+[Install]
+WantedBy=multi-user.target
