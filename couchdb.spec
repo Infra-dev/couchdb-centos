@@ -4,17 +4,18 @@
 
 Name:           couchdb
 Version:        1.0.3
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
-Source1:        %{name}.service
+Source1:        %{name}.init
+Source2:        %{name}.service
 Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
-#Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
+Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
 Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
 Patch5:		couchdb-0005-Don-t-use-bundled-etap-erlang-oauth-ibrowse-and-moch.patch
 Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
@@ -57,12 +58,14 @@ Requires:	erlang-stdlib
 Requires:	erlang-tools
 
 #Initscripts
-#Requires(post): chkconfig
-#Requires(preun): chkconfig initscripts
+%if 0%{?fc17}%{?fc18}
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
-
+%else
+Requires(post): chkconfig
+Requires(preun): chkconfig initscripts
+%endif
 
 # Users and groups
 Requires(pre): shadow-utils
@@ -81,7 +84,7 @@ JavaScript acting as the default view definition language.
 %setup -q -n apache-%{name}-%{version}
 %patch1 -p1 -b .dont_gzip
 %patch2 -p1 -b .use_versioned_docdir
-#%patch3 -p1 -b .more_init_dirs
+%patch3 -p1 -b .more_init_dirs
 %patch4 -p1 -b .install_into_erldir
 %patch5 -p1 -b .remove_bundled_libs
 %patch6 -p1 -b .workaround_for_system_wide_ibrowse
@@ -92,7 +95,7 @@ JavaScript acting as the default view definition language.
 # Old CURL library
 %patch10 -p1 -b .curl_7_15
 %endif
-%if 0%{?fc15}%{?fc16}
+%if 0%{?fc15}%{?fc16}%{?fc17}%{?fc18}
 # JS 1.8.5
 %patch11 -p1 -b .to_new_js
 %endif
@@ -125,14 +128,18 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Install our custom couchdb initscript
-install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_unitdir}/%{name}.service
+%if 0%{?fc17}%{?fc18}
+install -D -m 755 %{SOURCE2} $RPM_BUILD_ROOT%{_unitdir}/%{name}.service
 rm -rf $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/
+%else
+install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
+%endif
 
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
 
 # create /etc/tmpfiles.d entry
-%if 0%{?fc15}%{?fc16}
+%if 0%{?fc15}%{?fc16}%{?fc17}%{?fc18}
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
 echo "d /var/run/couchdb 0755 %{couchdb_user} root" > $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 %endif
@@ -155,33 +162,42 @@ exit 0
 
 
 %post
-#/sbin/chkconfig --add couchdb
+%if 0%{?fc17}%{?fc18}
 if [ $1 -eq 1 ] ; then 
     # Initial installation 
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
+%else
+/sbin/chkconfig --add couchdb
+%endif
 
 
 %preun
-#if [ $1 = 0 ] ; then
-#    /sbin/service couchdb stop >/dev/null 2>&1
-#    /sbin/chkconfig --del couchdb
-#fi
+%if 0%{?fc17}%{?fc18}
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
     /bin/systemctl --no-reload disable couchdb.service > /dev/null 2>&1 || :
     /bin/systemctl stop couchdb.service > /dev/null 2>&1 || :
 fi
+%else
+if [ $1 = 0 ] ; then
+    /sbin/service couchdb stop >/dev/null 2>&1
+    /sbin/chkconfig --del couchdb
+fi
+%endif
 
 
 %postun
+%if 0%{?fc17}%{?fc18}
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     /bin/systemctl try-restart couchdb.service >/dev/null 2>&1 || :
 fi
+%endif
 
 
+%if 0%{?fc17}%{?fc18}
 %triggerun -- couchdb < 1.0.3-5
 # Save the current service runlevel info
 # User must manually run systemd-sysv-convert --apply httpd
@@ -191,6 +207,7 @@ fi
 # Run these because the SysV package being removed won't do them
 /sbin/chkconfig --del couchdb >/dev/null 2>&1 || :
 /bin/systemctl try-restart couchdb.service >/dev/null 2>&1 || :
+%endif
 
 
 
@@ -204,10 +221,14 @@ fi
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/local.ini
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%if 0%{?fc15}%{?fc16}
+%if 0%{?fc15}%{?fc16}%{?fc17}%{?fc18}
 %{_sysconfdir}/tmpfiles.d/%{name}.conf
 %endif
+%if 0%{?fc17}%{?fc18}
 %{_unitdir}/%{name}.service
+%else
+%{_initrddir}/%{name}
+%endif
 %{_bindir}/%{name}
 %{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}
@@ -220,6 +241,9 @@ fi
 
 
 %changelog
+* Sun Mar 11 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.0.3-6
+- Fix building on f18
+
 * Wed Feb 15 2012 Jon Ciesla <limburgher@gmail.com> - 1.0.3-5
 - Migrate to systemd, BZ 771434.
 
