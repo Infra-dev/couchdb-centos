@@ -1,7 +1,7 @@
-From 732f47725cb66c1396944d28d541cf42052d3eb6 Mon Sep 17 00:00:00 2001
+From 89b7784e0a1101207d5ecf8b3c90c03ce7c8d42f Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 13:52:38 +0300
-Subject: [PATCH 01/13] Do not gzip doc-files and do not install installation
+Subject: [PATCH 1/9] Do not gzip doc-files and do not install installation
  instructions
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
@@ -10,7 +10,7 @@ Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
  1 files changed, 9 insertions(+), 48 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 6530287..dc4b8ce 100644
+index 2d0bbbe..14d57e9 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -15,18 +15,15 @@ SUBDIRS = bin etc src share test var utils
@@ -85,5 +85,5 @@ index 6530287..dc4b8ce 100644
  	$(top_builddir)/test/etap/run
  
 -- 
-1.7.6
+1.7.8.3
 

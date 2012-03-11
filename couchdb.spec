@@ -3,8 +3,8 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        1.0.3
-Release:        6%{?dist}
+Version:        1.1.1
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -20,13 +20,8 @@ Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
 Patch5:		couchdb-0005-Don-t-use-bundled-etap-erlang-oauth-ibrowse-and-moch.patch
 Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
 Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
-Patch8:		couchdb-0008-deleting-a-DB-while-it-was-being-opened-would-crash-.patch
-Patch9:		couchdb-0009-Change-respawn-timeout-to-0.patch
-Patch10:	couchdb-0010-Relax-curl-dependency-to-7.15-for-RHEL5.patch
-Patch11:	couchdb-0011-Spidermonkey-1.8.5-patch.patch
-Patch12:	couchdb-0012-Replicator-fix-error-when-restarting-replications-in.patch
-Patch13:	couchdb-0013-Use-pkg-config.patch
-Patch99:	couchdb-9999-Autoreconf.patch
+Patch8:		couchdb-0008-Change-respawn-timeout-to-0.patch
+Patch9:		couchdb-0009-Replicator-fix-error-when-restarting-replications-in.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -34,8 +29,8 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  libtool
-BuildRequires:	curl-devel
-BuildRequires:	erlang-erts
+BuildRequires:	curl-devel >= 7.18.0
+Requires:	erlang-erts >= R13B
 BuildRequires:	erlang-etap
 BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
@@ -47,7 +42,7 @@ BuildRequires:	libicu-devel
 BuildRequires:	perl(Test::Harness)
 
 Requires:	erlang-crypto
-Requires:	erlang-erts
+Requires:	erlang-erts >= R13B
 Requires:	erlang-ibrowse >= 2.2.0
 Requires:	erlang-inets
 Requires:	erlang-kernel
@@ -89,18 +84,8 @@ JavaScript acting as the default view definition language.
 %patch5 -p1 -b .remove_bundled_libs
 %patch6 -p1 -b .workaround_for_system_wide_ibrowse
 %patch7 -p1 -b .remove_pid_file
-%patch8 -p1 -b .fix_crash
-%patch9 -p1 -b .fix_respawn
-%if 0%{?el5}
-# Old CURL library
-%patch10 -p1 -b .curl_7_15
-%endif
-%if 0%{?fc15}%{?fc16}%{?fc17}%{?fc18}
-# JS 1.8.5
-%patch11 -p1 -b .to_new_js
-%endif
-%patch12 -p1 -b .fix_R14B02
-#%patch13 -p1 -b .pkgconfig
+%patch8 -p1 -b .fix_respawn
+%patch9 -p1 -b .fix_R14B02
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
@@ -108,17 +93,9 @@ rm -rf src/etap
 rm -rf src/ibrowse
 rm -rf src/mochiweb
 
-%if 0%{?el5}
-# ugly hack to overcome limitations of outdated autotools in EL-5
-%patch99 -p1 -b .autoreconf
-%endif
 
 %build
-%if 0%{?el5}
-echo "no need to reconfigure on EL-5, see patch 99"
-%else
 autoreconf -ivf
-%endif
 %configure
 make %{?_smp_mflags}
 
@@ -241,6 +218,9 @@ fi
 
 
 %changelog
+* Sun Mar 11 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.1.1-1
+- Ver. 1.1.1
+
 * Sun Mar 11 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.0.3-6
 - Fix building on f18
 

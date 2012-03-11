@@ -1,7 +1,7 @@
-From b139293116bc7d9104f89f9e2de7da1c0b121676 Mon Sep 17 00:00:00 2001
+From bc8f16336c1ed96cec2dcf5b5c4e3b26ba3bbe04 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
-Subject: [PATCH 05/13] Don't use bundled etap, erlang-oauth, ibrowse and
+Subject: [PATCH 5/9] Don't use bundled etap, erlang-oauth, ibrowse and
  mochiweb
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
@@ -12,10 +12,10 @@ Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
  3 files changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 248bff7..9c10cf7 100644
+index 07e27ff..d431d69 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -404,10 +404,6 @@ AC_CONFIG_FILES([src/Makefile])
+@@ -449,10 +449,6 @@ AC_CONFIG_FILES([src/Makefile])
  AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
@@ -37,10 +37,10 @@ index b9529f9..753b177 100644
 -SUBDIRS = couchdb erlang-oauth etap ibrowse mochiweb
 +SUBDIRS = couchdb
 diff --git a/test/etap/test_util.erl.in b/test/etap/test_util.erl.in
-index 460b029..b013d50 100644
+index b986ff3..829b226 100644
 --- a/test/etap/test_util.erl.in
 +++ b/test/etap/test_util.erl.in
-@@ -22,7 +22,7 @@ builddir() ->
+@@ -23,7 +23,7 @@ builddir() ->
      "@abs_top_builddir@".
  
  init_code_path() ->
@@ -50,5 +50,5 @@ index 460b029..b013d50 100644
          code:add_patha(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.7.6
+1.7.8.3
 

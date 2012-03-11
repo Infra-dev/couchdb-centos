@@ -1,34 +1,48 @@
-From cd1260d2b1fd19a5f751226c62594694c71f1062 Mon Sep 17 00:00:00 2001
+From 24f68c987b2fadf0ec1001e0783d017cb130591e Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:52:57 +0300
-Subject: [PATCH 06/13] Fixes for system-wide ibrowse
+Subject: [PATCH 6/9] Fixes for system-wide ibrowse
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
+ src/couchdb/couch_httpd_proxy.erl      |    2 +-
  src/couchdb/couch_rep.erl              |    2 +-
  src/couchdb/couch_rep_changes_feed.erl |    2 +-
  src/couchdb/couch_rep_httpc.erl        |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/src/couchdb/couch_rep.erl b/src/couchdb/couch_rep.erl
-index 47e22e9..c681425 100644
---- a/src/couchdb/couch_rep.erl
-+++ b/src/couchdb/couch_rep.erl
-@@ -18,7 +18,7 @@
- -export([replicate/2, checkpoint/1]).
+diff --git a/src/couchdb/couch_httpd_proxy.erl b/src/couchdb/couch_httpd_proxy.erl
+index 65e3e43..c196f72 100644
+--- a/src/couchdb/couch_httpd_proxy.erl
++++ b/src/couchdb/couch_httpd_proxy.erl
+@@ -14,7 +14,7 @@
+ -export([handle_proxy_req/2]).
  
  -include("couch_db.hrl").
 --include("../ibrowse/ibrowse.hrl").
 +-include_lib("ibrowse/include/ibrowse.hrl").
  
- -record(state, {
-     changes_feed,
+ -define(TIMEOUT, infinity).
+ -define(PKT_SIZE, 4096).
+diff --git a/src/couchdb/couch_rep.erl b/src/couchdb/couch_rep.erl
+index 9d90fee..20b2602 100644
+--- a/src/couchdb/couch_rep.erl
++++ b/src/couchdb/couch_rep.erl
+@@ -20,7 +20,7 @@
+ -export([start_replication/3, end_replication/1, get_result/4]).
+ 
+ -include("couch_db.hrl").
+--include("../ibrowse/ibrowse.hrl").
++-include_lib("ibrowse/include/ibrowse.hrl").
+ 
+ -define(REP_ID_VERSION, 2).
+ 
 diff --git a/src/couchdb/couch_rep_changes_feed.erl b/src/couchdb/couch_rep_changes_feed.erl
-index 2339c2f..496ccf3 100644
+index 636d5a0..7a9573d 100644
 --- a/src/couchdb/couch_rep_changes_feed.erl
 +++ b/src/couchdb/couch_rep_changes_feed.erl
-@@ -20,7 +20,7 @@
- -define(BUFFER_SIZE, 1000).
+@@ -21,7 +21,7 @@
+ -define(DOC_IDS_FILTER_NAME, "_doc_ids").
  
  -include("couch_db.hrl").
 --include("../ibrowse/ibrowse.hrl").
@@ -37,7 +51,7 @@ index 2339c2f..496ccf3 100644
  -record (state, {
      changes_from = nil,
 diff --git a/src/couchdb/couch_rep_httpc.erl b/src/couchdb/couch_rep_httpc.erl
-index 783ee96..5609289 100644
+index bbe390a..acb6029 100644
 --- a/src/couchdb/couch_rep_httpc.erl
 +++ b/src/couchdb/couch_rep_httpc.erl
 @@ -12,7 +12,7 @@
@@ -47,8 +61,8 @@ index 783ee96..5609289 100644
 --include("../ibrowse/ibrowse.hrl").
 +-include_lib("ibrowse/include/ibrowse.hrl").
  
- -export([db_exists/1, db_exists/2, full_url/1, request/1, redirected_request/2,
-     redirect_url/2, spawn_worker_process/1, spawn_link_worker_process/1]).
+ -export([db_exists/1, db_exists/2]).
+ -export([full_url/1, request/1, redirected_request/3]).
 -- 
-1.7.6
+1.7.8.3
 

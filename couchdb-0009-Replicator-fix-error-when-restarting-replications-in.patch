@@ -1,7 +1,7 @@
-From 032a4e3b167a1dab3d932d9d6713e63709f5ec28 Mon Sep 17 00:00:00 2001
+From c010f25422b7dcbaf712b7617e71ffc9933e5d7f Mon Sep 17 00:00:00 2001
 From: Filipe David Borba Manana <fdmanana@apache.org>
 Date: Mon, 28 Mar 2011 11:08:58 +0000
-Subject: [PATCH 12/13] Replicator: fix error when restarting replications in
+Subject: [PATCH 9/9] Replicator: fix error when restarting replications in
  OTP R14B02
 
 This is a workaround for a change introduced in OTP R14B02 to the supervisor
@@ -15,10 +15,10 @@ git-svn-id: https://svn.apache.org/repos/asf/couchdb/trunk@1086185 13f79535-47bb
  1 files changed, 7 insertions(+), 0 deletions(-)
 
 diff --git a/src/couchdb/couch_rep.erl b/src/couchdb/couch_rep.erl
-index c681425..1b8a23a 100644
+index 20b2602..764606f 100644
 --- a/src/couchdb/couch_rep.erl
 +++ b/src/couchdb/couch_rep.erl
-@@ -324,6 +324,13 @@ start_replication_server(Replicator) ->
+@@ -311,6 +311,13 @@ start_replication_server(Replicator) ->
                  supervisor:start_child(couch_rep_sup, Replicator),
              ?LOG_DEBUG("replication ~p already running at ~p", [RepId, Pid]),
              Pid;
@@ -33,5 +33,5 @@ index c681425..1b8a23a 100644
              throw({db_not_found, <<"could not open ", DbUrl/binary>>});
          {error, {unauthorized, DbUrl}} ->
 -- 
-1.7.6
+1.7.8.3
 
