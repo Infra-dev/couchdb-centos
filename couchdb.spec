@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.1.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -42,14 +42,16 @@ BuildRequires:	libicu-devel
 BuildRequires:	perl(Test::Harness)
 
 Requires:	erlang-crypto
+# Error:erlang(erlang:max/2) in R12B and below
+# Error:erlang(erlang:min/2) in R12B and below
 Requires:	erlang-erts >= R13B
 Requires:	erlang-ibrowse >= 2.2.0
 Requires:	erlang-inets
 Requires:	erlang-kernel
 Requires:	erlang-mochiweb
 Requires:	erlang-oauth
-Requires:	erlang-sasl
-Requires:	erlang-stdlib
+# Error:erlang(unicode:characters_to_binary/1) in R12B and below
+Requires:	erlang-stdlib >= R13B
 Requires:	erlang-tools
 
 #Initscripts
@@ -105,7 +107,7 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Install our custom couchdb initscript
-%if 0%{?fc17}%{?fc18}
+%if 0%{?fedora} > 16
 install -D -m 755 %{SOURCE2} $RPM_BUILD_ROOT%{_unitdir}/%{name}.service
 rm -rf $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/
 %else
@@ -116,7 +118,7 @@ install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
 
 # create /etc/tmpfiles.d entry
-%if 0%{?fc15}%{?fc16}%{?fc17}%{?fc18}
+%if 0%{?fedora} > 14
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
 echo "d /var/run/couchdb 0755 %{couchdb_user} root" > $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 %endif
@@ -139,9 +141,9 @@ exit 0
 
 
 %post
-%if 0%{?fc17}%{?fc18}
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
+%if 0%{?fedora} > 16
+if [ $1 -eq 1 ] ; then
+    # Initial installation
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 %else
@@ -150,7 +152,7 @@ fi
 
 
 %preun
-%if 0%{?fc17}%{?fc18}
+%if 0%{?fedora} > 16
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
     /bin/systemctl --no-reload disable couchdb.service > /dev/null 2>&1 || :
@@ -165,7 +167,7 @@ fi
 
 
 %postun
-%if 0%{?fc17}%{?fc18}
+%if 0%{?fedora} > 16
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
@@ -174,7 +176,7 @@ fi
 %endif
 
 
-%if 0%{?fc17}%{?fc18}
+%if 0%{?fedora} > 16
 %triggerun -- couchdb < 1.0.3-5
 # Save the current service runlevel info
 # User must manually run systemd-sysv-convert --apply httpd
@@ -198,10 +200,10 @@ fi
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/local.ini
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%if 0%{?fc15}%{?fc16}%{?fc17}%{?fc18}
+%if 0%{?fedora} > 14
 %{_sysconfdir}/tmpfiles.d/%{name}.conf
 %endif
-%if 0%{?fc17}%{?fc18}
+%if 0%{?fedora} > 16
 %{_unitdir}/%{name}.service
 %else
 %{_initrddir}/%{name}
@@ -218,6 +220,9 @@ fi
 
 
 %changelog
+* Wed May 16 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.1.1-2
+- Updated systemd files (added EnvironmentFile option)
+
 * Sun Mar 11 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.1.1-1
 - Ver. 1.1.1
 
