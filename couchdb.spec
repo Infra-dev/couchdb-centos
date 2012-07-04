@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.1.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -13,6 +13,7 @@ URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
 Source2:        %{name}.service
+Source3:	%{name}.tmpfiles.conf
 Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
 Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
@@ -117,10 +118,9 @@ install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
 
-# create /etc/tmpfiles.d entry
+# Install /etc/tmpfiles.d entry
 %if 0%{?fedora} > 14
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d
-echo "d /var/run/couchdb 0755 %{couchdb_user} root" > $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+install -D -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
 %endif
 
 
@@ -198,7 +198,6 @@ fi
 %dir %{_sysconfdir}/%{name}/default.d
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/default.ini
 %config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/local.ini
-%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %if 0%{?fedora} > 14
 %{_sysconfdir}/tmpfiles.d/%{name}.conf
@@ -206,6 +205,7 @@ fi
 %if 0%{?fedora} > 16
 %{_unitdir}/%{name}.service
 %else
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %{_initrddir}/%{name}
 %endif
 %{_bindir}/%{name}
@@ -220,6 +220,9 @@ fi
 
 
 %changelog
+* Wed Jul 04 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.1.1-3
+- Improve systemd support
+
 * Wed May 16 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.1.1-2
 - Updated systemd files (added EnvironmentFile option)
 
