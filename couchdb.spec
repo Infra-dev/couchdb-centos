@@ -111,12 +111,12 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %if 0%{?fedora} > 16
 install -D -m 755 %{SOURCE2} $RPM_BUILD_ROOT%{_unitdir}/%{name}.service
 rm -rf $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/
+rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/default/
 %else
-install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
-%endif
-
 # Use /etc/sysconfig instead of /etc/default
 mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
+install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
+%endif
 
 # Install /etc/tmpfiles.d entry
 %if 0%{?fedora} > 14
