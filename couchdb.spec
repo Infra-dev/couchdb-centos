@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.1.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -220,6 +220,9 @@ fi
 
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Wed Jul 04 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.1.1-3
 - Improve systemd support
 
