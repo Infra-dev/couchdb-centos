@@ -1,18 +1,18 @@
-From 2422757e3a12d7b8ce45f4433174e15e0ed8fe63 Mon Sep 17 00:00:00 2001
+From 17e5c7496c5915fb0f15f12e2afd49c1579a7061 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:36:36 +0300
-Subject: [PATCH 4/9] Install into erllibdir by default
+Subject: [PATCH 4/8] Install into erllibdir by default
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
- configure.ac |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ configure.ac | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 421442a..07e27ff 100644
+index f023e51..5ce0e96 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -409,7 +409,7 @@ AC_SUBST([bug_uri], ["LOCAL_BUG_URI"])
+@@ -558,7 +558,7 @@ AC_SUBST([bug_uri], ["LOCAL_BUG_URI"])
  AC_SUBST([localconfdir], [${sysconfdir}/${package_identifier}])
  AC_SUBST([localdatadir], [${datadir}/${package_identifier}])
  AC_SUBST([localdocdir], [${datadir}/doc/${package_identifier}-${version}])
@@ -21,7 +21,7 @@ index 421442a..07e27ff 100644
  AC_SUBST([localstatelibdir], [${localstatedir}/lib/${package_identifier}])
  AC_SUBST([localstatelogdir], [${localstatedir}/log/${package_identifier}])
  AC_SUBST([localstaterundir], [${localstatedir}/run/${package_identifier}])
-@@ -419,7 +419,7 @@ if test x${IS_WINDOWS} = xTRUE; then
+@@ -568,7 +568,7 @@ if test x${IS_WINDOWS} = xTRUE; then
      AC_SUBST([locallibbindir], [${prefix}/bin])
      AC_SUBST([localerlanglibdir], [${libdir}])
  else
@@ -31,5 +31,5 @@ index 421442a..07e27ff 100644
  fi
  
 -- 
-1.7.8.3
+1.7.12
 

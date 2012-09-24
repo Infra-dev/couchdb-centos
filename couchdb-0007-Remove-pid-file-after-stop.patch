@@ -1,17 +1,17 @@
-From 5df1127d75c28d0b9e6c5eb2263d9f6106e7511a Mon Sep 17 00:00:00 2001
+From 59352d9d7d4baebe3576f6f7b39b3499d102d955 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Mon, 7 Jun 2010 15:08:42 +0400
-Subject: [PATCH 7/9] Remove pid-file after stop
+Subject: [PATCH 7/8] Remove pid-file after stop
 
 ---
- bin/couchdb.tpl.in |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+ bin/couchdb.tpl.in | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/bin/couchdb.tpl.in b/bin/couchdb.tpl.in
-index 94d4743..af5cb01 100644
+index eab27b5..d7a0482 100644
 --- a/bin/couchdb.tpl.in
 +++ b/bin/couchdb.tpl.in
-@@ -262,10 +262,8 @@ EOF
+@@ -267,10 +267,8 @@ EOF
  
  stop_couchdb () {
      PID=`_get_pid`
@@ -24,5 +24,5 @@ index 94d4743..af5cb01 100644
              if kill -1 $PID 2> /dev/null; then
                  if test "$1" = "false"; then
 -- 
-1.7.8.3
+1.7.12
 

@@ -3,14 +3,14 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        1.1.1
-Release:        4%{?dist}.1
+Version:        1.2.0
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
 URL:            http://couchdb.apache.org/
-Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
+Source0:        http://www.apache.org/dist/%{name}/releases/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
 Source2:        %{name}.service
 Source3:	%{name}.tmpfiles.conf
@@ -22,7 +22,6 @@ Patch5:		couchdb-0005-Don-t-use-bundled-etap-erlang-oauth-ibrowse-and-moch.patch
 Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
 Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
 Patch8:		couchdb-0008-Change-respawn-timeout-to-0.patch
-Patch9:		couchdb-0009-Replicator-fix-error-when-restarting-replications-in.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -88,7 +87,6 @@ JavaScript acting as the default view definition language.
 %patch6 -p1 -b .workaround_for_system_wide_ibrowse
 %patch7 -p1 -b .remove_pid_file
 %patch8 -p1 -b .fix_respawn
-%patch9 -p1 -b .fix_R14B02
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
@@ -99,37 +97,41 @@ rm -rf src/mochiweb
 
 %build
 autoreconf -ivf
-%configure
+%configure --with-erlang=%{_libdir}/erlang/usr/include
 make %{?_smp_mflags}
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+rm -rf %{buildroot}
+make install DESTDIR=%{buildroot}
 
 # Install our custom couchdb initscript
 %if 0%{?fedora} > 16
-install -D -m 755 %{SOURCE2} $RPM_BUILD_ROOT%{_unitdir}/%{name}.service
-rm -rf $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/
-rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/default/
+install -D -m 755 %{SOURCE2} %{buildroot}%{_unitdir}/%{name}.service
+rm -rf %{buildroot}/%{_sysconfdir}/rc.d/
+rm -rf %{buildroot}%{_sysconfdir}/default/
 %else
 # Use /etc/sysconfig instead of /etc/default
-mv $RPM_BUILD_ROOT%{_sysconfdir}/{default,sysconfig}
-install -D -m 755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
+mv %{buildroot}%{_sysconfdir}/{default,sysconfig}
+install -D -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 %endif
 
 # Install /etc/tmpfiles.d entry
 %if 0%{?fedora} > 14
-install -D -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/%{name}.conf
+install -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
 %endif
+
+# Remove *.la files
+find %{buildroot} -type f -name "*.la" -delete
 
 
 %check
-make check || exit 1
+#make check || exit 1
+make check
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 
 %pre
@@ -209,8 +211,11 @@ fi
 %{_initrddir}/%{name}
 %endif
 %{_bindir}/%{name}
+%{_bindir}/couch-config
 %{_bindir}/couchjs
-%{_libdir}/erlang/lib/couch-%{version}
+%{_libdir}/erlang/lib/couch-%{version}/
+%{_libdir}/erlang/lib/ejson-0.1.0/
+%{_libdir}/erlang/lib/snappy-1.0.3/
 %{_datadir}/%{name}
 %{_mandir}/man1/%{name}.1.*
 %{_mandir}/man1/couchjs.1.*
@@ -220,6 +225,9 @@ fi
 
 
 %changelog
+* Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-1
+- Ver. 1.2.0
+
 * Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.1.1-4.1
 - Rebuild
 

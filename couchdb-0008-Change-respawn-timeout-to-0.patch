@@ -1,12 +1,12 @@
-From dfdf0653f4e6a4047761e66d6181c51400c842db Mon Sep 17 00:00:00 2001
+From 8d090ff218c7c195f034dbf6f090eabbe28f6b6c Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 26 Aug 2010 13:22:56 +0400
-Subject: [PATCH 8/9] Change respawn timeout to 0.
+Subject: [PATCH 8/8] Change respawn timeout to 0.
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
- etc/default/couchdb |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ etc/default/couchdb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/etc/default/couchdb b/etc/default/couchdb
 index c2a3f2a..f589c0a 100644
@@ -20,5 +20,5 @@ index c2a3f2a..f589c0a 100644
 +COUCHDB_RESPAWN_TIMEOUT=0
  COUCHDB_OPTIONS=
 -- 
-1.7.8.3
+1.7.12
 
