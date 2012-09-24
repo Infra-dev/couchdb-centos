@@ -25,7 +25,6 @@ Patch8:		couchdb-0008-Change-respawn-timeout-to-0.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  libtool
@@ -35,6 +34,7 @@ BuildRequires:	erlang-etap
 BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
 BuildRequires:	erlang-oauth
+BuildRequires:	erlang-os_mon
 BuildRequires:	help2man
 BuildRequires:	js-devel
 BuildRequires:	libicu-devel
@@ -50,9 +50,11 @@ Requires:	erlang-inets
 Requires:	erlang-kernel
 Requires:	erlang-mochiweb
 Requires:	erlang-oauth
+Requires:	erlang-os_mon
 # Error:erlang(unicode:characters_to_binary/1) in R12B and below
 Requires:	erlang-stdlib >= R13B
 Requires:	erlang-tools
+Requires:	erlang-xmerl
 
 #Initscripts
 %if 0%{?fc17}%{?fc18}
@@ -94,6 +96,9 @@ rm -rf src/etap
 rm -rf src/ibrowse
 rm -rf src/mochiweb
 
+# More verbose tests
+sed -i -e "s,prove,prove -v,g" test/etap/run.tpl
+
 
 %build
 autoreconf -ivf
@@ -126,7 +131,6 @@ find %{buildroot} -type f -name "*.la" -delete
 
 
 %check
-#make check || exit 1
 make check
 
 
@@ -193,13 +197,12 @@ fi
 
 
 %files
-%defattr(-,root,root,-)
 %doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README THANKS
 %dir %{_sysconfdir}/%{name}
 %dir %{_sysconfdir}/%{name}/local.d
 %dir %{_sysconfdir}/%{name}/default.d
-%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/default.ini
-%config(noreplace) %attr(0644, %{couchdb_user}, root) %{_sysconfdir}/%{name}/local.ini
+%config(noreplace) %attr(0644, %{couchdb_user}, %{couchdb_group}) %{_sysconfdir}/%{name}/default.ini
+%config(noreplace) %attr(0644, %{couchdb_user}, %{couchdb_group}) %{_sysconfdir}/%{name}/local.ini
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %if 0%{?fedora} > 14
 %{_sysconfdir}/tmpfiles.d/%{name}.conf
@@ -219,12 +222,15 @@ fi
 %{_datadir}/%{name}
 %{_mandir}/man1/%{name}.1.*
 %{_mandir}/man1/couchjs.1.*
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/log/%{name}
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/run/%{name}
-%dir %attr(0755, %{couchdb_user}, root) %{_localstatedir}/lib/%{name}
+%dir %attr(0755, %{couchdb_user}, %{couchdb_group}) %{_localstatedir}/log/%{name}
+%dir %attr(0755, %{couchdb_user}, %{couchdb_group}) %{_localstatedir}/run/%{name}
+%dir %attr(0755, %{couchdb_user}, %{couchdb_group}) %{_localstatedir}/lib/%{name}
 
 
 %changelog
+* Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-2
+- Build fixes
+
 * Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-1
 - Ver. 1.2.0
 
