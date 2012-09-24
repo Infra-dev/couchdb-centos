@@ -97,7 +97,7 @@ rm -rf src/ibrowse
 rm -rf src/mochiweb
 
 # More verbose tests
-sed -i -e "s,prove,prove -v,g" test/etap/run.tpl
+#sed -i -e "s,prove,prove -v,g" test/etap/run.tpl
 
 
 %build
@@ -230,6 +230,7 @@ fi
 %changelog
 * Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-2
 - Build fixes
+- Temporarily disable verbosity
 
 * Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-1
 - Ver. 1.2.0
