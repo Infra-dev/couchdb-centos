@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.2.0
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -18,7 +18,7 @@ Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
 Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
 Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
-Patch5:		couchdb-0005-Don-t-use-bundled-etap-erlang-oauth-ibrowse-and-moch.patch
+Patch5:		couchdb-0005-Don-t-use-bundled-libraries.patch
 Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
 Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
 Patch8:		couchdb-0008-Change-respawn-timeout-to-0.patch
@@ -35,26 +35,28 @@ BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
 BuildRequires:	erlang-oauth
 BuildRequires:	erlang-os_mon
+BuildRequires:	erlang-snappy
 BuildRequires:	help2man
 BuildRequires:	js-devel
 BuildRequires:	libicu-devel
 # For /usr/bin/prove
 BuildRequires:	perl(Test::Harness)
 
-Requires:	erlang-crypto
+Requires:	erlang-crypto%{?_isa}
 # Error:erlang(erlang:max/2) in R12B and below
 # Error:erlang(erlang:min/2) in R12B and below
-Requires:	erlang-erts >= R13B
-Requires:	erlang-ibrowse >= 2.2.0
-Requires:	erlang-inets
-Requires:	erlang-kernel
-Requires:	erlang-mochiweb
-Requires:	erlang-oauth
-Requires:	erlang-os_mon
+Requires:	erlang-erts%{?_isa} >= R13B
+Requires:	erlang-ibrowse%{?_isa} >= 2.2.0
+Requires:	erlang-inets%{?_isa}
+Requires:	erlang-kernel%{?_isa}
+Requires:	erlang-mochiweb%{?_isa}
+Requires:	erlang-oauth%{?_isa}
+Requires:	erlang-os_mon%{?_isa}
+BuildRequires:	erlang-snappy%{?_isa}
 # Error:erlang(unicode:characters_to_binary/1) in R12B and below
-Requires:	erlang-stdlib >= R13B
-Requires:	erlang-tools
-Requires:	erlang-xmerl
+Requires:	erlang-stdlib%{?_isa} >= R13B
+Requires:	erlang-tools%{?_isa}
+Requires:	erlang-xmerl%{?_isa}
 
 #Initscripts
 %if 0%{?fc17}%{?fc18}
@@ -95,6 +97,7 @@ rm -rf src/erlang-oauth
 rm -rf src/etap
 rm -rf src/ibrowse
 rm -rf src/mochiweb
+rm -rf src/snappy
 
 # More verbose tests
 #sed -i -e "s,prove,prove -v,g" test/etap/run.tpl
@@ -218,7 +221,6 @@ fi
 %{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}/
 %{_libdir}/erlang/lib/ejson-0.1.0/
-%{_libdir}/erlang/lib/snappy-1.0.3/
 %{_datadir}/%{name}
 %{_mandir}/man1/%{name}.1.*
 %{_mandir}/man1/couchjs.1.*
@@ -228,6 +230,10 @@ fi
 
 
 %changelog
+* Tue Oct 30 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-3
+- Unbundle snappy
+- Add _isa to the Requires
+
 * Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-2
 - Build fixes
 - Temporarily disable verbosity

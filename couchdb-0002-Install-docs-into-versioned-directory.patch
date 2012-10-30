@@ -22,5 +22,5 @@ index de212ec..a2ab2ae 100644
  AC_SUBST([localstatelibdir], [${localstatedir}/lib/${package_identifier}])
  AC_SUBST([localstatelogdir], [${localstatedir}/log/${package_identifier}])
 -- 
-1.7.12
+1.7.12.1
 
