@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.2.1
-Release:        1%{?dist}
+Release:        1%{?dist}.1
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
