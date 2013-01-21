@@ -1,4 +1,4 @@
-From e760b89280f06668375dbffa24640332648c67c7 Mon Sep 17 00:00:00 2001
+From 24d466ee2b0d6e48f757cff17fae946056f3efea Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
 Subject: [PATCH 5/8] Don't use bundled libraries
@@ -83,5 +83,5 @@ index f17be20..85644dc 100644
          code:add_patha(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.7.12.1
+1.8.1
 

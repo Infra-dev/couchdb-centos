@@ -1,4 +1,4 @@
-From 26945e3a6461687675d2d820d567f287cacdf07e Mon Sep 17 00:00:00 2001
+From 5529deed9bfe436616056db37c1e720408eeb271 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 13:52:38 +0300
 Subject: [PATCH 1/8] Do not gzip doc-files and do not install installation
@@ -10,7 +10,7 @@ Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
  1 file changed, 9 insertions(+), 48 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 8e16baf..30f5264 100644
+index 87a8d9e..089de31 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -15,18 +15,15 @@ SUBDIRS = bin etc src share test var utils
@@ -85,5 +85,5 @@ index 8e16baf..30f5264 100644
  	$(top_builddir)/test/etap/run
  
 -- 
-1.7.12.1
+1.8.1
 

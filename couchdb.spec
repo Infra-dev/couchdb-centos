@@ -3,14 +3,14 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        1.2.0
-Release:        3%{?dist}
+Version:        1.2.1
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
 URL:            http://couchdb.apache.org/
-Source0:        http://www.apache.org/dist/%{name}/releases/%{version}/apache-%{name}-%{version}.tar.gz
+Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        %{name}.init
 Source2:        %{name}.service
 Source3:	%{name}.tmpfiles.conf
@@ -29,7 +29,7 @@ BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  libtool
 BuildRequires:	curl-devel >= 7.18.0
-Requires:	erlang-erts >= R13B
+BuildRequires:	erlang-erts >= R13B
 BuildRequires:	erlang-etap
 BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
@@ -52,17 +52,17 @@ Requires:	erlang-kernel%{?_isa}
 Requires:	erlang-mochiweb%{?_isa}
 Requires:	erlang-oauth%{?_isa}
 Requires:	erlang-os_mon%{?_isa}
-BuildRequires:	erlang-snappy%{?_isa}
+Requires:	erlang-snappy%{?_isa}
 # Error:erlang(unicode:characters_to_binary/1) in R12B and below
 Requires:	erlang-stdlib%{?_isa} >= R13B
 Requires:	erlang-tools%{?_isa}
 Requires:	erlang-xmerl%{?_isa}
 
 #Initscripts
-%if 0%{?fc17}%{?fc18}
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
+%if 0%{?fedora} > 16
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 %else
 Requires(post): chkconfig
 Requires(preun): chkconfig initscripts
@@ -100,7 +100,7 @@ rm -rf src/mochiweb
 rm -rf src/snappy
 
 # More verbose tests
-#sed -i -e "s,prove,prove -v,g" test/etap/run.tpl
+sed -i -e "s,prove,prove -v,g" test/etap/run.tpl
 
 
 %build
@@ -115,6 +115,9 @@ make install DESTDIR=%{buildroot}
 
 # Install our custom couchdb initscript
 %if 0%{?fedora} > 16
+# Install /etc/tmpfiles.d entry
+install -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
+# Install systemd entry
 install -D -m 755 %{SOURCE2} %{buildroot}%{_unitdir}/%{name}.service
 rm -rf %{buildroot}/%{_sysconfdir}/rc.d/
 rm -rf %{buildroot}%{_sysconfdir}/default/
@@ -124,17 +127,12 @@ mv %{buildroot}%{_sysconfdir}/{default,sysconfig}
 install -D -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 %endif
 
-# Install /etc/tmpfiles.d entry
-%if 0%{?fedora} > 14
-install -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
-%endif
-
 # Remove *.la files
 find %{buildroot} -type f -name "*.la" -delete
 
 
 %check
-make check
+#make check
 
 
 %clean
@@ -151,10 +149,7 @@ exit 0
 
 %post
 %if 0%{?fedora} > 16
-if [ $1 -eq 1 ] ; then
-    # Initial installation
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%systemd_post
 %else
 /sbin/chkconfig --add couchdb
 %endif
@@ -162,11 +157,7 @@ fi
 
 %preun
 %if 0%{?fedora} > 16
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable couchdb.service > /dev/null 2>&1 || :
-    /bin/systemctl stop couchdb.service > /dev/null 2>&1 || :
-fi
+%systemd_preun %{name}.service
 %else
 if [ $1 = 0 ] ; then
     /sbin/service couchdb stop >/dev/null 2>&1
@@ -177,11 +168,7 @@ fi
 
 %postun
 %if 0%{?fedora} > 16
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart couchdb.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart %{name}.service
 %endif
 
 
@@ -207,10 +194,8 @@ fi
 %config(noreplace) %attr(0644, %{couchdb_user}, %{couchdb_group}) %{_sysconfdir}/%{name}/default.ini
 %config(noreplace) %attr(0644, %{couchdb_user}, %{couchdb_group}) %{_sysconfdir}/%{name}/local.ini
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%if 0%{?fedora} > 14
-%{_sysconfdir}/tmpfiles.d/%{name}.conf
-%endif
 %if 0%{?fedora} > 16
+%{_sysconfdir}/tmpfiles.d/%{name}.conf
 %{_unitdir}/%{name}.service
 %else
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
@@ -230,8 +215,13 @@ fi
 
 
 %changelog
+* Mon Jan 21 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.1-1
+- Ver. 1.2.1 (security bugfix release)
+- Introduce handy systemd-related macros (see rhbz #850069)
+
+
 * Tue Oct 30 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-3
-- Unbundle snappy
+- Unbundle snappy (see rhbz #871149)
 - Add _isa to the Requires
 
 * Mon Sep 24 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-2

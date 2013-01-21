@@ -1,4 +1,4 @@
-From 9935dc52cee8f15c018c006725739e8f4b97761d Mon Sep 17 00:00:00 2001
+From 9bb5e5c00f5c91dcc6e0cea7d58fdf38788d9cf8 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:21:20 +0300
 Subject: [PATCH 3/8] More directories to search for place for init-script
@@ -42,5 +42,5 @@ index a2ab2ae..f023e51 100644
      fi
  fi
 -- 
-1.7.12.1
+1.8.1
 
