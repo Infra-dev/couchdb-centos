@@ -132,7 +132,7 @@ find %{buildroot} -type f -name "*.la" -delete
 
 
 %check
-#make check
+make check
 
 
 %clean
