@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.2.1
-Release:        1%{?dist}.1
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -149,7 +149,10 @@ exit 0
 
 %post
 %if 0%{?fedora} > 16
-%systemd_post
+if [ $1 -eq 1 ] ; then
+	# Initial installation
+	/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
 %else
 /sbin/chkconfig --add couchdb
 %endif
@@ -157,7 +160,11 @@ exit 0
 
 %preun
 %if 0%{?fedora} > 16
-%systemd_preun %{name}.service
+if [ $1 -eq 0 ] ; then
+	# Package removal, not upgrade
+	/usr/bin/systemctl --no-reload disable %{name}.service > /dev/null 2>&1 || :
+	/usr/bin/systemctl stop %{name}.service > /dev/null 2>&1 || :
+fi
 %else
 if [ $1 = 0 ] ; then
     /sbin/service couchdb stop >/dev/null 2>&1
@@ -168,7 +175,11 @@ fi
 
 %postun
 %if 0%{?fedora} > 16
-%systemd_postun_with_restart %{name}.service
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+	# Package upgrade, not uninstall
+	/usr/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
+fi
 %endif
 
 
@@ -215,10 +226,12 @@ fi
 
 
 %changelog
+* Tue Jan 22 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.1-2
+- Revert systemd-macros
+
 * Mon Jan 21 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.1-1
 - Ver. 1.2.1 (security bugfix release)
 - Introduce handy systemd-related macros (see rhbz #850069)
-
 
 * Tue Oct 30 2012 Peter Lemenkov <lemenkov@gmail.com> - 1.2.0-3
 - Unbundle snappy (see rhbz #871149)
