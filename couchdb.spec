@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.2.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -226,6 +226,9 @@ fi
 
 
 %changelog
+* Fri Feb 08 2013 Jon Ciesla <limburgher@gmail.com> - 1.2.1-3
+- libicu rebuild.
+
 * Tue Jan 22 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.1-2
 - Revert systemd-macros
 
