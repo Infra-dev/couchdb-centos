@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.2.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -22,6 +22,7 @@ Patch5:		couchdb-0005-Don-t-use-bundled-libraries.patch
 Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
 Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
 Patch8:		couchdb-0008-Change-respawn-timeout-to-0.patch
+Patch9:		couchdb-0009-Mostly-cosmetic-proplist-ordering-in-R16B.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -91,6 +92,7 @@ JavaScript acting as the default view definition language.
 %patch6 -p1 -b .workaround_for_system_wide_ibrowse
 %patch7 -p1 -b .remove_pid_file
 %patch8 -p1 -b .fix_respawn
+%patch9 -p1 -b .fix_proplist_ordering_r16b
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
@@ -226,6 +228,9 @@ fi
 
 
 %changelog
+* Fri Mar 15 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.1-4
+- Fix FTBFS in Rawhide (F-19)
+
 * Fri Feb 08 2013 Jon Ciesla <limburgher@gmail.com> - 1.2.1-3
 - libicu rebuild.
 
