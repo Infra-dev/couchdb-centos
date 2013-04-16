@@ -3,8 +3,8 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        1.2.1
-Release:        4%{?dist}
+Version:        1.2.2
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -92,7 +92,9 @@ JavaScript acting as the default view definition language.
 %patch6 -p1 -b .workaround_for_system_wide_ibrowse
 %patch7 -p1 -b .remove_pid_file
 %patch8 -p1 -b .fix_respawn
+%if 0%{?fedora} > 18
 %patch9 -p1 -b .fix_proplist_ordering_r16b
+%endif
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
@@ -228,6 +230,9 @@ fi
 
 
 %changelog
+* Mon Apr 15 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.2-1
+- Ver. 1.2.2 (bugfix release)
+
 * Fri Mar 15 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.1-4
 - Fix FTBFS in Rawhide (F-19)
 

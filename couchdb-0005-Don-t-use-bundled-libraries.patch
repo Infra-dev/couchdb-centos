@@ -1,4 +1,4 @@
-From 24d466ee2b0d6e48f757cff17fae946056f3efea Mon Sep 17 00:00:00 2001
+From b2d3ed89ca22fb005cb6ed0907d0a35bd5da010e Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
 Subject: [PATCH 5/9] Don't use bundled libraries
@@ -12,13 +12,13 @@ Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
  4 files changed, 4 insertions(+), 16 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 5ce0e96..d0a10ae 100644
+index d61e6a7..bee274e 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -20,7 +20,6 @@ AC_CONFIG_AUX_DIR([build-aux])
  AC_CONFIG_MACRO_DIR([m4])
  
- AM_CONFIG_HEADER([config.h])
+ AC_CONFIG_HEADER([config.h])
 -AC_CONFIG_HEADERS([src/snappy/google-snappy/config.h])
  
  AM_INIT_AUTOMAKE([1.6.3 foreign])
@@ -83,5 +83,5 @@ index f17be20..85644dc 100644
          code:add_patha(filename:join([builddir(), "src", Name]))
      end, Paths).
 -- 
-1.8.1.4
+1.8.2
 

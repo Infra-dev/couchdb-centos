@@ -1,4 +1,4 @@
-From 264253d91c0cc2e40641d1f5cd7c9c0a94eaa754 Mon Sep 17 00:00:00 2001
+From 5bcb9077f029721942a186656aa696cf124b2293 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:36:36 +0300
 Subject: [PATCH 4/9] Install into erllibdir by default
@@ -9,7 +9,7 @@ Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index f023e51..5ce0e96 100644
+index f5c9238..d61e6a7 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -558,7 +558,7 @@ AC_SUBST([bug_uri], ["LOCAL_BUG_URI"])
@@ -31,5 +31,5 @@ index f023e51..5ce0e96 100644
  fi
  
 -- 
-1.8.1.4
+1.8.2
 
