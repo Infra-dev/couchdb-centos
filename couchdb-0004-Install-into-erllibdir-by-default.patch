@@ -1,7 +1,7 @@
 From 5bcb9077f029721942a186656aa696cf124b2293 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:36:36 +0300
-Subject: [PATCH 4/9] Install into erllibdir by default
+Subject: [PATCH 04/10] Install into erllibdir by default
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
@@ -31,5 +31,5 @@ index f5c9238..d61e6a7 100644
  fi
  
 -- 
-1.8.2
+1.8.2.1
 

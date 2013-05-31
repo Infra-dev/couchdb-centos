@@ -1,7 +1,7 @@
 From 056b4a8d69c043db404707d7cad717cf108037e6 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:52:57 +0300
-Subject: [PATCH 6/9] Fixes for system-wide ibrowse
+Subject: [PATCH 06/10] Fixes for system-wide ibrowse
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 
@@ -55,5 +55,5 @@ index bd590ed..934e5ce 100644
  -import(couch_util, [
      get_value/2,
 -- 
-1.8.2
+1.8.2.1
 
