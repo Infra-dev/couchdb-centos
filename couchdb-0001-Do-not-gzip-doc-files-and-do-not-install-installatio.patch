@@ -1,7 +1,7 @@
 From eddb11fa70ff4632797bb17d88e07bd1a36b0845 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 13:52:38 +0300
-Subject: [PATCH 01/10] Do not gzip doc-files and do not install installation
+Subject: [PATCH 01/11] Do not gzip doc-files and do not install installation
  instructions
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>

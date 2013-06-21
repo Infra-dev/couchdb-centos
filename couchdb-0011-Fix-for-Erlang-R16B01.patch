@@ -1,7 +1,7 @@
-From 2fae45e9291ed98a6066d9be7f49dbe863da7d99 Mon Sep 17 00:00:00 2001
+From dcdf47685dbde2a47b31afb48a68697b9aff694a Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
-Date: Fri, 31 May 2013 15:01:42 +0400
-Subject: [PATCH 10/11] Start necessary application before mochiweb
+Date: Fri, 21 Jun 2013 11:56:54 +0400
+Subject: [PATCH 11/11] Fix for Erlang R16B01
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
@@ -9,15 +9,15 @@ Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/couchdb/couch_app.erl b/src/couchdb/couch_app.erl
-index f109780..4cf4862 100644
+index 4cf4862..42411a8 100644
 --- a/src/couchdb/couch_app.erl
 +++ b/src/couchdb/couch_app.erl
 @@ -20,7 +20,7 @@
  
  start(_Type, DefaultIniFiles) ->
      IniFiles = get_ini_files(DefaultIniFiles),
--    case start_apps([crypto, public_key, sasl, inets, oauth, ssl, ibrowse, mochiweb, os_mon]) of
-+    case start_apps([crypto, public_key, sasl, inets, oauth, ssl, ibrowse, xmerl, compiler, syntax_tools, mochiweb, os_mon]) of
+-    case start_apps([crypto, public_key, sasl, inets, oauth, ssl, ibrowse, xmerl, compiler, syntax_tools, mochiweb, os_mon]) of
++    case start_apps([crypto, asn1, public_key, sasl, inets, oauth, ssl, ibrowse, xmerl, compiler, syntax_tools, mochiweb, os_mon]) of
      ok ->
          couch_server_sup:start_link(IniFiles);
      {error, Reason} ->

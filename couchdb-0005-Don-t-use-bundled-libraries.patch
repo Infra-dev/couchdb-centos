@@ -1,7 +1,7 @@
 From b2d3ed89ca22fb005cb6ed0907d0a35bd5da010e Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
-Subject: [PATCH 05/10] Don't use bundled libraries
+Subject: [PATCH 05/11] Don't use bundled libraries
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---

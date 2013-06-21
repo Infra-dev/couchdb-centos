@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.2.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -24,6 +24,7 @@ Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
 Patch8:		couchdb-0008-Change-respawn-timeout-to-0.patch
 Patch9:		couchdb-0009-Mostly-cosmetic-proplist-ordering-in-R16B.patch
 Patch10:	couchdb-0010-Start-necessary-application-before-mochiweb.patch
+Patch11:	couchdb-0011-Fix-for-Erlang-R16B01.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -96,6 +97,7 @@ JavaScript acting as the default view definition language.
 %if 0%{?fedora} > 18
 %patch9 -p1 -b .fix_proplist_ordering_r16b
 %patch10 -p1 -b .start_necessary_apps_before_mochiweb
+%patch11 -p1 -b .r16b01
 %endif
 
 # Remove bundled libraries
@@ -202,7 +204,6 @@ fi
 %endif
 
 
-
 %files
 %doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README THANKS
 %dir %{_sysconfdir}/%{name}
@@ -232,6 +233,9 @@ fi
 
 
 %changelog
+* Fri Jun 21 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.2-3
+- Fix for R16B01 ( https://issues.apache.org/jira/browse/COUCHDB-1833 )
+
 * Fri May 31 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.2-2
 - Fix for R16B and latest mochiweb
 
