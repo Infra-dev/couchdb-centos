@@ -4,7 +4,7 @@
 
 Name:           couchdb
 Version:        1.2.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -233,6 +233,9 @@ fi
 
 
 %changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.2-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Fri Jun 21 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.2.2-3
 - Fix for R16B01 ( https://issues.apache.org/jira/browse/COUCHDB-1833 )
 
