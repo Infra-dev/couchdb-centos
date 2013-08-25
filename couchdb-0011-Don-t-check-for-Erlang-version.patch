@@ -1,0 +1,36 @@
+From d80a9dde5c9e8513a6a138cb37890ca55e787250 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Thu, 15 Aug 2013 18:58:25 +0400
+Subject: [PATCH 11/14] Don't check for Erlang version
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+---
+ configure.ac | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 0eee6b5..e0d1d17 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -415,18 +415,6 @@ major_version=`echo $version | ${AWK} "{print \\$1}"`
+ minor_version=`echo $version | ${AWK} "{print \\$2}"`
+ patch_version=`echo $version | ${AWK} "{print \\$3}"`
+ 
+-if test $major_version -ne 5; then
+-    as_fn_error $? "$erlang_version_error" "$LINENO" 5
+-fi
+-
+-if test $minor_version -lt 7 -o $minor_version -gt 9; then
+-    as_fn_error $? "$erlang_version_error" "$LINENO" 5
+-fi
+-
+-if test $minor_version -eq 7 -a $patch_version -lt 4; then
+-    as_fn_error $? "$erlang_version_error" "$LINENO" 5
+-fi
+-
+ AC_MSG_RESULT(compatible)
+ 
+ otp_release="`\
+-- 
+1.8.3.1
+

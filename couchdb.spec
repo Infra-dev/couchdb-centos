@@ -3,37 +3,44 @@
 %define couchdb_home %{_localstatedir}/lib/couchdb
 
 Name:           couchdb
-Version:        1.2.2
-Release:        4%{?dist}
+Version:        1.3.1
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
-Source1:        %{name}.init
-Source2:        %{name}.service
-Source3:	%{name}.tmpfiles.conf
+Source1:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz.asc
+Source2:        %{name}.init
+Source3:        %{name}.service
+Source4:	%{name}.tmpfiles.conf
 Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
-Patch2:		couchdb-0002-Install-docs-into-versioned-directory.patch
-Patch3:		couchdb-0003-More-directories-to-search-for-place-for-init-script.patch
-Patch4:		couchdb-0004-Install-into-erllibdir-by-default.patch
-Patch5:		couchdb-0005-Don-t-use-bundled-libraries.patch
-Patch6:		couchdb-0006-Fixes-for-system-wide-ibrowse.patch
-Patch7:		couchdb-0007-Remove-pid-file-after-stop.patch
-Patch8:		couchdb-0008-Change-respawn-timeout-to-0.patch
-Patch9:		couchdb-0009-Mostly-cosmetic-proplist-ordering-in-R16B.patch
-Patch10:	couchdb-0010-Start-necessary-application-before-mochiweb.patch
-Patch11:	couchdb-0011-Fix-for-Erlang-R16B01.patch
+Patch2:		couchdb-0002-More-directories-to-search-for-place-for-init-script.patch
+Patch3:		couchdb-0003-Install-into-erllibdir-by-default.patch
+Patch4:		couchdb-0004-Don-t-use-bundled-libraries.patch
+Patch5:		couchdb-0005-Fixes-for-system-wide-ibrowse.patch
+Patch6:		couchdb-0006-Remove-pid-file-after-stop.patch
+Patch7:		couchdb-0007-Change-respawn-timeout-to-0.patch
+Patch8:		couchdb-0008-Mostly-cosmetic-proplist-ordering-in-R16B.patch
+Patch9:		couchdb-0009-Start-necessary-application-before-mochiweb.patch
+Patch10:	couchdb-0010-Fix-for-Erlang-R16B01.patch
+Patch11:	couchdb-0011-Don-t-check-for-Erlang-version.patch
+Patch12:	couchdb-0012-README-was-renamed.patch
+Patch13:	couchdb-0013-Typo-no-such-function-couch_httpd-send_method_not_al.patch
+Patch14:	couchdb-0014-Expose-get_compactor_pid-1.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  autoconf
+BuildRequires:	autoconf-archive
 BuildRequires:  automake
 BuildRequires:  libtool
 BuildRequires:	curl-devel >= 7.18.0
 BuildRequires:	erlang-erts >= R13B
-BuildRequires:	erlang-etap
+# FIXME - this time CouchDB bundled a copy of etap which is heavily different
+# from the one we're shipping
+#BuildRequires:	erlang-etap
 BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
 BuildRequires:	erlang-oauth
@@ -46,29 +53,30 @@ BuildRequires:	libicu-devel
 BuildRequires:	perl(Test::Harness)
 
 Requires:	erlang-crypto%{?_isa}
-# Error:erlang(erlang:max/2) in R12B and below
-# Error:erlang(erlang:min/2) in R12B and below
+# Error:erlang(erlang:max/2) in R12B and earlier
+# Error:erlang(erlang:min/2) in R12B and earlier
 Requires:	erlang-erts%{?_isa} >= R13B
 Requires:	erlang-ibrowse%{?_isa} >= 2.2.0
-Requires:	erlang-inets%{?_isa}
+#Requires:	erlang-inets%{?_isa}
 Requires:	erlang-kernel%{?_isa}
 Requires:	erlang-mochiweb%{?_isa}
 Requires:	erlang-oauth%{?_isa}
 Requires:	erlang-os_mon%{?_isa}
 Requires:	erlang-snappy%{?_isa}
-# Error:erlang(unicode:characters_to_binary/1) in R12B and below
+Requires:	erlang-ssl%{?_isa}
+# Error:erlang(unicode:characters_to_binary/1) in R12B and earlier
 Requires:	erlang-stdlib%{?_isa} >= R13B
 Requires:	erlang-tools%{?_isa}
 Requires:	erlang-xmerl%{?_isa}
 
+%if 0%{?el5}%{?el6}
 #Initscripts
-%if 0%{?fedora} > 16
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
-%else
 Requires(post): chkconfig
 Requires(preun): chkconfig initscripts
+%else
+Requires(pre): systemd
+Requires(post): systemd
+Requires(preun): systemd
 %endif
 
 # Users and groups
@@ -87,22 +95,28 @@ JavaScript acting as the default view definition language.
 %prep
 %setup -q -n apache-%{name}-%{version}
 %patch1 -p1 -b .dont_gzip
-%patch2 -p1 -b .use_versioned_docdir
-%patch3 -p1 -b .more_init_dirs
-%patch4 -p1 -b .install_into_erldir
-%patch5 -p1 -b .remove_bundled_libs
-%patch6 -p1 -b .workaround_for_system_wide_ibrowse
-%patch7 -p1 -b .remove_pid_file
-%patch8 -p1 -b .fix_respawn
+%patch2 -p1 -b .more_init_dirs
+%patch3 -p1 -b .install_into_erldir
+%patch4 -p1 -b .remove_bundled_libs
+%patch5 -p1 -b .workaround_for_system_wide_ibrowse
+%patch6 -p1 -b .remove_pid_file
+%patch7 -p1 -b .fix_respawn
 %if 0%{?fedora} > 18
-%patch9 -p1 -b .fix_proplist_ordering_r16b
-%patch10 -p1 -b .start_necessary_apps_before_mochiweb
-%patch11 -p1 -b .r16b01
+%patch8 -p1 -b .fix_proplist_ordering_r16b
+%patch9 -p1 -b .start_necessary_apps_before_mochiweb
+%patch10 -p1 -b .r16b01
+%patch11 -p1 -b .dontcheck
 %endif
+%patch12 -p1 -b .renamed
+%patch13 -p1 -b .typo1
+%patch14 -p1 -b .typo2
+#gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
-rm -rf src/etap
+# FIXME - this time CouchDB bundled a copy of etap which is heavily different
+# from the one we're shipping
+#rm -rf src/etap
 rm -rf src/ibrowse
 rm -rf src/mochiweb
 rm -rf src/snappy
@@ -121,22 +135,32 @@ make %{?_smp_mflags}
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
-# Install our custom couchdb initscript
-%if 0%{?fedora} > 16
-# Install /etc/tmpfiles.d entry
-install -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
-# Install systemd entry
-install -D -m 755 %{SOURCE2} %{buildroot}%{_unitdir}/%{name}.service
-rm -rf %{buildroot}/%{_sysconfdir}/rc.d/
-rm -rf %{buildroot}%{_sysconfdir}/default/
-%else
+%if 0%{?el5}%{?el6}
 # Use /etc/sysconfig instead of /etc/default
 mv %{buildroot}%{_sysconfdir}/{default,sysconfig}
-install -D -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
+# Install our custom couchdb initscript
+install -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/%{name}
+%else
+# Install /etc/tmpfiles.d entry
+install -D -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
+# Install systemd entry
+install -D -m 755 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}.service
+rm -rf %{buildroot}/%{_sysconfdir}/rc.d/
+rm -rf %{buildroot}%{_sysconfdir}/default/
 %endif
 
 # Remove *.la files
 find %{buildroot} -type f -name "*.la" -delete
+
+# Remove installed docs (this will mess with versione/unversioned docdirs)
+rm -rf %{buildroot}/%{_datadir}/doc/couchdb
+
+# Remove unneeded info-files
+rm -rf %{buildroot}/%{_datadir}/info/
+
+# FIXME - this time CouchDB bundled a copy of etap which is heavily different
+# from the one we're shipping
+rm -rf %{buildroot}/%{_libdir}/erlang/lib/etap/
 
 
 %check
@@ -156,34 +180,27 @@ exit 0
 
 
 %post
-%if 0%{?fedora} > 16
-if [ $1 -eq 1 ] ; then
-	# Initial installation
-	/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%if 0%{?el5}%{?el6}
+/sbin/chkconfig --add %{name}
 %else
-/sbin/chkconfig --add couchdb
+%systemd_post %{name}.service
 %endif
 
 
 %preun
-%if 0%{?fedora} > 16
-if [ $1 -eq 0 ] ; then
-	# Package removal, not upgrade
-	/usr/bin/systemctl --no-reload disable %{name}.service > /dev/null 2>&1 || :
-	/usr/bin/systemctl stop %{name}.service > /dev/null 2>&1 || :
+%if 0%{?el5}%{?el6}
+if [ $1 = 0 ] ; then
+    /sbin/service %{name} stop >/dev/null 2>&1
+    /sbin/chkconfig --del %{name}
 fi
 %else
-if [ $1 = 0 ] ; then
-    /sbin/service couchdb stop >/dev/null 2>&1
-    /sbin/chkconfig --del couchdb
-fi
+%systemd_preun %{name}.service
 %endif
 
 
 %postun
-%if 0%{?fedora} > 16
-/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%if 0%{?el7}%{?fedora}
+%systemd_postun %{name}.service
 if [ $1 -ge 1 ] ; then
 	# Package upgrade, not uninstall
 	/usr/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
@@ -192,20 +209,20 @@ fi
 
 
 %if 0%{?fedora} > 16
-%triggerun -- couchdb < 1.0.3-5
+%triggerun -- %{name} < 1.0.3-5
 # Save the current service runlevel info
 # User must manually run systemd-sysv-convert --apply httpd
 # to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save couchdb >/dev/null 2>&1 ||:
+/usr/bin/systemd-sysv-convert --save %{name} >/dev/null 2>&1 ||:
 
 # Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del couchdb >/dev/null 2>&1 || :
-/bin/systemctl try-restart couchdb.service >/dev/null 2>&1 || :
+/sbin/chkconfig --del %{name} >/dev/null 2>&1 || :
+/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
 %endif
 
 
 %files
-%doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README THANKS
+%doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README.rst THANKS
 %dir %{_sysconfdir}/%{name}
 %dir %{_sysconfdir}/%{name}/local.d
 %dir %{_sysconfdir}/%{name}/default.d
@@ -223,6 +240,9 @@ fi
 %{_bindir}/couch-config
 %{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}/
+%{_libdir}/erlang/lib/couch_index-0.1/
+%{_libdir}/erlang/lib/couch_mrview-0.1/
+%{_libdir}/erlang/lib/couch_replicator-0.1/
 %{_libdir}/erlang/lib/ejson-0.1.0/
 %{_datadir}/%{name}
 %{_mandir}/man1/%{name}.1.*
@@ -233,6 +253,9 @@ fi
 
 
 %changelog
+* Sun Aug 25 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.3.1-1
+- Ver. 1.3.1
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.2-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 

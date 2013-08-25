@@ -1,7 +1,7 @@
-From 35ca0d515abf41b76f71c808785e4d6ff31a30d9 Mon Sep 17 00:00:00 2001
+From 97073d1852f8b8045288fefba0b7229e51a4ab1e Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 14:21:20 +0300
-Subject: [PATCH 03/11] More directories to search for place for init-script
+Subject: [PATCH 02/14] More directories to search for place for init-script
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
@@ -9,10 +9,10 @@ Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
  1 file changed, 11 insertions(+), 5 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 56aebc5..f5c9238 100644
+index 53e23f1..b6e6962 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -487,17 +487,23 @@ launchd_enabled=false
+@@ -526,17 +526,23 @@ launchd_enabled=false
  
  if test "$use_init" = "yes"; then
     AC_MSG_CHECKING(location of init directory)
@@ -42,5 +42,5 @@ index 56aebc5..f5c9238 100644
      fi
  fi
 -- 
-1.8.2.1
+1.8.3.1
 

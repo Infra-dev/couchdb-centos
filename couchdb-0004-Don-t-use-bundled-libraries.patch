@@ -1,34 +1,34 @@
-From b2d3ed89ca22fb005cb6ed0907d0a35bd5da010e Mon Sep 17 00:00:00 2001
+From fcfa7cbfb81fdb43026f0ae1d9e20bc6ee9a5c48 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
-Subject: [PATCH 05/11] Don't use bundled libraries
+Subject: [PATCH 04/14] Don't use bundled libraries
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
- configure.ac               | 7 -------
- src/Makefile.am            | 2 +-
+ configure.ac               | 6 ------
+ src/Makefile.am            | 6 +-----
  src/ejson/Makefile.am      | 8 ++------
- test/etap/test_util.erl.in | 3 +--
- 4 files changed, 4 insertions(+), 16 deletions(-)
+ test/etap/test_util.erl.in | 8 ++------
+ 4 files changed, 5 insertions(+), 23 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index d61e6a7..bee274e 100644
+index 58327f3..0eee6b5 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -20,7 +20,6 @@ AC_CONFIG_AUX_DIR([build-aux])
+@@ -23,7 +23,6 @@ AC_CONFIG_AUX_DIR([build-aux])
  AC_CONFIG_MACRO_DIR([m4])
  
- AC_CONFIG_HEADER([config.h])
+ AC_CONFIG_HEADERS([config.h])
 -AC_CONFIG_HEADERS([src/snappy/google-snappy/config.h])
  
  AM_INIT_AUTOMAKE([1.6.3 foreign])
  
-@@ -599,12 +598,6 @@ AC_CONFIG_FILES([src/Makefile])
+@@ -739,12 +738,7 @@ AC_CONFIG_FILES([src/couch_replicator/Makefile])
  AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
 -AC_CONFIG_FILES([src/erlang-oauth/Makefile])
--AC_CONFIG_FILES([src/etap/Makefile])
+ AC_CONFIG_FILES([src/etap/Makefile])
 -AC_CONFIG_FILES([src/ibrowse/Makefile])
 -AC_CONFIG_FILES([src/mochiweb/Makefile])
 -AC_CONFIG_FILES([src/snappy/Makefile])
@@ -37,15 +37,19 @@ index d61e6a7..bee274e 100644
  AC_CONFIG_FILES([test/Makefile])
  AC_CONFIG_FILES([test/bench/Makefile])
 diff --git a/src/Makefile.am b/src/Makefile.am
-index 047f1ee..c6126fc 100644
+index fbd514c..893e5f3 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -10,4 +10,4 @@
- ## License for the specific language governing permissions and limitations under
- ## the License.
- 
--SUBDIRS = couchdb ejson erlang-oauth etap ibrowse mochiweb snappy
-+SUBDIRS = couchdb ejson
+@@ -16,8 +16,4 @@ SUBDIRS = \
+     couch_replicator \
+     couchdb \
+     ejson \
+-    erlang-oauth \
+-    etap \
+-    ibrowse \
+-    mochiweb \
+-    snappy
++    etap
 diff --git a/src/ejson/Makefile.am b/src/ejson/Makefile.am
 index c1e07db..6f2dfaa 100644
 --- a/src/ejson/Makefile.am
@@ -69,19 +73,25 @@ index c1e07db..6f2dfaa 100644
  EXTRA_DIST = \
  	$(EJSON_C_HDRS) \
 diff --git a/test/etap/test_util.erl.in b/test/etap/test_util.erl.in
-index f17be20..85644dc 100644
+index 352714e..c0292a7 100644
 --- a/test/etap/test_util.erl.in
 +++ b/test/etap/test_util.erl.in
-@@ -23,8 +23,7 @@ builddir() ->
-     "@abs_top_builddir@".
+@@ -25,13 +25,9 @@ builddir() ->
  
  init_code_path() ->
--    Paths = ["etap", "couchdb", "ejson", "erlang-oauth", "ibrowse", "mochiweb",
--             "snappy"],
-+    Paths = ["couchdb", "ejson"],
+     Paths = [
+-        "etap",
++	"etap",
+         "couchdb",
+-        "ejson",
+-        "erlang-oauth",
+-        "ibrowse",
+-        "mochiweb",
+-        "snappy"
++        "ejson"
+     ],
      lists:foreach(fun(Name) ->
          code:add_patha(filename:join([builddir(), "src", Name]))
-     end, Paths).
 -- 
-1.8.2.1
+1.8.3.1
 

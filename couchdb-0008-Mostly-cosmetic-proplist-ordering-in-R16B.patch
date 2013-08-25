@@ -1,7 +1,7 @@
-From 1de07dd7ccb0696a59306fc58d73231dcbbfb367 Mon Sep 17 00:00:00 2001
+From 578cedf657dd1bc5d9799b90eb81e5a1a601a3d1 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Fri, 15 Mar 2013 16:41:59 +0400
-Subject: [PATCH 09/11] Mostly cosmetic - proplist ordering in R16B
+Subject: [PATCH 08/14] Mostly cosmetic - proplist ordering in R16B
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 ---
@@ -29,5 +29,5 @@ index dee8876..44744d6 100755
      ),
      
 -- 
-1.8.2.1
+1.8.3.1
 

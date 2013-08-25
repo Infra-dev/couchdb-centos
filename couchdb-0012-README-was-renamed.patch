@@ -1,0 +1,26 @@
+From 7b4a63300c817a4eef708f97c09d36fd9d46fab9 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Thu, 15 Aug 2013 19:06:31 +0400
+Subject: [PATCH 12/14] README was renamed
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 75b9d35..448892b 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -22,7 +22,7 @@ localdoc_DATA = \
+     LICENSE \
+     NEWS \
+     NOTICE \
+-    README \
++    README.rst \
+     THANKS
+ 
+ DISTCLEANFILES = $(localdoc_DATA)
+-- 
+1.8.3.1
+
