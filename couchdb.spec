@@ -1,10 +1,6 @@
-%define couchdb_user couchdb
-%define couchdb_group couchdb
-%define couchdb_home %{_localstatedir}/lib/couchdb
-
 Name:           couchdb
 Version:        1.3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -29,8 +25,6 @@ Patch11:	couchdb-0011-Don-t-check-for-Erlang-version.patch
 Patch12:	couchdb-0012-README-was-renamed.patch
 Patch13:	couchdb-0013-Typo-no-such-function-couch_httpd-send_method_not_al.patch
 Patch14:	couchdb-0014-Expose-get_compactor_pid-1.patch
-
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  autoconf
 BuildRequires:	autoconf-archive
@@ -132,7 +126,6 @@ make %{?_smp_mflags}
 
 
 %install
-rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 %if 0%{?el5}%{?el6}
@@ -142,10 +135,10 @@ mv %{buildroot}%{_sysconfdir}/{default,sysconfig}
 install -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/%{name}
 %else
 # Install /etc/tmpfiles.d entry
-install -D -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
+install -D -m 644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 # Install systemd entry
 install -D -m 755 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}.service
-rm -rf %{buildroot}/%{_sysconfdir}/rc.d/
+rm -rf %{buildroot}%{_sysconfdir}/rc.d/
 rm -rf %{buildroot}%{_sysconfdir}/default/
 %endif
 
@@ -153,29 +146,25 @@ rm -rf %{buildroot}%{_sysconfdir}/default/
 find %{buildroot} -type f -name "*.la" -delete
 
 # Remove installed docs (this will mess with versione/unversioned docdirs)
-rm -rf %{buildroot}/%{_datadir}/doc/couchdb
+rm -rf %{buildroot}%{_defaultdocdir}
 
 # Remove unneeded info-files
-rm -rf %{buildroot}/%{_datadir}/info/
+rm -rf %{buildroot}%{_datadir}/info/
 
 # FIXME - this time CouchDB bundled a copy of etap which is heavily different
 # from the one we're shipping
-rm -rf %{buildroot}/%{_libdir}/erlang/lib/etap/
+rm -rf %{buildroot}%{_libdir}/erlang/lib/etap/
 
 
 %check
 make check
 
 
-%clean
-rm -rf %{buildroot}
-
-
 %pre
-getent group %{couchdb_group} >/dev/null || groupadd -r %{couchdb_group}
-getent passwd %{couchdb_user} >/dev/null || \
-useradd -r -g %{couchdb_group} -d %{couchdb_home} -s /bin/bash \
--c "Couchdb Database Server" %{couchdb_user}
+getent group %{name} >/dev/null || groupadd -r %{name}
+getent passwd %{name} >/dev/null || \
+useradd -r -g %{name} -d %{_localstatedir}/lib/%{name} -s /bin/bash \
+-c "Couchdb Database Server" %{name}
 exit 0
 
 
@@ -200,24 +189,7 @@ fi
 
 %postun
 %if 0%{?el7}%{?fedora}
-%systemd_postun %{name}.service
-if [ $1 -ge 1 ] ; then
-	# Package upgrade, not uninstall
-	/usr/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
-fi
-%endif
-
-
-%if 0%{?fedora} > 16
-%triggerun -- %{name} < 1.0.3-5
-# Save the current service runlevel info
-# User must manually run systemd-sysv-convert --apply httpd
-# to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save %{name} >/dev/null 2>&1 ||:
-
-# Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del %{name} >/dev/null 2>&1 || :
-/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
+%systemd_postun_with_restart %{name}.service
 %endif
 
 
@@ -226,11 +198,11 @@ fi
 %dir %{_sysconfdir}/%{name}
 %dir %{_sysconfdir}/%{name}/local.d
 %dir %{_sysconfdir}/%{name}/default.d
-%config(noreplace) %attr(0644, %{couchdb_user}, %{couchdb_group}) %{_sysconfdir}/%{name}/default.ini
-%config(noreplace) %attr(0644, %{couchdb_user}, %{couchdb_group}) %{_sysconfdir}/%{name}/local.ini
+%config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/default.ini
+%config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/local.ini
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%if 0%{?fedora} > 16
-%{_sysconfdir}/tmpfiles.d/%{name}.conf
+%if 0%{?el7}%{?fedora}
+%{_tmpfilesdir}/%{name}.conf
 %{_unitdir}/%{name}.service
 %else
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
@@ -247,12 +219,15 @@ fi
 %{_datadir}/%{name}
 %{_mandir}/man1/%{name}.1.*
 %{_mandir}/man1/couchjs.1.*
-%dir %attr(0755, %{couchdb_user}, %{couchdb_group}) %{_localstatedir}/log/%{name}
-%dir %attr(0755, %{couchdb_user}, %{couchdb_group}) %{_localstatedir}/run/%{name}
-%dir %attr(0755, %{couchdb_user}, %{couchdb_group}) %{_localstatedir}/lib/%{name}
+%dir %attr(0755, %{name}, %{name}) %{_localstatedir}/log/%{name}
+%dir %attr(0755, %{name}, %{name}) %{_localstatedir}/run/%{name}
+%dir %attr(0755, %{name}, %{name}) %{_localstatedir}/lib/%{name}
 
 
 %changelog
+* Fri Sep 06 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.3.1-2
+- Moved tmpfiles entry to /usr
+
 * Sun Aug 25 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.3.1-1
 - Ver. 1.3.1
 
