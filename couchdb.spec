@@ -1,6 +1,14 @@
+%{?filter_setup:
+%filter_provides_in %{_libdir}/erlang/lib/.*\.so$
+%filter_setup
+}
+%{expand: %(NIF_VER=`rpm -q erlang-erts --provides | grep --color=no erl_nif_version` ; if [ "$NIF_VER" != "" ]; then echo %%global __erlang_nif_version $NIF_VER ; fi)}
+%{expand: %(DRV_VER=`rpm -q erlang-erts --provides | grep --color=no erl_drv_version` ; if [ "$DRV_VER" != "" ]; then echo %%global __erlang_drv_version $DRV_VER ; fi)}
+
+
 Name:           couchdb
 Version:        1.3.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -76,6 +84,8 @@ Requires(preun): systemd
 # Users and groups
 Requires(pre): shadow-utils
 
+%{?__erlang_nif_version:Requires: %{__erlang_nif_version}}
+%{?__erlang_drv_version:Requires: %{__erlang_drv_version}}
 
 %description
 Apache CouchDB is a distributed, fault-tolerant and schema-free
@@ -225,6 +235,9 @@ fi
 
 
 %changelog
+* Fri Oct 25 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.3.1-3
+- Rebuild with new requires - __erlang_nif_version, __erlang_drv_version
+
 * Fri Sep 06 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.3.1-2
 - Moved tmpfiles entry to /usr
 
