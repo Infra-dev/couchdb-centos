@@ -1,26 +1,19 @@
-From ade7d16e8ebd2f5af6cc7b82ed6e6644bc978789 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Fri, 21 Jun 2013 11:56:54 +0400
-Subject: [PATCH 10/14] Fix for Erlang R16B01
+Subject: [PATCH] Fix for Erlang R16B01
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
----
- src/couchdb/couch_app.erl | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/couchdb/couch_app.erl b/src/couchdb/couch_app.erl
-index 4cf4862..42411a8 100644
+index 9644877..42411a8 100644
 --- a/src/couchdb/couch_app.erl
 +++ b/src/couchdb/couch_app.erl
 @@ -20,7 +20,7 @@
  
  start(_Type, DefaultIniFiles) ->
      IniFiles = get_ini_files(DefaultIniFiles),
--    case start_apps([crypto, public_key, sasl, inets, oauth, ssl, ibrowse, xmerl, compiler, syntax_tools, mochiweb, os_mon]) of
+-    case start_apps([crypto, asn1, public_key, sasl, inets, oauth, ssl, ibrowse, syntax_tools, compiler, xmerl, mochiweb, os_mon]) of
 +    case start_apps([crypto, asn1, public_key, sasl, inets, oauth, ssl, ibrowse, xmerl, compiler, syntax_tools, mochiweb, os_mon]) of
      ok ->
          couch_server_sup:start_link(IniFiles);
      {error, Reason} ->
--- 
-1.8.3.1
-

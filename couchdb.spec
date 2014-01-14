@@ -7,15 +7,15 @@
 
 
 Name:           couchdb
-Version:        1.3.1
-Release:        3%{?dist}
+Version:        1.5.0
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
 License:        ASL 2.0
 URL:            http://couchdb.apache.org/
-Source0:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz
-Source1:        http://www.apache.org/dist/%{name}/%{version}/apache-%{name}-%{version}.tar.gz.asc
+Source0:        http://www.apache.org/dist/%{name}/source/%{version}/apache-%{name}-%{version}.tar.gz
+Source1:        http://www.apache.org/dist/%{name}/source/%{version}/apache-%{name}-%{version}.tar.gz.asc
 Source2:        %{name}.init
 Source3:        %{name}.service
 Source4:	%{name}.tmpfiles.conf
@@ -26,13 +26,13 @@ Patch4:		couchdb-0004-Don-t-use-bundled-libraries.patch
 Patch5:		couchdb-0005-Fixes-for-system-wide-ibrowse.patch
 Patch6:		couchdb-0006-Remove-pid-file-after-stop.patch
 Patch7:		couchdb-0007-Change-respawn-timeout-to-0.patch
-Patch8:		couchdb-0008-Mostly-cosmetic-proplist-ordering-in-R16B.patch
-Patch9:		couchdb-0009-Start-necessary-application-before-mochiweb.patch
-Patch10:	couchdb-0010-Fix-for-Erlang-R16B01.patch
-Patch11:	couchdb-0011-Don-t-check-for-Erlang-version.patch
-Patch12:	couchdb-0012-README-was-renamed.patch
-Patch13:	couchdb-0013-Typo-no-such-function-couch_httpd-send_method_not_al.patch
-Patch14:	couchdb-0014-Expose-get_compactor_pid-1.patch
+Patch8:		couchdb-0008-Fix-for-Erlang-R16B01.patch
+Patch9:		couchdb-0009-Don-t-check-for-Erlang-version.patch
+Patch10:	couchdb-0010-README-was-renamed.patch
+# Sent upstream - https://github.com/apache/couchdb/pull/128 (and applied already)
+Patch11:	couchdb-0011-Export-missing-function-couch_httpd-send_error-2.patch
+# Sent upstream - https://github.com/apache/couchdb/pull/129
+Patch12:	couchdb-0012-Adopt-to-the-recent-erlang-oauth-1.3.patch
 
 BuildRequires:  autoconf
 BuildRequires:	autoconf-archive
@@ -45,7 +45,7 @@ BuildRequires:	erlang-erts >= R13B
 #BuildRequires:	erlang-etap
 BuildRequires:	erlang-ibrowse >= 2.2.0
 BuildRequires:	erlang-mochiweb
-BuildRequires:	erlang-oauth
+BuildRequires:	erlang-oauth >= 1.3.0
 BuildRequires:	erlang-os_mon
 BuildRequires:	erlang-snappy
 BuildRequires:	help2man
@@ -106,14 +106,12 @@ JavaScript acting as the default view definition language.
 %patch6 -p1 -b .remove_pid_file
 %patch7 -p1 -b .fix_respawn
 %if 0%{?fedora} > 18
-%patch8 -p1 -b .fix_proplist_ordering_r16b
-%patch9 -p1 -b .start_necessary_apps_before_mochiweb
-%patch10 -p1 -b .r16b01
-%patch11 -p1 -b .dontcheck
+%patch8 -p1 -b .r16b01
+%patch9 -p1 -b .dontcheck
 %endif
-%patch12 -p1 -b .renamed
-%patch13 -p1 -b .typo1
-%patch14 -p1 -b .typo2
+%patch10 -p1 -b .renamed
+%patch11 -p1 -b .export_missing_fun
+%patch12 -p1 -b .oauth_1_3_0
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
@@ -204,7 +202,7 @@ fi
 
 
 %files
-%doc AUTHORS BUGS CHANGES LICENSE NEWS NOTICE README.rst THANKS
+%doc AUTHORS BUGS LICENSE NOTICE README.rst THANKS
 %dir %{_sysconfdir}/%{name}
 %dir %{_sysconfdir}/%{name}/local.d
 %dir %{_sysconfdir}/%{name}/default.d
@@ -222,8 +220,10 @@ fi
 %{_bindir}/couch-config
 %{_bindir}/couchjs
 %{_libdir}/erlang/lib/couch-%{version}/
+%{_libdir}/erlang/lib/couch_dbupdates-0.1/
 %{_libdir}/erlang/lib/couch_index-0.1/
 %{_libdir}/erlang/lib/couch_mrview-0.1/
+%{_libdir}/erlang/lib/couch_plugins-0.1/
 %{_libdir}/erlang/lib/couch_replicator-0.1/
 %{_libdir}/erlang/lib/ejson-0.1.0/
 %{_datadir}/%{name}
@@ -235,6 +235,9 @@ fi
 
 
 %changelog
+* Fri Jan 10 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.5.0-1
+- Ver. 1.5.0
+
 * Fri Oct 25 2013 Peter Lemenkov <lemenkov@gmail.com> - 1.3.1-3
 - Rebuild with new requires - __erlang_nif_version, __erlang_drv_version
 

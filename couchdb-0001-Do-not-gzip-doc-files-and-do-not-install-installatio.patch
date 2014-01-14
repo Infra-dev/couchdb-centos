@@ -1,47 +1,42 @@
-From ecb89a85b6849f1ee7d5df09dfb40fdac87194c2 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 13 Feb 2011 13:52:38 +0300
-Subject: [PATCH 01/14] Do not gzip doc-files and do not install installation
+Subject: [PATCH] Do not gzip doc-files and do not install installation
  instructions
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
----
- Makefile.am | 57 +++++++++------------------------------------------------
- 1 file changed, 9 insertions(+), 48 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 8703a30..75b9d35 100644
+index 527cf18..ebe56b7 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -15,18 +15,15 @@ SUBDIRS = bin etc src share test var utils
+@@ -15,16 +15,16 @@ SUBDIRS = bin etc src share test var utils
  ACLOCAL_AMFLAGS = -I m4
  
  localdoc_DATA = \
 -    AUTHORS.gz \
 -    BUGS.gz \
--    CHANGES.gz \
 -    DEVELOPERS.gz \
 -    INSTALL.gz \
 -    INSTALL.Unix.gz \
 -    INSTALL.Windows.gz \
 -    LICENSE.gz \
--    NEWS.gz \
 -    NOTICE.gz \
 -    README.gz \
 -    THANKS.gz
 +    AUTHORS \
 +    BUGS \
-+    CHANGES \
 +    DEVELOPERS \
++    INSTALL \
++    INSTALL.Unix \
++    INSTALL.Windows \
 +    LICENSE \
-+    NEWS \
 +    NOTICE \
 +    README \
 +    THANKS
  
  DISTCLEANFILES = $(localdoc_DATA)
  
-@@ -48,42 +45,6 @@ EXTRA_DIST = \
+@@ -44,36 +44,6 @@ EXTRA_DIST = \
      build-aux/sphinx-touch \
      license.skip
  
@@ -49,9 +44,6 @@ index 8703a30..75b9d35 100644
 -	gzip -9 < $< > $@
 -
 -BUGS.gz: BUGS
--	gzip -9 < $< > $@
--
--CHANGES.gz: CHANGES
 -	gzip -9 < $< > $@
 -
 -DEVELOPERS.gz: DEVELOPERS
@@ -69,9 +61,6 @@ index 8703a30..75b9d35 100644
 -LICENSE.gz: LICENSE
 -	gzip -9 < $< > $@
 -
--NEWS.gz: NEWS
--	gzip -9 < $< > $@
--
 -NOTICE.gz: NOTICE
 -	gzip -9 < $< > $@
 -
@@ -84,6 +73,3 @@ index 8703a30..75b9d35 100644
  check: dev check-js
  if TESTS
  	$(top_builddir)/test/etap/run $(top_srcdir)/test/etap
--- 
-1.8.3.1
-

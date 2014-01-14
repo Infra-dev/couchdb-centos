@@ -1,0 +1,27 @@
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Fri, 10 Jan 2014 16:30:25 +0400
+Subject: [PATCH] Adopt to the recent erlang-oauth (1.3+)
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+
+diff --git a/src/couchdb/couch_httpd_oauth.erl b/src/couchdb/couch_httpd_oauth.erl
+index 2094c08..60a937c 100644
+--- a/src/couchdb/couch_httpd_oauth.erl
++++ b/src/couchdb/couch_httpd_oauth.erl
+@@ -43,6 +43,7 @@ oauth_auth_callback(#httpd{mochi_req = MochiReq} = Req, CbParams) ->
+     Method = atom_to_list(MochiReq:get(method)),
+     #callback_params{
+         consumer = Consumer,
++        token = Token,
+         token_secret = TokenSecret,
+         url = Url,
+         signature = Sig,
+@@ -61,7 +62,7 @@ oauth_auth_callback(#httpd{mochi_req = MochiReq} = Req, CbParams) ->
+             "Consumer is `~p`, token secret is `~p`~n"
+             "Expected signature was `~p`~n",
+             [User, Sig, Method, Url, Params, Consumer, TokenSecret,
+-                oauth:signature(Method, Url, Params, Consumer, TokenSecret)]),
++                oauth:sign(Method, Url, Params, Consumer, Token, TokenSecret)]),
+         Req
+     end.
+ 

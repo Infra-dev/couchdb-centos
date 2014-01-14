@@ -1,21 +1,14 @@
-From fcfa7cbfb81fdb43026f0ae1d9e20bc6ee9a5c48 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Sun, 15 May 2011 18:47:41 +0400
-Subject: [PATCH 04/14] Don't use bundled libraries
+Subject: [PATCH] Don't use bundled libraries
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
----
- configure.ac               | 6 ------
- src/Makefile.am            | 6 +-----
- src/ejson/Makefile.am      | 8 ++------
- test/etap/test_util.erl.in | 8 ++------
- 4 files changed, 5 insertions(+), 23 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 58327f3..0eee6b5 100644
+index 5c121c0..fe4f79a 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -23,7 +23,6 @@ AC_CONFIG_AUX_DIR([build-aux])
+@@ -22,7 +22,6 @@ AC_CONFIG_AUX_DIR([build-aux])
  AC_CONFIG_MACRO_DIR([m4])
  
  AC_CONFIG_HEADERS([config.h])
@@ -23,7 +16,7 @@ index 58327f3..0eee6b5 100644
  
  AM_INIT_AUTOMAKE([1.6.3 foreign])
  
-@@ -739,12 +738,7 @@ AC_CONFIG_FILES([src/couch_replicator/Makefile])
+@@ -746,12 +745,7 @@ AC_CONFIG_FILES([src/couchjs-node/Makefile])
  AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
@@ -37,19 +30,21 @@ index 58327f3..0eee6b5 100644
  AC_CONFIG_FILES([test/Makefile])
  AC_CONFIG_FILES([test/bench/Makefile])
 diff --git a/src/Makefile.am b/src/Makefile.am
-index fbd514c..893e5f3 100644
+index e74637e..2b27673 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -16,8 +16,4 @@ SUBDIRS = \
+@@ -18,11 +18,7 @@ SUBDIRS = \
      couch_replicator \
      couchdb \
      ejson \
 -    erlang-oauth \
--    etap \
+     etap \
 -    ibrowse \
 -    mochiweb \
--    snappy
-+    etap
+-    snappy \
+     couchjs-node
+ 
+ EXTRA_DIST = \
 diff --git a/src/ejson/Makefile.am b/src/ejson/Makefile.am
 index c1e07db..6f2dfaa 100644
 --- a/src/ejson/Makefile.am
@@ -92,6 +87,3 @@ index 352714e..c0292a7 100644
      ],
      lists:foreach(fun(Name) ->
          code:add_patha(filename:join([builddir(), "src", Name]))
--- 
-1.8.3.1
-

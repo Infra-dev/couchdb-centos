@@ -1,12 +1,8 @@
-From b7f3ee59db3efcceb407e6c267fb1c8b93426a39 Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Thu, 26 Aug 2010 13:22:56 +0400
-Subject: [PATCH 07/14] Change respawn timeout to 0.
+Subject: [PATCH] Change respawn timeout to 0.
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
----
- etc/default/couchdb | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/etc/default/couchdb b/etc/default/couchdb
 index c2a3f2a..f589c0a 100644
@@ -19,6 +15,3 @@ index c2a3f2a..f589c0a 100644
 -COUCHDB_RESPAWN_TIMEOUT=5
 +COUCHDB_RESPAWN_TIMEOUT=0
  COUCHDB_OPTIONS=
--- 
-1.8.3.1
-
