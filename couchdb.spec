@@ -8,7 +8,7 @@
 
 Name:           couchdb
 Version:        1.5.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -235,6 +235,9 @@ fi
 
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Fri Feb 14 2014 David Tardon <dtardon@redhat.com> - 1.5.0-2
 - rebuild for new ICU
 
