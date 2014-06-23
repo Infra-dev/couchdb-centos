@@ -8,7 +8,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -105,7 +105,9 @@ JavaScript acting as the default view definition language.
 %patch8 -p1 -b .r16b01
 %endif
 %patch9 -p1 -b .renamed
+%if 0%{?fedora} > 20
 %patch10 -p1 -b .default_instead_of_bsd
+%endif
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
@@ -229,6 +231,9 @@ fi
 
 
 %changelog
+* Mon Jun 23 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-2
+- Fix building with sligntly older gcc/glibc
+
 * Sun Jun 22 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-1
 - Ver. 1.6.0
 
