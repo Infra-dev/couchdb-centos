@@ -4,14 +4,14 @@ Subject: [PATCH] Remove pid-file after stop
 
 
 diff --git a/bin/couchdb.tpl.in b/bin/couchdb.tpl.in
-index 6ebacf4..1e1a6cf 100644
+index f2027f1..ba034cc 100644
 --- a/bin/couchdb.tpl.in
 +++ b/bin/couchdb.tpl.in
-@@ -302,6 +302,7 @@ EOF
+@@ -305,6 +305,7 @@ EOF
  
  stop_couchdb () {
      PID=`_get_pid`
 +    rm -f $PID_FILE
      STOP_TIMEOUT=60
      if test -n "$PID"; then
-         if kill -0 $PID 2> /dev/null; then
+         if test "$1" = "false"; then

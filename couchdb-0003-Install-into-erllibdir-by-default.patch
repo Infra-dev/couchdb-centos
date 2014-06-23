@@ -5,10 +5,10 @@ Subject: [PATCH] Install into erllibdir by default
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 
 diff --git a/configure.ac b/configure.ac
-index 0f56ee2..5c121c0 100644
+index 0c36065..967e3b1 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -694,7 +694,7 @@ AC_SUBST([bug_uri], ["LOCAL_BUG_URI"])
+@@ -698,7 +698,7 @@ AC_SUBST([bug_uri], ["LOCAL_BUG_URI"])
  AC_SUBST([localconfdir], [${sysconfdir}/${package_identifier}])
  AC_SUBST([localdatadir], [${datadir}/${package_identifier}])
  AC_SUBST([localdocdir], [${datadir}/doc/${package_identifier}])
@@ -17,7 +17,7 @@ index 0f56ee2..5c121c0 100644
  AC_SUBST([localstatelibdir], [${localstatedir}/lib/${package_identifier}])
  AC_SUBST([localstatelogdir], [${localstatedir}/log/${package_identifier}])
  AC_SUBST([localstaterundir], [${localstatedir}/run/${package_identifier}])
-@@ -707,7 +707,7 @@ if test x${IS_WINDOWS} = xTRUE; then
+@@ -711,7 +711,7 @@ if test x${IS_WINDOWS} = xTRUE; then
      AC_SUBST([locallibbindir], [${prefix}/bin])
      AC_SUBST([localerlanglibdir], [${libdir}])
  else

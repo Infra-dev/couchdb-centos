@@ -7,8 +7,8 @@
 
 
 Name:           couchdb
-Version:        1.5.0
-Release:        3%{?dist}
+Version:        1.6.0
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -27,12 +27,8 @@ Patch5:		couchdb-0005-Fixes-for-system-wide-ibrowse.patch
 Patch6:		couchdb-0006-Remove-pid-file-after-stop.patch
 Patch7:		couchdb-0007-Change-respawn-timeout-to-0.patch
 Patch8:		couchdb-0008-Fix-for-Erlang-R16B01.patch
-Patch9:		couchdb-0009-Don-t-check-for-Erlang-version.patch
-Patch10:	couchdb-0010-README-was-renamed.patch
-# Sent upstream - https://github.com/apache/couchdb/pull/128 (and applied already)
-Patch11:	couchdb-0011-Export-missing-function-couch_httpd-send_error-2.patch
-# Sent upstream - https://github.com/apache/couchdb/pull/129
-Patch12:	couchdb-0012-Adopt-to-the-recent-erlang-oauth-1.3.patch
+Patch9:		couchdb-0009-README-was-renamed.patch
+Patch10:	couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE.patch
 
 BuildRequires:  autoconf
 BuildRequires:	autoconf-archive
@@ -43,7 +39,7 @@ BuildRequires:	erlang-erts >= R13B
 # FIXME - this time CouchDB bundled a copy of etap which is heavily different
 # from the one we're shipping
 #BuildRequires:	erlang-etap
-BuildRequires:	erlang-ibrowse >= 2.2.0
+BuildRequires:	erlang-ibrowse >= 4.0.1
 BuildRequires:	erlang-mochiweb
 BuildRequires:	erlang-oauth >= 1.3.0
 BuildRequires:	erlang-os_mon
@@ -58,8 +54,8 @@ Requires:	erlang-crypto%{?_isa}
 # Error:erlang(erlang:max/2) in R12B and earlier
 # Error:erlang(erlang:min/2) in R12B and earlier
 Requires:	erlang-erts%{?_isa} >= R13B
-Requires:	erlang-ibrowse%{?_isa} >= 2.2.0
-#Requires:	erlang-inets%{?_isa}
+Requires:	erlang-ibrowse%{?_isa} >= 4.0.1
+Requires:	erlang-inets%{?_isa}
 Requires:	erlang-kernel%{?_isa}
 Requires:	erlang-mochiweb%{?_isa}
 Requires:	erlang-oauth%{?_isa}
@@ -105,13 +101,11 @@ JavaScript acting as the default view definition language.
 %patch5 -p1 -b .workaround_for_system_wide_ibrowse
 %patch6 -p1 -b .remove_pid_file
 %patch7 -p1 -b .fix_respawn
-%if 0%{?fedora} > 18
+%if 0%{?fedora}%{?el7}
 %patch8 -p1 -b .r16b01
-%patch9 -p1 -b .dontcheck
 %endif
-%patch10 -p1 -b .renamed
-%patch11 -p1 -b .export_missing_fun
-%patch12 -p1 -b .oauth_1_3_0
+%patch9 -p1 -b .renamed
+%patch10 -p1 -b .default_instead_of_bsd
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
@@ -235,6 +229,9 @@ fi
 
 
 %changelog
+* Sun Jun 22 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-1
+- Ver. 1.6.0
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 

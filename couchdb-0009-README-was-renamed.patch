@@ -5,7 +5,7 @@ Subject: [PATCH] README was renamed
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 
 diff --git a/Makefile.am b/Makefile.am
-index ebe56b7..4400bd1 100644
+index 661ba58..1eca5ab 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -23,7 +23,7 @@ localdoc_DATA = \

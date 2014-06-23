@@ -5,10 +5,10 @@ Subject: [PATCH] More directories to search for place for init-script
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 
 diff --git a/configure.ac b/configure.ac
-index 6c5ef5b..0f56ee2 100644
+index 103f029..0c36065 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -524,17 +524,23 @@ launchd_enabled=false
+@@ -528,17 +528,23 @@ launchd_enabled=false
  
  if test "$use_init" = "yes"; then
     AC_MSG_CHECKING(location of init directory)

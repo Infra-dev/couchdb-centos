@@ -18,7 +18,7 @@ index b8fb31b..44f308b 100644
  -export([setup/1]).
  -export([send_req/3]).
 diff --git a/src/couch_replicator/src/couch_replicator_utils.erl b/src/couch_replicator/src/couch_replicator_utils.erl
-index d7778db..cbd3035 100644
+index 99ddebf..1948b7d 100644
 --- a/src/couch_replicator/src/couch_replicator_utils.erl
 +++ b/src/couch_replicator/src/couch_replicator_utils.erl
 @@ -21,7 +21,7 @@

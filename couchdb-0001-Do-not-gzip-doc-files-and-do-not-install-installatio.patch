@@ -6,7 +6,7 @@ Subject: [PATCH] Do not gzip doc-files and do not install installation
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 
 diff --git a/Makefile.am b/Makefile.am
-index 527cf18..ebe56b7 100644
+index 22809f8..661ba58 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -15,16 +15,16 @@ SUBDIRS = bin etc src share test var utils
@@ -36,9 +36,9 @@ index 527cf18..ebe56b7 100644
  
  DISTCLEANFILES = $(localdoc_DATA)
  
-@@ -44,36 +44,6 @@ EXTRA_DIST = \
-     build-aux/sphinx-touch \
-     license.skip
+@@ -45,36 +45,6 @@ EXTRA_DIST = \
+     license.skip \
+     Vagrantfile
  
 -AUTHORS.gz: AUTHORS
 -	gzip -9 < $< > $@

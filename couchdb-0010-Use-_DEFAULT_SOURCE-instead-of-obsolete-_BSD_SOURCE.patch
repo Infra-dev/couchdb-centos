@@ -1,0 +1,41 @@
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Sun, 22 Jun 2014 23:30:32 +0400
+Subject: [PATCH] Use _DEFAULT_SOURCE instead of obsolete _BSD_SOURCE
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+
+diff --git a/src/couchdb/priv/Makefile.am b/src/couchdb/priv/Makefile.am
+index a7973ba..5c8620b 100644
+--- a/src/couchdb/priv/Makefile.am
++++ b/src/couchdb/priv/Makefile.am
+@@ -44,7 +44,7 @@ couchprivlib_LTLIBRARIES = couch_icu_driver.la
+ if USE_EJSON_COMPARE_NIF
+ couchprivlib_LTLIBRARIES += couch_ejson_compare.la
+ couch_ejson_compare_la_SOURCES = couch_ejson_compare/couch_ejson_compare.c
+-couch_ejson_compare_la_CPPFLAGS = -D_BSD_SOURCE $(ICU_CPPFLAGS) $(ERLANG_FLAGS)
++couch_ejson_compare_la_CPPFLAGS = -D_DEFAULT_SOURCE $(ICU_CPPFLAGS) $(ERLANG_FLAGS)
+ couch_ejson_compare_la_LDFLAGS = -module -avoid-version
+ couch_ejson_compare_la_LIBADD = $(ICU_LIBS)
+ if WINDOWS
+@@ -72,7 +72,7 @@ COUCHJS_SRCS = \
+ 
+ locallibbin_PROGRAMS = couchjs
+ couchjs_SOURCES = $(COUCHJS_SRCS)
+-couchjs_CFLAGS = -g -Wall -Werror -D_BSD_SOURCE $(CURL_CFLAGS) $(JS_CFLAGS)
++couchjs_CFLAGS = -g -Wall -Werror -D_DEFAULT_SOURCE $(CURL_CFLAGS) $(JS_CFLAGS)
+ couchjs_LDADD = $(CURL_LIBS) $(JS_LIBS)
+ 
+ couchpriv_DATA = stat_descriptions.cfg
+diff --git a/test/etap/Makefile.am b/test/etap/Makefile.am
+index c9778ca..0b3bbe9 100644
+--- a/test/etap/Makefile.am
++++ b/test/etap/Makefile.am
+@@ -15,7 +15,7 @@ noinst_DATA = test_util.beam test_web.beam
+ 
+ noinst_PROGRAMS = test_cfg_register
+ test_cfg_register_SOURCES = test_cfg_register.c
+-test_cfg_register_CFLAGS = -D_BSD_SOURCE
++test_cfg_register_CFLAGS = -D_DEFAULT_SOURCE
+ 
+ %.beam: %.erl
+ 	$(ERLC) $<

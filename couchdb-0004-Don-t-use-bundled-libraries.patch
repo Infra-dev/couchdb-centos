@@ -5,7 +5,7 @@ Subject: [PATCH] Don't use bundled libraries
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 
 diff --git a/configure.ac b/configure.ac
-index 5c121c0..fe4f79a 100644
+index 967e3b1..7a84f4f 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -22,7 +22,6 @@ AC_CONFIG_AUX_DIR([build-aux])
@@ -14,9 +14,9 @@ index 5c121c0..fe4f79a 100644
  AC_CONFIG_HEADERS([config.h])
 -AC_CONFIG_HEADERS([src/snappy/google-snappy/config.h])
  
- AM_INIT_AUTOMAKE([1.6.3 foreign])
+ AM_INIT_AUTOMAKE([1.6.3 foreign tar-ustar])
  
-@@ -746,12 +745,7 @@ AC_CONFIG_FILES([src/couchjs-node/Makefile])
+@@ -750,12 +749,7 @@ AC_CONFIG_FILES([src/couchjs-node/Makefile])
  AC_CONFIG_FILES([src/couchdb/couch.app.tpl])
  AC_CONFIG_FILES([src/couchdb/Makefile])
  AC_CONFIG_FILES([src/couchdb/priv/Makefile])
@@ -30,7 +30,7 @@ index 5c121c0..fe4f79a 100644
  AC_CONFIG_FILES([test/Makefile])
  AC_CONFIG_FILES([test/bench/Makefile])
 diff --git a/src/Makefile.am b/src/Makefile.am
-index e74637e..2b27673 100644
+index a17674c..dde8b52 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -18,11 +18,7 @@ SUBDIRS = \
@@ -46,10 +46,10 @@ index e74637e..2b27673 100644
  
  EXTRA_DIST = \
 diff --git a/src/ejson/Makefile.am b/src/ejson/Makefile.am
-index c1e07db..6f2dfaa 100644
+index 60dacc2..2d4e539 100644
 --- a/src/ejson/Makefile.am
 +++ b/src/ejson/Makefile.am
-@@ -44,15 +44,11 @@ EJSON_C_HDRS = \
+@@ -46,15 +46,11 @@ EJSON_C_HDRS = \
  
  ejson_file_collection = \
      ejson.app.in \
