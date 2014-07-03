@@ -8,7 +8,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -29,6 +29,7 @@ Patch7:		couchdb-0007-Change-respawn-timeout-to-0.patch
 Patch8:		couchdb-0008-Fix-for-Erlang-R16B01.patch
 Patch9:		couchdb-0009-README-was-renamed.patch
 Patch10:	couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE.patch
+Patch11:	couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
 
 BuildRequires:  autoconf
 BuildRequires:	autoconf-archive
@@ -108,6 +109,7 @@ JavaScript acting as the default view definition language.
 %if 0%{?fedora} > 20
 %patch10 -p1 -b .default_instead_of_bsd
 %endif
+%patch11 -p1 -b .redundant_logging
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
@@ -231,6 +233,10 @@ fi
 
 
 %changelog
+* Wed Jul 02 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-3
+- silence stdout/stderr to prevent redundant flooding of /var/log/messages
+  CouchDB already logs these messages to /var/log/couchdb/couch.log
+
 * Mon Jun 23 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-2
 - Fix building with sligntly older gcc/glibc
 

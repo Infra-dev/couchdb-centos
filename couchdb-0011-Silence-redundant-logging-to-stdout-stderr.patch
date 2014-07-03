@@ -1,0 +1,32 @@
+From 590ea6ed73126f520d5fd06297f32810bd59a968 Mon Sep 17 00:00:00 2001
+From: Warren Togami <wtogami@gmail.com>
+Date: Wed, 2 Jul 2014 22:54:38 -1000
+Subject: [PATCH 11/11] Silence redundant logging to stdout/stderr
+
+CouchDB already logs everything to /var/log/couchdb/couch.log.
+The stdout/stderr redundantly floods /var/log/messages.
+
+This temporary hack was suggested by rnewson in #couchdb.
+
+https://issues.apache.org/jira/browse/COUCHDB-2264
+Related issue
+---
+ src/couchdb/couch_log.erl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/couchdb/couch_log.erl b/src/couchdb/couch_log.erl
+index cd4bbbb..db483a7 100644
+--- a/src/couchdb/couch_log.erl
++++ b/src/couchdb/couch_log.erl
+@@ -204,7 +204,7 @@ terminate(_Arg, #state{fd = Fd}) ->
+     file:close(Fd).
+ 
+ log(#state{fd = Fd}, ConsoleMsg, FileMsg) ->
+-    ok = io:put_chars(ConsoleMsg),
++    %ok = io:put_chars(ConsoleMsg),
+     ok = io:put_chars(Fd, FileMsg).
+ 
+ get_log_messages(Pid, Level, Format, Args) ->
+-- 
+1.9.3
+
