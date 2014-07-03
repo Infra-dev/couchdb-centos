@@ -8,7 +8,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -235,7 +235,7 @@ fi
 
 
 %changelog
-* Thu Jul 02 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-5
+* Thu Jul 03 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-6
 - silence stdout/stderr to prevent redundant flooding of /var/log/messages
   CouchDB already logs these messages to /var/log/couchdb/couch.log
   Instead print the log filename to stdout, in case a user who ran it
