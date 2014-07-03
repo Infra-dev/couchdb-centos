@@ -8,7 +8,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -30,6 +30,7 @@ Patch8:		couchdb-0008-Fix-for-Erlang-R16B01.patch
 Patch9:		couchdb-0009-README-was-renamed.patch
 Patch10:	couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE.patch
 Patch11:	couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
+Patch12:	couchdb-0012-Allow-passing-directories-as-the-config-sources.patch
 
 BuildRequires:  autoconf
 BuildRequires:	autoconf-archive
@@ -110,6 +111,7 @@ JavaScript acting as the default view definition language.
 %patch10 -p1 -b .default_instead_of_bsd
 %endif
 %patch11 -p1 -b .redundant_logging
+%patch12 -p1 -b .ini_dirs
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
@@ -233,9 +235,13 @@ fi
 
 
 %changelog
-* Wed Jul 02 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-3
+* Wed Jul 02 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-4
 - silence stdout/stderr to prevent redundant flooding of /var/log/messages
   CouchDB already logs these messages to /var/log/couchdb/couch.log
+  Instead print the log filename to stdout, in case a user who ran it
+  from the CLI is confused about where the messages went.
+- -couch_ini accepts .ini or a .d/ directory.  For directories it reads
+  any *.ini file.  Fixes #1002277.
 
 * Mon Jun 23 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-2
 - Fix building with sligntly older gcc/glibc
