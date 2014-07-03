@@ -8,7 +8,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -105,13 +105,13 @@ JavaScript acting as the default view definition language.
 %patch7 -p1 -b .fix_respawn
 %if 0%{?fedora}%{?el7}
 %patch8 -p1 -b .r16b01
+%patch11 -p1 -b .redundant_logging
+%patch12 -p1 -b .ini_dirs
 %endif
 %patch9 -p1 -b .renamed
 %if 0%{?fedora} > 20
 %patch10 -p1 -b .default_instead_of_bsd
 %endif
-%patch11 -p1 -b .redundant_logging
-%patch12 -p1 -b .ini_dirs
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
@@ -235,7 +235,7 @@ fi
 
 
 %changelog
-* Wed Jul 02 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-4
+* Thu Jul 02 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-5
 - silence stdout/stderr to prevent redundant flooding of /var/log/messages
   CouchDB already logs these messages to /var/log/couchdb/couch.log
   Instead print the log filename to stdout, in case a user who ran it
