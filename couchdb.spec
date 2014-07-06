@@ -243,12 +243,13 @@ fi
 
 %changelog
 * Sun Jul 06 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-7
-- Add /usr/libexec/couchdb wrapper to ExecStart from systemd
-    which executes couchdb with couchdb_t for the first time.
-  Additional fixes to selinux-policy are required,
-   see http://wtogami.fedorapeople.org/a/2014/couchdb-selinux.txt
-- Add /etc/couchdb/self.ini as last .ini
-   CouchDB writes to only the last .ini file during runtime.
+- Add /usr/libexec/couchdb wrapper to ExecStart from systemd which executes couchdb with couchdb_t for the first time.
+  Additional fixes to selinux-policy are required, see http://wtogami.fedorapeople.org/a/2014/couchdb-selinux.txt
+- Add /etc/couchdb/self.ini as last .ini, CouchDB writes to only the last .ini file during runtime.
+- default.d/ and local.d/ never worked with couchdb + systemd so we are dropping default.d/
+  default.ini and local.ini are reference configuration from upstream.
+  Users are meant to add overrides or custom configuration to local.d/*.ini files.
+  self.ini is written to by CouchDB itself and overrides the previous *.ini.
 
 * Thu Jul 03 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-6
 - silence stdout/stderr to prevent redundant flooding of /var/log/messages
