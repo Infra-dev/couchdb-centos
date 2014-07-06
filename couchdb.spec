@@ -5,7 +5,6 @@
 %{expand: %(NIF_VER=`rpm -q erlang-erts --provides | grep --color=no erl_nif_version` ; if [ "$NIF_VER" != "" ]; then echo %%global __erlang_nif_version $NIF_VER ; fi)}
 %{expand: %(DRV_VER=`rpm -q erlang-erts --provides | grep --color=no erl_drv_version` ; if [ "$DRV_VER" != "" ]; then echo %%global __erlang_drv_version $DRV_VER ; fi)}
 
-
 Name:           couchdb
 Version:        1.6.0
 Release:        6%{?dist}
@@ -19,6 +18,7 @@ Source1:        http://www.apache.org/dist/%{name}/source/%{version}/apache-%{na
 Source2:        %{name}.init
 Source3:        %{name}.service
 Source4:	%{name}.tmpfiles.conf
+Source5:	%{name}.temporary.sh
 Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:		couchdb-0002-More-directories-to-search-for-place-for-init-script.patch
 Patch3:		couchdb-0003-Install-into-erllibdir-by-default.patch
@@ -148,7 +148,13 @@ install -D -m 644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 install -D -m 755 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}.service
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/
 rm -rf %{buildroot}%{_sysconfdir}/default/
+# Temporary systemd + selinux wrapper
+# This makes the service run in couchdb_t
+install -D -m 755 %{SOURCE5} %{buildroot}%{_libexecdir}/%{name}
 %endif
+
+# CouchDB Self-modifying .ini
+echo "; COUCHDB WRITES RUNTIME CONFIG CHANGES HERE" > %{buildroot}%{_sysconfdir}/%{name}/self.ini
 
 # Remove *.la files
 find %{buildroot} -type f -name "*.la" -delete
@@ -183,7 +189,6 @@ exit 0
 %systemd_post %{name}.service
 %endif
 
-
 %preun
 %if 0%{?el5}%{?el6}
 if [ $1 = 0 ] ; then
@@ -208,6 +213,7 @@ fi
 %dir %{_sysconfdir}/%{name}/default.d
 %config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/default.ini
 %config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/local.ini
+%config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/self.ini
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %if 0%{?el7}%{?fedora}
 %{_tmpfilesdir}/%{name}.conf
@@ -226,6 +232,7 @@ fi
 %{_libdir}/erlang/lib/couch_plugins-0.1/
 %{_libdir}/erlang/lib/couch_replicator-0.1/
 %{_libdir}/erlang/lib/ejson-0.1.0/
+%{_libexecdir}/%{name}
 %{_datadir}/%{name}
 %{_mandir}/man1/%{name}.1.*
 %{_mandir}/man1/couchjs.1.*
@@ -235,6 +242,14 @@ fi
 
 
 %changelog
+* Sun Jul 06 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-7
+- Add /usr/libexec/couchdb wrapper to ExecStart from systemd
+    which executes couchdb with couchdb_t for the first time.
+  Additional fixes to selinux-policy are required,
+   see http://wtogami.fedorapeople.org/a/2014/couchdb-selinux.txt
+- Add /etc/couchdb/self.ini as last .ini
+   CouchDB writes to only the last .ini file during runtime.
+
 * Thu Jul 03 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-6
 - silence stdout/stderr to prevent redundant flooding of /var/log/messages
   CouchDB already logs these messages to /var/log/couchdb/couch.log
