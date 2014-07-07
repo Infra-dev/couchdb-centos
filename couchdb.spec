@@ -7,7 +7,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -30,7 +30,7 @@ Patch8:		couchdb-0008-Fix-for-Erlang-R16B01.patch
 Patch9:		couchdb-0009-README-was-renamed.patch
 Patch10:	couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE.patch
 Patch11:	couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
-Patch12:	couchdb-0012-Allow-passing-directories-as-the-config-sources.patch
+Patch12:	couchdb-0012-Expand-.d-directories-in-erlang.patch
 
 BuildRequires:  autoconf
 BuildRequires:	autoconf-archive
@@ -105,13 +105,14 @@ JavaScript acting as the default view definition language.
 %patch7 -p1 -b .fix_respawn
 %if 0%{?fedora}%{?el7}
 %patch8 -p1 -b .r16b01
-%patch11 -p1 -b .redundant_logging
-%patch12 -p1 -b .ini_dirs
 %endif
 %patch9 -p1 -b .renamed
 %if 0%{?fedora} > 20
 %patch10 -p1 -b .default_instead_of_bsd
 %endif
+%patch11 -p1 -b .redundant_logging
+%patch12 -p1 -b .expands_d
+
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
@@ -152,9 +153,6 @@ rm -rf %{buildroot}%{_sysconfdir}/default/
 # This makes the service run in couchdb_t
 install -D -m 755 %{SOURCE5} %{buildroot}%{_libexecdir}/%{name}
 %endif
-
-# CouchDB Self-modifying .ini
-echo "; COUCHDB WRITES RUNTIME CONFIG CHANGES HERE" > %{buildroot}%{_sysconfdir}/%{name}/self.ini
 
 # Remove *.la files
 find %{buildroot} -type f -name "*.la" -delete
@@ -211,9 +209,8 @@ fi
 %dir %{_sysconfdir}/%{name}
 %dir %{_sysconfdir}/%{name}/local.d
 %dir %{_sysconfdir}/%{name}/default.d
-%config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/default.ini
+%config %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/default.ini
 %config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/local.ini
-%config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/self.ini
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %if 0%{?el7}%{?fedora}
 %{_tmpfilesdir}/%{name}.conf
@@ -243,13 +240,18 @@ fi
 
 %changelog
 * Sun Jul 06 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-7
-- Add /usr/libexec/couchdb wrapper to ExecStart from systemd which executes couchdb with couchdb_t for the first time.
-  Additional fixes to selinux-policy are required, see http://wtogami.fedorapeople.org/a/2014/couchdb-selinux.txt
-- Add /etc/couchdb/self.ini as last .ini, CouchDB writes to only the last .ini file during runtime.
-- default.d/ and local.d/ never worked with couchdb + systemd so we are dropping default.d/
-  default.ini and local.ini are reference configuration from upstream.
-  Users are meant to add overrides or custom configuration to local.d/*.ini files.
-  self.ini is written to by CouchDB itself and overrides the previous *.ini.
+- SELinux: Use /usr/libexec/couchdb wrapper for systemd ExecStart, executes as couchdb_t
+  Additional fixes to selinux-policy are required,
+  see latest status http://wtogami.fedorapeople.org/a/2014/couchdb.txt
+- Remove -heart from ExecStart, systemd handles service runtime
+- default.ini contains default configuration from upstream.
+  It has previously warned users to not modify it as it will be overwritten on package upgrade.
+  Now package upgrades really will overwrite default.ini.
+- Configuration is read during CouchDB startup in this order:
+  default.ini -> default.d/*.ini -> local.d/*.ini -> local.ini
+  Other packages are meant to drop configuration into default.d/
+  Users can modify local.ini or add new files in local.d/
+- CouchDB runtime config changes are written to local.ini
 
 * Thu Jul 03 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-6
 - silence stdout/stderr to prevent redundant flooding of /var/log/messages
