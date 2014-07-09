@@ -7,7 +7,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -17,57 +17,57 @@ Source0:        http://www.apache.org/dist/%{name}/source/%{version}/apache-%{na
 Source1:        http://www.apache.org/dist/%{name}/source/%{version}/apache-%{name}-%{version}.tar.gz.asc
 Source2:        %{name}.init
 Source3:        %{name}.service
-Source4:	%{name}.tmpfiles.conf
-Source5:	%{name}.temporary.sh
-Patch1:		couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
-Patch2:		couchdb-0002-More-directories-to-search-for-place-for-init-script.patch
-Patch3:		couchdb-0003-Install-into-erllibdir-by-default.patch
-Patch4:		couchdb-0004-Don-t-use-bundled-libraries.patch
-Patch5:		couchdb-0005-Fixes-for-system-wide-ibrowse.patch
-Patch6:		couchdb-0006-Remove-pid-file-after-stop.patch
-Patch7:		couchdb-0007-Change-respawn-timeout-to-0.patch
-Patch8:		couchdb-0008-Fix-for-Erlang-R16B01.patch
-Patch9:		couchdb-0009-README-was-renamed.patch
-Patch10:	couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE.patch
-Patch11:	couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
-Patch12:	couchdb-0012-Expand-.d-directories-in-erlang.patch
+Source4:        %{name}.tmpfiles.conf
+Source5:        %{name}.temporary.sh
+Patch1:         couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
+Patch2:         couchdb-0002-More-directories-to-search-for-place-for-init-script.patch
+Patch3:         couchdb-0003-Install-into-erllibdir-by-default.patch
+Patch4:         couchdb-0004-Don-t-use-bundled-libraries.patch
+Patch5:         couchdb-0005-Fixes-for-system-wide-ibrowse.patch
+Patch6:         couchdb-0006-Remove-pid-file-after-stop.patch
+Patch7:         couchdb-0007-Change-respawn-timeout-to-0.patch
+Patch8:         couchdb-0008-Fix-for-Erlang-R16B01.patch
+Patch9:         couchdb-0009-README-was-renamed.patch
+Patch10:        couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE.patch
+Patch11:        couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
+Patch12:        couchdb-0012-Expand-.d-directories-in-erlang.patch
 
 BuildRequires:  autoconf
-BuildRequires:	autoconf-archive
+BuildRequires:    autoconf-archive
 BuildRequires:  automake
 BuildRequires:  libtool
-BuildRequires:	curl-devel >= 7.18.0
-BuildRequires:	erlang-erts >= R13B
+BuildRequires:    curl-devel >= 7.18.0
+BuildRequires:    erlang-erts >= R13B
 # FIXME - this time CouchDB bundled a copy of etap which is heavily different
 # from the one we're shipping
-#BuildRequires:	erlang-etap
-BuildRequires:	erlang-ibrowse >= 4.0.1
-BuildRequires:	erlang-mochiweb
-BuildRequires:	erlang-oauth >= 1.3.0
-BuildRequires:	erlang-os_mon
-BuildRequires:	erlang-snappy
-BuildRequires:	help2man
-BuildRequires:	js-devel
-BuildRequires:	libicu-devel
+#BuildRequires:    erlang-etap
+BuildRequires:    erlang-ibrowse >= 4.0.1
+BuildRequires:    erlang-mochiweb
+BuildRequires:    erlang-oauth >= 1.3.0
+BuildRequires:    erlang-os_mon
+BuildRequires:    erlang-snappy
+BuildRequires:    help2man
+BuildRequires:    js-devel
+BuildRequires:    libicu-devel
 # For /usr/bin/prove
-BuildRequires:	perl(Test::Harness)
+BuildRequires:    perl(Test::Harness)
 
-Requires:	erlang-crypto%{?_isa}
+Requires:    erlang-crypto%{?_isa}
 # Error:erlang(erlang:max/2) in R12B and earlier
 # Error:erlang(erlang:min/2) in R12B and earlier
-Requires:	erlang-erts%{?_isa} >= R13B
-Requires:	erlang-ibrowse%{?_isa} >= 4.0.1
-Requires:	erlang-inets%{?_isa}
-Requires:	erlang-kernel%{?_isa}
-Requires:	erlang-mochiweb%{?_isa}
-Requires:	erlang-oauth%{?_isa}
-Requires:	erlang-os_mon%{?_isa}
-Requires:	erlang-snappy%{?_isa}
-Requires:	erlang-ssl%{?_isa}
+Requires:    erlang-erts%{?_isa} >= R13B
+Requires:    erlang-ibrowse%{?_isa} >= 4.0.1
+Requires:    erlang-inets%{?_isa}
+Requires:    erlang-kernel%{?_isa}
+Requires:    erlang-mochiweb%{?_isa}
+Requires:    erlang-oauth%{?_isa}
+Requires:    erlang-os_mon%{?_isa}
+Requires:    erlang-snappy%{?_isa}
+Requires:    erlang-ssl%{?_isa}
 # Error:erlang(unicode:characters_to_binary/1) in R12B and earlier
-Requires:	erlang-stdlib%{?_isa} >= R13B
-Requires:	erlang-tools%{?_isa}
-Requires:	erlang-xmerl%{?_isa}
+Requires:    erlang-stdlib%{?_isa} >= R13B
+Requires:    erlang-tools%{?_isa}
+Requires:    erlang-xmerl%{?_isa}
 
 %if 0%{?el5}%{?el6}
 #Initscripts
@@ -239,7 +239,7 @@ fi
 
 
 %changelog
-* Sun Jul 06 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-7
+* Sun Jul 06 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-8
 - SELinux: Use /usr/libexec/couchdb wrapper for systemd ExecStart, executes as couchdb_t
   Additional fixes to selinux-policy are required,
   see latest status http://wtogami.fedorapeople.org/a/2014/couchdb.txt
