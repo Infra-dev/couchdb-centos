@@ -7,7 +7,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -31,6 +31,7 @@ Patch9:         couchdb-0009-README-was-renamed.patch
 Patch10:        couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE.patch
 Patch11:        couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
 Patch12:        couchdb-0012-Expand-.d-directories-in-erlang.patch
+Patch13:        couchdb-0013-Add-systemd-notification-support.patch
 
 BuildRequires:  autoconf
 BuildRequires:    autoconf-archive
@@ -62,6 +63,7 @@ Requires:    erlang-kernel%{?_isa}
 Requires:    erlang-mochiweb%{?_isa}
 Requires:    erlang-oauth%{?_isa}
 Requires:    erlang-os_mon%{?_isa}
+Requires:    erlang-sd_notify%{?_isa}
 Requires:    erlang-snappy%{?_isa}
 Requires:    erlang-ssl%{?_isa}
 # Error:erlang(unicode:characters_to_binary/1) in R12B and earlier
@@ -108,10 +110,12 @@ JavaScript acting as the default view definition language.
 %endif
 %patch9 -p1 -b .renamed
 %if 0%{?fedora} > 20
+# Workaround hard-coded Makefile.am assumptions
 %patch10 -p1 -b .default_instead_of_bsd
 %endif
 %patch11 -p1 -b .redundant_logging
 %patch12 -p1 -b .expands_d
+%patch13 -p1 -b .sd_notify
 
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
@@ -239,7 +243,10 @@ fi
 
 
 %changelog
-* Sun Jul 06 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-8
+* Wed Jul 09 2014 Warren Togami <warren@slickage.com> - 1.6.0-9
+- Add systemd notify support
+
+* Sun Jul 06 2014 Warren Togami <warren@slickage.com> - 1.6.0-8
 - SELinux: Use /usr/libexec/couchdb wrapper for systemd ExecStart, executes as couchdb_t
   Additional fixes to selinux-policy are required,
   see latest status http://wtogami.fedorapeople.org/a/2014/couchdb.txt
@@ -253,7 +260,7 @@ fi
   Users can modify local.ini or add new files in local.d/
 - CouchDB runtime config changes are written to local.ini
 
-* Thu Jul 03 2014 Warren Togami <wtogami@gmail.com> - 1.6.0-6
+* Thu Jul 03 2014 Warren Togami <warren@slickage.com> - 1.6.0-6
 - silence stdout/stderr to prevent redundant flooding of /var/log/messages
   CouchDB already logs these messages to /var/log/couchdb/couch.log
   Instead print the log filename to stdout, in case a user who ran it

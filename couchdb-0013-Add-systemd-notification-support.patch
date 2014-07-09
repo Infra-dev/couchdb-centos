@@ -1,0 +1,34 @@
+From 2969091a2ba903b9329739db886326528bfbecbe Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Mon, 7 Jul 2014 21:32:43 +0400
+Subject: [PATCH 13/13] Add systemd notification support
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+
+Load module first
+
+Function erlang:function_exported/3 looks only for modules already
+loaded. So we have to load module first. We can do it either implicitly
+by calling any function from the module (and catch for possible
+exceptions if no such module available) or explicitly.
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+---
+ src/couchdb/couch_server_sup.erl | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/couchdb/couch_server_sup.erl b/src/couchdb/couch_server_sup.erl
+index 39a5568..2d25220 100644
+--- a/src/couchdb/couch_server_sup.erl
++++ b/src/couchdb/couch_server_sup.erl
+@@ -108,6 +108,7 @@ start_server(IniFiles) ->
+ 
+     Ip = couch_config:get("httpd", "bind_address"),
+     io:format("Apache CouchDB has started. Time to relax.~n"),
++    {module, sd_notify} == code:load_file(sd_notify) andalso sd_notify:sd_notify(0, "READY=1"),
+     Uris = [get_uri(Name, Ip) || Name <- [couch_httpd, https]],
+     [begin
+         case Uri of
+-- 
+1.9.3
+

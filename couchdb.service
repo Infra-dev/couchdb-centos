@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=couchdb
 Group=couchdb
-Type=simple
+Type=notify
 StandardOutput=journal
 StandardError=journal
 Restart=always
