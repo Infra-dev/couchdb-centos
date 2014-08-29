@@ -7,7 +7,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -243,6 +243,9 @@ fi
 
 
 %changelog
+* Thu Aug 28 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-12
+- Rebuild with Erlang 17.2.1
+
 * Tue Aug 26 2014 David Tardon <dtardon@redhat.com> - 1.6.0-11
 - rebuild for ICU 53.1
 
