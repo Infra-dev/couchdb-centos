@@ -7,7 +7,7 @@
 
 Name:           couchdb
 Version:        1.6.0
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -19,6 +19,8 @@ Source2:        %{name}.init
 Source3:        %{name}.service
 Source4:        %{name}.tmpfiles.conf
 Source5:        %{name}.temporary.sh
+# FIXME remove as soon as eunit tests will be merged upstream
+Source6:        %{name}-tests-blobs.tar
 Patch1:         couchdb-0001-Do-not-gzip-doc-files-and-do-not-install-installatio.patch
 Patch2:         couchdb-0002-More-directories-to-search-for-place-for-init-script.patch
 Patch3:         couchdb-0003-Install-into-erllibdir-by-default.patch
@@ -32,6 +34,7 @@ Patch10:        couchdb-0010-Use-_DEFAULT_SOURCE-instead-of-obsolete-_BSD_SOURCE
 Patch11:        couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
 Patch12:        couchdb-0012-Expand-.d-directories-in-erlang.patch
 Patch13:        couchdb-0013-Add-systemd-notification-support.patch
+Patch14:	couchdb-0014-Add-run-script-to-execute-eunit-tests.patch
 
 BuildRequires:  autoconf
 BuildRequires:    autoconf-archive
@@ -39,9 +42,7 @@ BuildRequires:  automake
 BuildRequires:  libtool
 BuildRequires:    curl-devel >= 7.18.0
 BuildRequires:    erlang-erts >= R13B
-# FIXME - this time CouchDB bundled a copy of etap which is heavily different
-# from the one we're shipping
-#BuildRequires:    erlang-etap
+BuildRequires:    erlang-eunit >= R15B
 BuildRequires:    erlang-ibrowse >= 4.0.1
 BuildRequires:    erlang-mochiweb
 BuildRequires:    erlang-oauth >= 1.3.0
@@ -50,8 +51,6 @@ BuildRequires:    erlang-snappy
 BuildRequires:    help2man
 BuildRequires:    js-devel
 BuildRequires:    libicu-devel
-# For /usr/bin/prove
-BuildRequires:    perl(Test::Harness)
 
 Requires:    erlang-crypto%{?_isa}
 # Error:erlang(erlang:max/2) in R12B and earlier
@@ -116,20 +115,24 @@ JavaScript acting as the default view definition language.
 %patch11 -p1 -b .redundant_logging
 %patch12 -p1 -b .expands_d
 %patch13 -p1 -b .sd_notify
+%patch14 -p1 -b .no_etap
+tar xvf %{SOURCE6}
 
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
 
 # Remove bundled libraries
 rm -rf src/erlang-oauth
-# FIXME - this time CouchDB bundled a copy of etap which is heavily different
-# from the one we're shipping
-#rm -rf src/etap
 rm -rf src/ibrowse
 rm -rf src/mochiweb
 rm -rf src/snappy
+rm -rf src/etap
+rm -rf test/etap
 
-# More verbose tests
-sed -i -e "s,prove,prove -v,g" test/etap/run.tpl
+# FIXME remove as soon as eunit tests will be merged upstream
+chmod +x test/couchdb/fixtures/os_daemon_looper.escript
+chmod +x test/couchdb/fixtures/*.sh
+# This is intentional - this daemon shouldn't start
+chmod -x test/couchdb/fixtures/os_daemon_bad_perm.sh
 
 
 %build
@@ -167,13 +170,9 @@ rm -rf %{buildroot}%{_defaultdocdir}
 # Remove unneeded info-files
 rm -rf %{buildroot}%{_datadir}/info/
 
-# FIXME - this time CouchDB bundled a copy of etap which is heavily different
-# from the one we're shipping
-rm -rf %{buildroot}%{_libdir}/erlang/lib/etap/
-
 
 %check
-make check
+make check-eunit
 
 
 %pre
@@ -243,6 +242,9 @@ fi
 
 
 %changelog
+* Fri Aug 29 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-13
+- Kill fragile etap tests in favor of eunit-based test-suite
+
 * Thu Aug 28 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-12
 - Rebuild with Erlang 17.2.1
 

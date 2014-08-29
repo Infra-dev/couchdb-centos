@@ -1,12 +1,7 @@
-From c530313acb1c8ed59962eae676f919e1ea53bf96 Mon Sep 17 00:00:00 2001
 From: Robert Newson <rnewson@apache.org>
 Date: Sun, 6 Jul 2014 23:47:23 +0100
-Subject: [PATCH 12/12] Expand .d directories in erlang
+Subject: [PATCH] Expand .d directories in erlang
 
----
- bin/couchdb.tpl.in        | 26 +++++++++-----------------
- src/couchdb/couch_app.erl | 12 +++++++++++-
- 2 files changed, 20 insertions(+), 18 deletions(-)
 
 diff --git a/bin/couchdb.tpl.in b/bin/couchdb.tpl.in
 index ba034cc..ffdbb17 100644
@@ -107,6 +102,3 @@ index 42411a8..d6d8c0c 100644
      end.
  
  start_apps([]) ->
--- 
-1.9.3
-

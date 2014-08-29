@@ -1,7 +1,6 @@
-From 2969091a2ba903b9329739db886326528bfbecbe Mon Sep 17 00:00:00 2001
 From: Peter Lemenkov <lemenkov@gmail.com>
 Date: Mon, 7 Jul 2014 21:32:43 +0400
-Subject: [PATCH 13/13] Add systemd notification support
+Subject: [PATCH] Add systemd notification support
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
 
@@ -13,9 +12,6 @@ by calling any function from the module (and catch for possible
 exceptions if no such module available) or explicitly.
 
 Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
----
- src/couchdb/couch_server_sup.erl | 1 +
- 1 file changed, 1 insertion(+)
 
 diff --git a/src/couchdb/couch_server_sup.erl b/src/couchdb/couch_server_sup.erl
 index 39a5568..2d25220 100644
@@ -29,6 +25,3 @@ index 39a5568..2d25220 100644
      Uris = [get_uri(Name, Ip) || Name <- [couch_httpd, https]],
      [begin
          case Uri of
--- 
-1.9.3
-
