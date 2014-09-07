@@ -6,8 +6,8 @@
 %{expand: %(DRV_VER=`rpm -q erlang-erts --provides | grep --color=no erl_drv_version` ; if [ "$DRV_VER" != "" ]; then echo %%global __erlang_drv_version $DRV_VER ; fi)}
 
 Name:           couchdb
-Version:        1.6.0
-Release:        13%{?dist}
+Version:        1.6.1
+Release:        1%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -242,6 +242,9 @@ fi
 
 
 %changelog
+* Sun Sep 07 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.1-1
+- Ver. 1.6.1
+
 * Fri Aug 29 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.0-13
 - Kill fragile etap tests in favor of eunit-based test-suite
 
