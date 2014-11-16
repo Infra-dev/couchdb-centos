@@ -15,7 +15,6 @@ License:        ASL 2.0
 URL:            http://couchdb.apache.org/
 Source0:        http://www.apache.org/dist/%{name}/source/%{version}/apache-%{name}-%{version}.tar.gz
 Source1:        http://www.apache.org/dist/%{name}/source/%{version}/apache-%{name}-%{version}.tar.gz.asc
-Source2:        %{name}.init
 Source3:        %{name}.service
 Source4:        %{name}.tmpfiles.conf
 Source5:        %{name}.temporary.sh
@@ -70,15 +69,9 @@ Requires:    erlang-stdlib%{?_isa} >= R13B
 Requires:    erlang-tools%{?_isa}
 Requires:    erlang-xmerl%{?_isa}
 
-%if 0%{?el5}%{?el6}
-#Initscripts
-Requires(post): chkconfig
-Requires(preun): chkconfig initscripts
-%else
 Requires(pre): systemd
 Requires(post): systemd
 Requires(preun): systemd
-%endif
 
 # Users and groups
 Requires(pre): shadow-utils
@@ -104,9 +97,7 @@ JavaScript acting as the default view definition language.
 %patch5 -p1 -b .workaround_for_system_wide_ibrowse
 %patch6 -p1 -b .remove_pid_file
 %patch7 -p1 -b .fix_respawn
-%if 0%{?fedora}%{?el7}
 %patch8 -p1 -b .r16b01
-%endif
 %patch9 -p1 -b .renamed
 %if 0%{?fedora} > 20
 # Workaround hard-coded Makefile.am assumptions
@@ -144,22 +135,15 @@ make %{?_smp_mflags}
 %install
 make install DESTDIR=%{buildroot}
 
-%if 0%{?el5}%{?el6}
-# Use /etc/sysconfig instead of /etc/default
-mv %{buildroot}%{_sysconfdir}/{default,sysconfig}
-# Install our custom couchdb initscript
-install -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/%{name}
-%else
-# Install /etc/tmpfiles.d entry
+# Install tmpfiles.d entry
 install -D -m 644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 # Install systemd entry
-install -D -m 755 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}.service
+install -D -m 644 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}.service
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/
 rm -rf %{buildroot}%{_sysconfdir}/default/
 # Temporary systemd + selinux wrapper
 # This makes the service run in couchdb_t
 install -D -m 755 %{SOURCE5} %{buildroot}%{_libexecdir}/%{name}
-%endif
 
 # Remove *.la files
 find %{buildroot} -type f -name "*.la" -delete
@@ -184,27 +168,14 @@ exit 0
 
 
 %post
-%if 0%{?el5}%{?el6}
-/sbin/chkconfig --add %{name}
-%else
 %systemd_post %{name}.service
-%endif
 
 %preun
-%if 0%{?el5}%{?el6}
-if [ $1 = 0 ] ; then
-    /sbin/service %{name} stop >/dev/null 2>&1
-    /sbin/chkconfig --del %{name}
-fi
-%else
 %systemd_preun %{name}.service
-%endif
 
 
 %postun
-%if 0%{?el7}%{?fedora}
 %systemd_postun_with_restart %{name}.service
-%endif
 
 
 %files
@@ -215,13 +186,8 @@ fi
 %config %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/default.ini
 %config(noreplace) %attr(0644, %{name}, %{name}) %{_sysconfdir}/%{name}/local.ini
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%if 0%{?el7}%{?fedora}
 %{_tmpfilesdir}/%{name}.conf
 %{_unitdir}/%{name}.service
-%else
-%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
-%{_initrddir}/%{name}
-%endif
 %{_bindir}/%{name}
 %{_bindir}/couch-config
 %{_bindir}/couchjs
@@ -242,6 +208,10 @@ fi
 
 
 %changelog
+* Fri Nov 14 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.1-3
+- Fix systemd unit file permissions (755 -> 644)
+- Remove EL5,EL6 support
+
 * Tue Nov 04 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.1-2
 - Rebuild for Erlang 17.3.3
 
