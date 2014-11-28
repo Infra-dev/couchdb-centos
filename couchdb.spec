@@ -7,7 +7,7 @@
 
 Name:           couchdb
 Version:        1.6.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -34,22 +34,24 @@ Patch11:        couchdb-0011-Silence-redundant-logging-to-stdout-stderr.patch
 Patch12:        couchdb-0012-Expand-.d-directories-in-erlang.patch
 Patch13:        couchdb-0013-Add-systemd-notification-support.patch
 Patch14:	couchdb-0014-Add-run-script-to-execute-eunit-tests.patch
+Patch15:	couchdb-0015-Update-jquery.ui-to-1.10.4-version.patch
 
-BuildRequires:  autoconf
-BuildRequires:    autoconf-archive
-BuildRequires:  automake
-BuildRequires:  libtool
-BuildRequires:    curl-devel >= 7.18.0
-BuildRequires:    erlang-erts >= R13B
-BuildRequires:    erlang-eunit >= R15B
-BuildRequires:    erlang-ibrowse >= 4.0.1
-BuildRequires:    erlang-mochiweb
-BuildRequires:    erlang-oauth >= 1.3.0
-BuildRequires:    erlang-os_mon
-BuildRequires:    erlang-snappy
-BuildRequires:    help2man
-BuildRequires:    js-devel
-BuildRequires:    libicu-devel
+BuildRequires: autoconf
+BuildRequires: autoconf-archive
+BuildRequires: automake
+BuildRequires: libtool
+BuildRequires: curl-devel >= 7.18.0
+BuildRequires: erlang-erts >= R13B
+BuildRequires: erlang-eunit >= R15B
+BuildRequires: erlang-ibrowse >= 4.0.1
+BuildRequires: erlang-mochiweb
+BuildRequires: erlang-oauth >= 1.3.0
+BuildRequires: erlang-os_mon
+BuildRequires: erlang-snappy
+BuildRequires: help2man
+BuildRequires: js-devel
+BuildRequires: libicu-devel
+BuildRequires: systemd
 
 Requires:    erlang-crypto%{?_isa}
 # Error:erlang(erlang:max/2) in R12B and earlier
@@ -107,6 +109,7 @@ JavaScript acting as the default view definition language.
 %patch12 -p1 -b .expands_d
 %patch13 -p1 -b .sd_notify
 %patch14 -p1 -b .no_etap
+%patch15 -p1 -b .cve-2010-5312
 tar xvf %{SOURCE6}
 
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
@@ -208,6 +211,10 @@ exit 0
 
 
 %changelog
+* Thu Nov 27 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.1-4
+- Fix CVE-2010-5312 couchdb: jquery-ui: XSS vulnerability in jQuery.ui.dialog
+  title option (rhbz #1166767)
+
 * Fri Nov 14 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.1-3
 - Fix systemd unit file permissions (755 -> 644)
 - Remove EL5,EL6 support
