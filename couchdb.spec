@@ -7,7 +7,7 @@
 
 Name:           couchdb
 Version:        1.6.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A document database server, accessible via a RESTful JSON API
 
 Group:          Applications/Databases
@@ -211,6 +211,9 @@ exit 0
 
 
 %changelog
+* Mon Jan 26 2015 David Tardon <dtardon@redhat.com> - 1.6.1-5
+- rebuild for ICU 54.1
+
 * Thu Nov 27 2014 Peter Lemenkov <lemenkov@gmail.com> - 1.6.1-4
 - Fix CVE-2010-5312 couchdb: jquery-ui: XSS vulnerability in jQuery.ui.dialog
   title option (rhbz #1166767)
