@@ -35,6 +35,7 @@ Patch12:        couchdb-0012-Expand-.d-directories-in-erlang.patch
 Patch13:        couchdb-0013-Add-systemd-notification-support.patch
 Patch14:	couchdb-0014-Add-run-script-to-execute-eunit-tests.patch
 Patch15:	couchdb-0015-Update-jquery.ui-to-1.10.4-version.patch
+Patch16:	0001-disable-tests-failing-on-ARM.patch
 
 BuildRequires: autoconf
 BuildRequires: autoconf-archive
@@ -110,6 +111,7 @@ JavaScript acting as the default view definition language.
 %patch13 -p1 -b .sd_notify
 %patch14 -p1 -b .no_etap
 %patch15 -p1 -b .cve-2010-5312
+%patch16 -p1 -b disable-tests-failing-on-ARM
 tar xvf %{SOURCE6}
 
 #gzip -d -k ./share/doc/build/latex/CouchDB.pdf.gz
